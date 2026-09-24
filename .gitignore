@@ -3,3 +3,5 @@ node_modules/
 
 # Legacy single-file artifact; the generated version lives in guides/
 /08-stripe-billing-for-saas.html
+.vercel
+.env*
