@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jev &amp; System One Decisions — Learning Center</title>
+<meta name="description" content="Stop asking an LLM for JSON and hoping. Send typed questions, get calibrated answers, and let your code make the call — in about a tenth of a second, for a fraction of a cent.">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="11-jev-system-one-decisions">
+<header class="topbar">
+  <a class="homebtn" href="../index.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/></svg>Home</a>
+  <span class="brand">Jev &amp; System One Decisions</span>
+  <button id="themeToggle" title="Toggle dark / light" aria-label="Toggle dark and light theme">
+    <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <span id="themeLabel">Dark</span>
+  </button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<details id="toc" class="toc" open>
+<summary class="tocsum">Contents<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#the-analogy-table" data-sec="the-analogy-table" class="sub">The analogy table</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--what-jev-is-and-is-not" data-sec="part-1--what-jev-is-and-is-not">Part 1 — What Jev Is (and Is Not)</a><a href="#11-it-is-a-decision-layer-not-a-model-you-chat-with" data-sec="11-it-is-a-decision-layer-not-a-model-you-chat-with" class="sub">1.1 It is a decision layer, not a model you chat with</a><a href="#12-it-is-not-a-drop-in-replacement-for-your-coding-agents-model" data-sec="12-it-is-not-a-drop-in-replacement-for-your-coding-agents-model" class="sub">1.2 It is not a drop-in replacement for your coding agent&#39;s model</a><a href="#13-the-three-architectures-and-which-one-jev-is-for" data-sec="13-the-three-architectures-and-which-one-jev-is-for" class="sub">1.3 The three architectures, and which one Jev is for</a><a href="#part-2--the-three-primitives-precisely" data-sec="part-2--the-three-primitives-precisely">Part 2 — The Three Primitives, Precisely</a><a href="#21-choice--pick-one-option-from-a-set" data-sec="21-choice--pick-one-option-from-a-set" class="sub">2.1 Choice — pick one option from a set</a><a href="#22-score--a-position-on-a-rubric" data-sec="22-score--a-position-on-a-rubric" class="sub">2.2 Score — a position on a rubric</a><a href="#23-noul--one-yesno-judgment" data-sec="23-noul--one-yesno-judgment" class="sub">2.3 Noul — one yes/no judgment</a><a href="#24-asking-several-at-once-the-thing-that-makes-jev-cheap" data-sec="24-asking-several-at-once-the-thing-that-makes-jev-cheap" class="sub">2.4 Asking several at once (the thing that makes Jev cheap)</a><a href="#part-3--install-four-paths-from-zero-to-first-decision" data-sec="part-3--install-four-paths-from-zero-to-first-decision">Part 3 — Install: Four Paths from Zero to First Decision</a><a href="#30-path-zero--the-playground-no-install-60-seconds" data-sec="30-path-zero--the-playground-no-install-60-seconds" class="sub">3.0 Path zero — the Playground (no install, 60 seconds)</a><a href="#31-path-one--raw-http-with-curl" data-sec="31-path-one--raw-http-with-curl" class="sub">3.1 Path one — raw HTTP with cURL</a><a href="#32-path-two--python-sdk" data-sec="32-path-two--python-sdk" class="sub">3.2 Path two — Python SDK</a><a href="#33-path-three--typescript--javascript-sdk" data-sec="33-path-three--typescript--javascript-sdk" class="sub">3.3 Path three — TypeScript / JavaScript SDK</a><a href="#34-path-four--let-your-coding-agent-do-it-the-agent-skill" data-sec="34-path-four--let-your-coding-agent-do-it-the-agent-skill" class="sub">3.4 Path four — let your coding agent do it (the agent skill)</a><a href="#35-optional--call-jev-through-a-gateway" data-sec="35-optional--call-jev-through-a-gateway" class="sub">3.5 Optional — call Jev through a gateway</a><a href="#part-4--state-craft-the-input-is-the-whole-game" data-sec="part-4--state-craft-the-input-is-the-whole-game">Part 4 — State Craft: The Input Is the Whole Game</a><a href="#41-prefer-an-object-with-named-fields" data-sec="41-prefer-an-object-with-named-fields" class="sub">4.1 Prefer an object with named fields</a><a href="#42-filter-ruthlessly" data-sec="42-filter-ruthlessly" class="sub">4.2 Filter ruthlessly</a><a href="#43-put-policy-in-state-judgment-in-the-question" data-sec="43-put-policy-in-state-judgment-in-the-question" class="sub">4.3 Put policy in state, judgment in the question</a><a href="#44-structured-instructions-when-a-string-wont-do" data-sec="44-structured-instructions-when-a-string-wont-do" class="sub">4.4 Structured instructions when a string won&#39;t do</a><a href="#part-5--confidence-and-probabilities-how-to-act-on-uncertainty" data-sec="part-5--confidence-and-probabilities-how-to-act-on-uncertainty">Part 5 — Confidence and Probabilities: How to Act on Uncertainty</a><a href="#51-what-confidence-actually-is" data-sec="51-what-confidence-actually-is" class="sub">5.1 What confidence actually is</a><a href="#52-probability-is-not-accuracy" data-sec="52-probability-is-not-accuracy" class="sub">5.2 Probability is not accuracy</a><a href="#53-the-three-band-pattern" data-sec="53-the-three-band-pattern" class="sub">5.3 The three-band pattern</a><a href="#54-rank-with-probabilities-gate-with-confidence" data-sec="54-rank-with-probabilities-gate-with-confidence" class="sub">5.4 Rank with probabilities, gate with confidence</a><a href="#55-a-checklist-for-using-confidence-well" data-sec="55-a-checklist-for-using-confidence-well" class="sub">5.5 A checklist for using confidence well</a><a href="#part-6--the-four-patterns-that-cover-most-work" data-sec="part-6--the-four-patterns-that-cover-most-work">Part 6 — The Four Patterns That Cover Most Work</a><a href="#61-speculative-fan-out" data-sec="61-speculative-fan-out" class="sub">6.1 Speculative fan-out</a><a href="#62-confidence-gated-routing" data-sec="62-confidence-gated-routing" class="sub">6.2 Confidence-gated routing</a><a href="#63-composite-scoring" data-sec="63-composite-scoring" class="sub">6.3 Composite scoring</a><a href="#64-intent-routing" data-sec="64-intent-routing" class="sub">6.4 Intent routing</a><a href="#part-7--jev-inside-a-real-nextjs-saas-a-worked-example" data-sec="part-7--jev-inside-a-real-nextjs-saas-a-worked-example">Part 7 — Jev Inside a Real Next.js SaaS (a Worked Example)</a><a href="#71-the-four-insertion-points" data-sec="71-the-four-insertion-points" class="sub">7.1 The four insertion points</a><a href="#72-put-all-the-questions-in-one-file" data-sec="72-put-all-the-questions-in-one-file" class="sub">7.2 Put all the questions in one file</a><a href="#73-the-server-side-call" data-sec="73-the-server-side-call" class="sub">7.3 The server-side call</a><a href="#74-the-quality-gate-in-front-of-the-deliverable" data-sec="74-the-quality-gate-in-front-of-the-deliverable" class="sub">7.4 The quality gate in front of the deliverable</a><a href="#75-rag-reranking-without-a-second-model" data-sec="75-rag-reranking-without-a-second-model" class="sub">7.5 RAG reranking, without a second model</a><a href="#part-8--verification-guardrails-and-eval-loops" data-sec="part-8--verification-guardrails-and-eval-loops">Part 8 — Verification, Guardrails, and Eval Loops</a><a href="#81-jev-as-a-guardrail-around-your-llm" data-sec="81-jev-as-a-guardrail-around-your-llm" class="sub">8.1 Jev as a guardrail around your LLM</a><a href="#82-verification-is-a-first-class-use-case" data-sec="82-verification-is-a-first-class-use-case" class="sub">8.2 Verification is a first-class use case</a><a href="#83-close-the-loop-jev-as-the-scorer-in-your-eval-suite" data-sec="83-close-the-loop-jev-as-the-scorer-in-your-eval-suite" class="sub">8.3 Close the loop: Jev as the scorer in your eval suite</a><a href="#84-comparing-jev-against-an-llm-on-the-same-questions" data-sec="84-comparing-jev-against-an-llm-on-the-same-questions" class="sub">8.4 Comparing Jev against an LLM on the same questions</a><a href="#part-9--what-its-good-for-and-where-it-breaks" data-sec="part-9--what-its-good-for-and-where-it-breaks">Part 9 — What It&#39;s Good For, and Where It Breaks</a><a href="#91-where-jev-fits" data-sec="91-where-jev-fits" class="sub">9.1 Where Jev fits</a><a href="#92-where-it-breaks--the-jaggedness-list" data-sec="92-where-it-breaks--the-jaggedness-list" class="sub">9.2 Where it breaks — the jaggedness list</a><a href="#93-the-decision-table" data-sec="93-the-decision-table" class="sub">9.3 The decision table</a><a href="#part-10--cost-rate-limits-and-data-handling" data-sec="part-10--cost-rate-limits-and-data-handling">Part 10 — Cost, Rate Limits, and Data Handling</a><a href="#101-pricing" data-sec="101-pricing" class="sub">10.1 Pricing</a><a href="#102-vendor-claims-clearly-labeled" data-sec="102-vendor-claims-clearly-labeled" class="sub">10.2 Vendor claims, clearly labeled</a><a href="#103-rate-limits-and-errors" data-sec="103-rate-limits-and-errors" class="sub">10.3 Rate limits and errors</a><a href="#104-data-handling" data-sec="104-data-handling" class="sub">10.4 Data handling</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheet" data-sec="cheat-sheet">Cheat Sheet</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#production-checklist" data-sec="production-checklist">Production Checklist</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--docs" data-sec="written-references--docs">Written References &amp; Docs</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#next-steps-in-order" data-sec="next-steps-in-order" class="sub">Next steps, in order</a><a href="#verification-note" data-sec="verification-note">Verification Note</a><a href="#your-setup-notes-mac--vs-code--opencode" data-sec="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</a></div>
+</nav>
+</details>
+<main>
+<h1>Jev &amp; System One Decisions</h1>
+<div class="callout lede">Stop asking an LLM for JSON and hoping. Send typed questions, get calibrated answers, and let your code make the call — in about a tenth of a second, for a fraction of a cent.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>Every AI feature you have shipped so far has one shape: you write a prompt, you get a paragraph back, and then you write parsing code to turn the paragraph into something your program can actually branch on. That parsing layer is where the bugs live — the model wraps JSON in markdown fences, invents a field, returns &quot;N/A&quot;, or answers a <em>slightly different question</em> than you asked.</p>
+<p>Jev is a different contract entirely. It is not a chat model. It is a <strong>decision model</strong>. You give it a <em>state</em> (some text or JSON) and a set of <em>typed questions</em>, and it returns typed answers with probabilities. No prose. No parsing. Nothing to validate against a schema, because the schema is the answer space you defined.</p>
+<div class="codewrap"><pre data-lang=""><code>   USER MESSAGE / TICKET / CRAWLER OUTPUT / AGENT TRACE
+                     │
+                     ▼
+   ┌────────────────────────────────────────────────────────┐
+   │  YOUR APP  —  deterministic code owns the control flow │
+   │  build a small `state` (only what the question needs)  │
+   └───────────────────────┬────────────────────────────────┘
+                           │  ONE HTTPS POST
+                           ▼
+   ┌────────────────────────────────────────────────────────┐
+   │  POST https://api.typesafe.ai/v1/systemone             │
+   │                                                        │
+   │   state: &quot;...&quot;                                         │
+   │   questions: {                                         │
+   │     department:  Choice  → one option from a set       │
+   │     frustration: Score   → a level on a rubric         │
+   │     is_urgent:   Noul    → probability the answer is   │
+   │                            yes (0.0 → 1.0)             │
+   │   }                                                    │
+   │                                                        │
+   │   every question evaluated IN PARALLEL against state   │
+   └───────────────────────┬────────────────────────────────┘
+                           │  answers + probabilities + confidence
+                           ▼
+   ┌────────────────────────────────────────────────────────┐
+   │  answers.department.choice      = &quot;technical&quot;          │
+   │  answers.department.confidence  = 0.78                 │
+   │  answers.frustration.score      = 1.0                  │
+   │  answers.is_urgent.noul         = 0.94                 │
+   └───────────────────────┬────────────────────────────────┘
+                           ▼
+        branch / route / queue / block / escalate / ask a human
+        — with thresholds YOU wrote, in ordinary `if` statements</code></pre></div>
+<p>The single most important idea in this paper: <strong>Jev supplies the judgment; your code supplies the decision.</strong> Jev tells you what it thinks and how sure it is. It never takes an action, never calls a tool, never writes text. That constraint is the feature — it is what makes it safe to put in a hot request path.</p>
+<p>The natural comparison is three ways to make the same call:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Rules-based code</th>
+<th>Generative LLM</th>
+<th>Jev (System One)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Output</td>
+<td>Deterministic value</td>
+<td>Text, which you then parse</td>
+<td>Typed value + probability + confidence</td>
+</tr>
+<tr>
+<td>Good at</td>
+<td>Anything you can specify exactly</td>
+<td>Writing, summarizing, reasoning</td>
+<td>Repeated bounded judgments</td>
+</tr>
+<tr>
+<td>Unknown input</td>
+<td>Falls through the cracks</td>
+<td>Usually copes, sometimes hallucinates</td>
+<td>Returns a probability, admits uncertainty</td>
+</tr>
+<tr>
+<td>Failure mode</td>
+<td>Silently wrong bucket</td>
+<td>Confident, well-formatted nonsense</td>
+<td>Low confidence you can gate on</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Microseconds</td>
+<td>Seconds</td>
+<td>70–500 ms (vendor figure)</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>Free</td>
+<td>Per output token</td>
+<td>Per <strong>input</strong> token; output tokens free</td>
+</tr>
+</tbody></table>
+<h3 id="the-analogy-table">The analogy table</h3>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English analogy</th>
+<th>Why it matters to you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>State</strong></td>
+<td>The briefing folder handed to an expert before they answer</td>
+<td>Everything the questions read. Include only what&#39;s relevant — extra context <em>lowers</em> accuracy</td>
+</tr>
+<tr>
+<td><strong>Choice</strong></td>
+<td>A multiple-choice question</td>
+<td>Returns <code>choice</code>, the full <code>probabilities</code> map, and <code>confidence</code></td>
+</tr>
+<tr>
+<td><strong>Score</strong></td>
+<td>&quot;Rate this on a 1–5 scale&quot; with written descriptions of each point</td>
+<td>Returns <code>score</code> (can land between levels), <code>probabilities</code>, <code>confidence</code>, and <code>legend</code></td>
+</tr>
+<tr>
+<td><strong>Noul</strong></td>
+<td>A yes/no question</td>
+<td>Returns one number 0→1: the probability of &quot;yes&quot;. No separate confidence</td>
+</tr>
+<tr>
+<td><strong>Probability</strong></td>
+<td>The model&#39;s bet</td>
+<td>Use it to rank, or to threshold</td>
+</tr>
+<tr>
+<td><strong>Confidence</strong></td>
+<td>How peaked the distribution is</td>
+<td>High = act. Middle = confirm. Low = escalate to a human</td>
+</tr>
+<tr>
+<td><strong>System One</strong></td>
+<td>Kahneman&#39;s fast, intuitive System 1</td>
+<td>Fast snap judgments, not slow deliberation</td>
+</tr>
+<tr>
+<td><strong>RLCD</strong></td>
+<td>The training method, &quot;Reinforcement Learning for Calibrated Decisions&quot;</td>
+<td>Why the probabilities are supposed to mean something</td>
+</tr>
+<tr>
+<td><strong>Speculative fan-out</strong></td>
+<td>Ask every question you <em>might</em> need, ignore the ones you don&#39;t</td>
+<td>One round trip instead of many</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The one-sentence version:</strong> Jev is a frontier-intelligence <em>function call</em> — unstructured state in, typed probabilistic decisions out. If you have ever written <code>JSON.parse(response.choices[0].message.content)</code>, Jev exists to delete that line.</p>
+</blockquote>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>Jev is not a chatbot and not a coding model.</strong> It does not write text or call tools. It answers typed questions about a state. Do not try to swap it in behind your coding agent.</li>
+<li><strong>Three primitives cover almost everything:</strong> <code>Choice</code> (which of these?), <code>Score</code> (how much on this scale?), <code>Noul</code> (is this true?). Mix them freely in one request.</li>
+<li><strong>One request, many questions.</strong> Questions run in parallel; adding them barely changes latency. Ask speculative questions and let your code ignore the irrelevant ones.</li>
+<li><strong>Keep questions atomic.</strong> &quot;Is this refund request valid?&quot; hides three judgments. Ask &quot;Did they request a refund?&quot;, &quot;Is there a duplicate charge?&quot;, &quot;Does the policy cover it?&quot; and combine in code.</li>
+<li><strong>Confidence is a second decision axis.</strong> Above your threshold, act. Below it, escalate to a human or a stronger model. Thresholds differ by the cost of being wrong.</li>
+<li><strong>Install in one of four ways:</strong> the Playground (no code), raw HTTP/cURL, the Python SDK (<code>pip install typesafe-sdk</code>), or the TypeScript SDK (<code>npm install @typesafe-ai/sdk</code>). There is also an agent skill for your coding agent.</li>
+<li><strong>Real endpoint is <code>https://api.typesafe.ai/v1/systemone</code>.</strong> Model name <code>jev-latest</code>. Price is <strong>$42 per billion input tokens</strong>; output tokens are free.</li>
+<li><strong>Jev does not count, do math, compare dates, or generate.</strong> Do those in code. It reads literally, so say exactly what you mean.</li>
+<li><strong>Put your questions and thresholds in one file</strong> so a human can review the policy without spelunking through your app.</li>
+<li><strong>Start with one low-stakes decision.</strong> A classification. Measure it against twenty labeled examples. Then expand.</li>
+</ol>
+<p>If you read nothing else, read <strong>Part 2 (the primitives)</strong> and <strong>Part 5 (confidence)</strong>. Those two are where the value is.</p>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>A TypeSafe account. Sign in at <code>https://console.typesafe.ai/</code> with the same account you use for the docs.</li>
+<li>An API key from <code>https://console.typesafe.ai/keys</code>, exported as <code>TYPESAFE_API_KEY</code>. <strong>Server-side only.</strong> Never in browser code, never in a repo.</li>
+<li><strong>Python 3.10+</strong> if you take the Python path (<code>python3 --version</code>).</li>
+<li><strong>Node.js 20+</strong> if you take the TypeScript path (<code>node --version</code>).</li>
+<li><code>curl</code> for the smoke test (preinstalled on macOS).</li>
+<li>Some text to judge. Jev is text-only: strings, JSON objects, or arrays of text. <strong>Images, audio, and video are not accepted</strong> — pre-process them into text first.</li>
+</ul>
+<blockquote>
+<p><strong>Cost reality:</strong> you pay per <em>input</em> token at $42 per billion ($0.042 per million). A support ticket plus six questions is roughly 500 tokens, so about <strong>$0.00002 per decision</strong>. Output tokens are free. This is cheap enough that the bottleneck is your design, not your bill.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--what-jev-is-and-is-not"><h2 id="part-1--what-jev-is-and-is-not">Part 1 — What Jev Is (and Is Not)</h2>
+<h3 id="11-it-is-a-decision-layer-not-a-model-you-chat-with">1.1 It is a decision layer, not a model you chat with</h3>
+<p>Jev is TypeSafe AI&#39;s first <strong>System One model</strong>. TypeSafe&#39;s bet is that most AI in production will be machine-to-machine: code asking a model for a narrow judgment many times a second. So Jev optimizes for a software interface rather than a conversation.</p>
+<p>Concretely:</p>
+<ul>
+<li><strong>It does not generate text.</strong> Not even explanations of its reasoning. If you want a rationale, you ask a follow-up <code>Noul</code> (&quot;Does the answer depend on the refund policy?&quot;), not &quot;why?&quot;.</li>
+<li><strong>It cannot return a value outside the schema you supplied.</strong> Every answer is a distribution over <em>your</em> options or <em>your</em> levels. There is no field for it to hallucinate into.</li>
+<li><strong>It is stateless.</strong> Every request stands alone. There is no session, no memory, no system prompt to preserve.</li>
+<li><strong>It always exposes uncertainty.</strong> Choice and Score answers carry <code>confidence</code>; Noul answers are a probability to begin with.</li>
+</ul>
+<p>TypeSafe trains Jev with <strong>RLCD</strong> — Reinforcement Learning for Calibrated Decisions — instead of RLHF. RLHF optimizes for what humans <em>prefer to read</em>, which is how you get sycophancy and confident-sounding nonsense. RLCD optimizes for probabilities that track outcomes: things the model assigns 0.8 to should be right about 80% of the time across many predictions. That calibration is what lets you write <code>if confidence &lt; 0.5: escalate()</code> and have it mean something.</p>
+<h3 id="12-it-is-not-a-drop-in-replacement-for-your-coding-agents-model">1.2 It is not a drop-in replacement for your coding agent&#39;s model</h3>
+<p>This trips people up, so the TypeSafe docs have a dedicated page for it. Jev has no <code>model: &quot;jev-latest&quot;</code> setting for Claude Code, Cursor, or opencode. Those tools need a model that streams text, edits files, and calls tools. Jev does none of that.</p>
+<p>What you <em>do</em> with Jev is write code — using your normal coding agent — that calls Jev for the decisions inside your product. The two systems solve different problems and coexist.</p>
+<blockquote>
+<p><strong>Corollary:</strong> if a tutorial tells you to point your coding agent at Jev, close the tab.</p>
+</blockquote>
+<h3 id="13-the-three-architectures-and-which-one-jev-is-for">1.3 The three architectures, and which one Jev is for</h3>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Who owns the control flow</th>
+<th>Failure mode</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Traditional software</td>
+<td>Code</td>
+<td>Breaks on inputs nobody specified</td>
+</tr>
+<tr>
+<td>LLM agent</td>
+<td>The model, in a loop</td>
+<td>Goes off the rails; needs a human nearby</td>
+</tr>
+<tr>
+<td><strong>AI-powered software (Jev)</strong></td>
+<td><strong>Code</strong></td>
+<td>A single judgment is wrong, and can be retried or gated</td>
+</tr>
+</tbody></table>
+<p>Jev is the third row. You keep the workflow in code — a pipeline, a route handler, a job — and you drop in a decision wherever a rule would be too brittle and a paragraph would be too vague.</p>
+<hr>
+</section><section id="part-2--the-three-primitives-precisely"><h2 id="part-2--the-three-primitives-precisely">Part 2 — The Three Primitives, Precisely</h2>
+<p>Everything in Jev is one of three question types. Pick by the <em>shape</em> of the answer you need, not by topic.</p>
+<table>
+<thead>
+<tr>
+<th>Primitive</th>
+<th>The question it answers</th>
+<th>Answer fields</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Choice</strong></td>
+<td>Which one of these options?</td>
+<td><code>choice</code>, <code>probabilities</code>, <code>confidence</code></td>
+</tr>
+<tr>
+<td><strong>Score</strong></td>
+<td>Where on this ordered scale?</td>
+<td><code>score</code>, <code>legend</code>, <code>probabilities</code>, <code>confidence</code></td>
+</tr>
+<tr>
+<td><strong>Noul</strong></td>
+<td>Is this statement true?</td>
+<td><code>noul</code> (0 → 1)</td>
+</tr>
+</tbody></table>
+<h3 id="21-choice--pick-one-option-from-a-set">2.1 Choice — pick one option from a set</h3>
+<p>Use it when the answer is a member of a fixed list with no order between the members: which team, which category, which language, which model.</p>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;state&quot;: &quot;My running shoes arrived in the wrong size. Can I swap them for a size 10?&quot;,
+  &quot;model&quot;: &quot;jev-latest&quot;,
+  &quot;questions&quot;: {
+    &quot;department&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Which team should handle this?&quot;,
+      &quot;criteria&quot;: {
+        &quot;returns&quot;: &quot;Exchanges, wrong or damaged items&quot;,
+        &quot;shipping&quot;: &quot;Delivery status, delays, lost packages&quot;,
+        &quot;billing&quot;: &quot;Charges, invoices, payment problems&quot;
+      }
+    }
+  }
+}</code></pre></div>
+<p>The response gives you the winner <em>and</em> the whole distribution:</p>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;model&quot;: &quot;jev-1.13.0&quot;,
+  &quot;answers&quot;: {
+    &quot;department&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;choice&quot;: &quot;returns&quot;,
+      &quot;confidence&quot;: 1.0,
+      &quot;probabilities&quot;: { &quot;shipping&quot;: 0.0, &quot;returns&quot;: 1.0, &quot;billing&quot;: 0.0 }
+    }
+  },
+  &quot;usage&quot;: { &quot;input_tokens&quot;: 328, &quot;output_tokens&quot;: 34 }
+}</code></pre></div>
+<p>Two practical notes:</p>
+<ul>
+<li><strong>A Choice can hold up to 255 options.</strong> Give the model the whole taxonomy, not a shortlist. Descriptions cost a few tokens each; guessing wrong costs a re-run.</li>
+<li><strong>Always offer an out.</strong> Add <code>other</code> or <code>none of the above</code> when the set might not cover every input, otherwise you force a bad match.</li>
+</ul>
+<p>When two options keep getting confused, upgrade their descriptions from strings to structured objects with <code>what</code>, <code>not_for</code>, and <code>examples</code>:</p>
+<div class="codewrap"><pre data-lang="json"><code>&quot;criteria&quot;: {
+  &quot;return_policy&quot;: {
+    &quot;what&quot;: &quot;Whether and how an item can be returned&quot;,
+    &quot;not_for&quot;: &quot;Progress of a return already sent&quot;,
+    &quot;examples&quot;: [&quot;Can I return shoes I've worn once?&quot;, &quot;How long do I have to return an order?&quot;]
+  },
+  &quot;return_status&quot;: {
+    &quot;what&quot;: &quot;Progress of a return already sent&quot;,
+    &quot;not_for&quot;: &quot;Whether and how an item can be returned&quot;,
+    &quot;examples&quot;: [&quot;Has my return arrived yet?&quot;, &quot;When will my refund be paid?&quot;]
+  }
+}</code></pre></div>
+<h3 id="22-score--a-position-on-a-rubric">2.2 Score — a position on a rubric</h3>
+<p>Use it when the answer is a point on a spectrum you can describe in words: bug severity, customer frustration, lead quality, report completeness.</p>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;state&quot;: &quot;The export button crashes the settings page in Safari. It works in Chrome, but a few of our customers only use Safari.&quot;,
+  &quot;model&quot;: &quot;jev-latest&quot;,
+  &quot;questions&quot;: {
+    &quot;bug_severity&quot;: {
+      &quot;type&quot;: &quot;score&quot;,
+      &quot;instructions&quot;: &quot;How severe is the reported issue?&quot;,
+      &quot;criteria&quot;: [
+        &quot;Cosmetic; no impact to functionality&quot;,
+        &quot;Broken or degraded feature, but workaround exists&quot;,
+        &quot;Blocking issue; no workaround exists&quot;
+      ]
+    }
+  }
+}</code></pre></div>
+<p>Response:</p>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;model&quot;: &quot;jev-1.13.0&quot;,
+  &quot;answers&quot;: {
+    &quot;bug_severity&quot;: {
+      &quot;type&quot;: &quot;score&quot;,
+      &quot;score&quot;: 1.43,
+      &quot;confidence&quot;: 0.35,
+      &quot;legend&quot;: {
+        &quot;0&quot;: &quot;Cosmetic; no impact to functionality&quot;,
+        &quot;1&quot;: &quot;Broken or degraded feature, but workaround exists&quot;,
+        &quot;2&quot;: &quot;Blocking issue; no workaround exists&quot;
+      },
+      &quot;probabilities&quot;: { &quot;0&quot;: 0.0, &quot;1&quot;: 0.57, &quot;2&quot;: 0.43 }
+    }
+  },
+  &quot;usage&quot;: { &quot;input_tokens&quot;: 332, &quot;output_tokens&quot;: 18 }
+}</code></pre></div>
+<p>Read <code>score</code> as <code>0 × p0 + 1 × p1 + 2 × p2 = 1.43</code>. It can land <strong>between</strong> levels. A Score takes 2 to 10 levels.</p>
+<p>Three rules that decide whether a Score is useful:</p>
+<ol>
+<li><strong>Describe situations, not degrees.</strong> &quot;Broken feature, but a workaround exists&quot; gives the model something to match. &quot;Moderately severe&quot; gives it nothing. If your levels are just &quot;0, 1, 2&quot;, the model splits probability and confidence collapses.</li>
+<li><strong>One dimension per Score.</strong> &quot;Punctual and smart and experienced&quot; measures three things at once. Split it, then combine with weights in code (that is the <em>composite scoring</em> pattern).</li>
+<li><strong>Give the extreme case its own level.</strong> Sentiment scales that end at &quot;very angry&quot; should add &quot;abusive or threatening&quot;, otherwise both messages score near the top.</li>
+</ol>
+<h3 id="23-noul--one-yesno-judgment">2.3 Noul — one yes/no judgment</h3>
+<p>Use it when the answer is binary and the probability <em>is</em> the useful signal. A Noul returns a single number: the probability the answer is yes.</p>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;state&quot;: &quot;I have asked three times now. Can I please just talk to a real person?&quot;,
+  &quot;model&quot;: &quot;jev-latest&quot;,
+  &quot;questions&quot;: {
+    &quot;is_human_escalation&quot;: {
+      &quot;type&quot;: &quot;noul&quot;,
+      &quot;instructions&quot;: &quot;Is the customer asking for a human agent?&quot;
+    },
+    &quot;is_repeat_contact&quot;: {
+      &quot;type&quot;: &quot;noul&quot;,
+      &quot;instructions&quot;: &quot;Has the customer contacted support about this before?&quot;,
+      &quot;criteria&quot;: {
+        &quot;true&quot;: &quot;Mentions a prior attempt, ticket, or that they have asked before&quot;,
+        &quot;false&quot;: &quot;No sign of any previous contact&quot;
+      }
+    }
+  }
+}</code></pre></div>
+<p>Response:</p>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;model&quot;: &quot;jev-1.13.0&quot;,
+  &quot;answers&quot;: {
+    &quot;is_human_escalation&quot;: { &quot;type&quot;: &quot;noul&quot;, &quot;noul&quot;: 0.99 },
+    &quot;is_repeat_contact&quot;:    { &quot;type&quot;: &quot;noul&quot;, &quot;noul&quot;: 0.93 }
+  },
+  &quot;usage&quot;: { &quot;input_tokens&quot;: 360, &quot;output_tokens&quot;: 39 }
+}</code></pre></div>
+<p>Rules of thumb:</p>
+<ul>
+<li><strong>One condition per Noul.</strong> &quot;Is the customer angry <em>and</em> asking for a refund?&quot; is two questions. Ask two, combine in code.</li>
+<li><strong>Phrase it so a high value means yes.</strong> &quot;Is the message free of personal data?&quot; inverts the meaning and future-you will read it backwards.</li>
+<li><strong>A Noul is not a scale.</strong> A value of 0.5 means &quot;genuinely unsure&quot;, <em>not</em> &quot;medium skill&quot;. If you want degree, use a Score.</li>
+<li><strong>Threshold in code.</strong> <code>noul &gt; 0.8</code> acts; <code>0.2 &lt; noul &lt; 0.8</code> goes to a human. The threshold depends on which error is more expensive.</li>
+</ul>
+<h3 id="24-asking-several-at-once-the-thing-that-makes-jev-cheap">2.4 Asking several at once (the thing that makes Jev cheap)</h3>
+<p>Every question in one request sees the same state, is evaluated independently, and comes back in parallel. Adding questions barely changes latency. The documented result, from the <em>Parallel questions</em> cookbook: 13 questions in one call versus 13 single-question calls over the same GDPR article came out <strong>12.2× cheaper and 10.0× faster with identical answers</strong>.</p>
+<p>So the default should be: <strong>one request, all the questions.</strong> That includes questions that only matter on some branches. If the ticket turns out to be a feature request, just ignore the <code>bug_severity</code> answer.</p>
+<blockquote>
+<p><strong>The one exception:</strong> a genuinely dependent question. If the next question&#39;s <em>options</em> come from the previous answer (walking a hierarchy), or you need to fetch more data for the state, make a second request. Otherwise batch.</p>
+</blockquote>
+<hr>
+</section><section id="part-3--install-four-paths-from-zero-to-first-decision"><h2 id="part-3--install-four-paths-from-zero-to-first-decision">Part 3 — Install: Four Paths from Zero to First Decision</h2>
+<p>Pick one. You can switch later; the HTTP shape is the same underneath all of them.</p>
+<h3 id="30-path-zero--the-playground-no-install-60-seconds">3.0 Path zero — the Playground (no install, 60 seconds)</h3>
+<ol>
+<li>Open <code>https://console.typesafe.ai/playground</code> and sign in.</li>
+<li>Paste any text as the state.</li>
+<li>Add a Noul question, e.g. <em>&quot;Does this message express urgency?&quot;</em>.</li>
+<li>Add more questions — mix Noul, Choice, and Score — and watch them all answer at once.</li>
+</ol>
+<p>Do this first. It costs nothing and it calibrates your intuition about what Jev is good at before you write a line of code.</p>
+<h3 id="31-path-one--raw-http-with-curl">3.1 Path one — raw HTTP with cURL</h3>
+<div class="codewrap"><pre data-lang="bash"><code>export TYPESAFE_API_KEY=&quot;ts_...&quot;   # from https://console.typesafe.ai/keys
+
+curl -X POST https://api.typesafe.ai/v1/systemone \
+  -H &quot;Authorization: Bearer $TYPESAFE_API_KEY&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d @- &lt;&lt;'EOF'
+  {
+    &quot;state&quot;: &quot;Hi, I've been trying to connect my Stripe account for 3 days and the integration keeps failing. I'm losing sales. Please help ASAP.&quot;,
+    &quot;model&quot;: &quot;jev-latest&quot;,
+    &quot;questions&quot;: {
+      &quot;urgency&quot;: {
+        &quot;type&quot;: &quot;noul&quot;,
+        &quot;instructions&quot;: &quot;Does this message express urgency?&quot;
+      },
+      &quot;department&quot;: {
+        &quot;type&quot;: &quot;choice&quot;,
+        &quot;instructions&quot;: &quot;Which team should handle this&quot;,
+        &quot;criteria&quot;: {
+          &quot;billing&quot;: &quot;Payment or subscription issues&quot;,
+          &quot;technical&quot;: &quot;Bugs or integration problems&quot;,
+          &quot;sales&quot;: &quot;Pricing or account questions&quot;
+        }
+      },
+      &quot;frustration&quot;: {
+        &quot;type&quot;: &quot;score&quot;,
+        &quot;instructions&quot;: &quot;How frustrated the customer appears&quot;,
+        &quot;criteria&quot;: [&quot;Calm, just stating facts&quot;, &quot;Frustrated but civil&quot;, &quot;Very angry, strong language&quot;]
+      }
+    }
+  }
+EOF</code></pre></div>
+<p>You should get back <code>answers</code> for all three, with probabilities. To list what your key can call:</p>
+<div class="codewrap"><pre data-lang="bash"><code>curl https://api.typesafe.ai/v1/models \
+  -H &quot;Authorization: Bearer $TYPESAFE_API_KEY&quot;</code></pre></div>
+<h3 id="32-path-two--python-sdk">3.2 Path two — Python SDK</h3>
+<p>Requires Python 3.10+. The SDK reads <code>TYPESAFE_API_KEY</code> from the environment and defaults to <code>jev-latest</code>.</p>
+<div class="codewrap"><pre data-lang="bash"><code># with uv (recommended if you use it)
+uv add typesafe-sdk
+
+# or with pip
+pip install typesafe-sdk</code></pre></div>
+<div class="codewrap"><pre data-lang="python"><code>from typesafe_sdk import Choice, Noul, Score, TypeSafeClient
+
+client = TypeSafeClient()   # reads TYPESAFE_API_KEY
+
+ticket = (
+    &quot;Hi, I've been trying to connect my Stripe account for 3 days and the &quot;
+    &quot;integration keeps failing. I'm losing sales. Please help ASAP.&quot;
+)
+
+response = client.system_one(
+    state=ticket,
+    questions={
+        &quot;department&quot;: Choice(
+            instructions=&quot;Which team should handle this&quot;,
+            criteria={
+                &quot;billing&quot;: &quot;Payment or subscription issues&quot;,
+                &quot;technical&quot;: &quot;Bugs or integration problems&quot;,
+                &quot;sales&quot;: &quot;Pricing or account questions&quot;,
+            },
+        ),
+        &quot;frustration&quot;: Score(
+            instructions=&quot;How frustrated the customer appears&quot;,
+            criteria=[
+                &quot;Calm, just stating facts&quot;,
+                &quot;Frustrated but civil&quot;,
+                &quot;Very angry, strong language&quot;,
+            ],
+        ),
+        &quot;is_urgent&quot;: Noul(
+            instructions=&quot;The message conveys urgency or time-sensitivity&quot;,
+        ),
+    },
+)
+
+print(response.answers[&quot;department&quot;].choice)     # &quot;technical&quot;
+print(response.answers[&quot;frustration&quot;].score)     # 1.0
+print(response.answers[&quot;is_urgent&quot;].noul)        # 1.0
+
+# Convenience views by type also exist:
+print(response.choices[&quot;department&quot;].choice)
+print(response.scores[&quot;frustration&quot;].score)
+print(response.nouls[&quot;is_urgent&quot;].noul)</code></pre></div>
+<p>Use it as a context manager (<code>with TypeSafeClient() as client:</code>) or call <code>close()</code> when done. For async, use <code>AsyncTypeSafeClient</code> and <code>await client.system_one(...)</code>.</p>
+<p>A few SDK details worth knowing:</p>
+<ul>
+<li><strong>Model selection:</strong> <code>TypeSafeClient(model=&quot;jev-latest&quot;)</code> or <code>model=&quot;jev-1.13.0&quot;</code>. Pin the versioned ID if you have tuned thresholds against it — the alias moves when a new release ships, and the answers can move with it.</li>
+<li><strong>Typed responses:</strong> pass <code>response_model=</code> to get a Pydantic model instead of the generic <code>answers</code> map. Good for type-checkers.</li>
+<li><strong>Retries:</strong> <code>RetryPolicy(max_retries=..., backoff_max=..., timeout=...)</code>, on the client or per call. Invalid API keys raise at client construction, before any request.</li>
+<li><strong>Logging:</strong> set <code>TYPESAFE_LOG_LEVEL=debug</code>; secret headers are redacted, but <strong>request and response bodies are not</strong> — mind your logs.</li>
+<li><strong>Env vars:</strong> <code>TYPESAFE_API_KEY</code>, <code>TYPESAFE_BASE_URL</code>, <code>TYPESAFE_DEFAULT_MODEL</code>, <code>TYPESAFE_LOG_LEVEL</code>.</li>
+</ul>
+<h3 id="33-path-three--typescript--javascript-sdk">3.3 Path three — TypeScript / JavaScript SDK</h3>
+<p>Requires Node.js 20+.</p>
+<div class="codewrap"><pre data-lang="bash"><code>npm install @typesafe-ai/sdk</code></pre></div>
+<div class="codewrap"><pre data-lang="ts"><code>import { choice, noul, score, TypeSafeClient } from &quot;@typesafe-ai/sdk&quot;;
+
+const client = new TypeSafeClient(); // reads TYPESAFE_API_KEY
+
+const response = await client.systemOne({
+  state: { document: &quot;I was charged twice. Please fix this ASAP.&quot; },
+  questions: {
+    category: choice(&quot;What is this ticket about?&quot;, {
+      billing: &quot;Payment, invoice, or refund issues&quot;,
+      technical: &quot;Bugs or integration problems&quot;,
+      other: null,
+    }),
+    refund: noul(&quot;Is the customer asking for money back?&quot;),
+    urgency: score(&quot;How urgent is this?&quot;, [&quot;can wait&quot;, &quot;this week&quot;, &quot;today&quot;]),
+  },
+});
+
+console.log(response.answers.category.choice);
+console.log(response.answers.category.confidence);
+console.log(response.answers.category.probabilities);
+console.log(response.answers.refund.noul);</code></pre></div>
+<p>Answer types are inferred from the questions, and the package ships ESM, CommonJS, and TypeScript declarations.</p>
+<h3 id="34-path-four--let-your-coding-agent-do-it-the-agent-skill">3.4 Path four — let your coding agent do it (the agent skill)</h3>
+<p>Install the TypeSafe skill so your coding agent knows the API shape, the primitives, and the patterns before it writes the integration.</p>
+<p><strong>Claude Code:</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code>claude plugin marketplace add typesafe-ai/skills
+claude plugin install typesafe@typesafe-ai</code></pre></div>
+<p><strong>Other agents (Codex, opencode, Cursor, …):</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code>npx skills add typesafe-ai/skills --skill typesafe-ai</code></pre></div>
+<p>Then, in the project, prompt something like:</p>
+<div class="codewrap"><pre data-lang="text"><code>Using the TypeSafe skill, explore this project and find places where a fragile
+prompt or a pile of parsing could be replaced by a typed Jev decision.
+Propose the questions and thresholds before changing code.</code></pre></div>
+<p>Two rules from the docs that are worth adopting as your own:</p>
+<ol>
+<li><strong>Put the questions and thresholds in one file.</strong> It is the only part a human needs to review.</li>
+<li><strong>Don&#39;t take the agent&#39;s assertions at face value.</strong> Have it validate questions against real examples before you ship.</li>
+</ol>
+<h3 id="35-optional--call-jev-through-a-gateway">3.5 Optional — call Jev through a gateway</h3>
+<p>If you already route model calls through a gateway, Jev is available on at least two:</p>
+<p><strong>Vercel AI Gateway</strong> — base URL <code>https://ai-gateway.vercel.sh/typesafe</code>, model <code>typesafe-ai/jev</code>:</p>
+<div class="codewrap"><pre data-lang="ts"><code>import { TypeSafeClient } from &quot;@typesafe-ai/sdk&quot;;
+
+const client = new TypeSafeClient({
+  apiKey: process.env.AI_GATEWAY_API_KEY,
+  baseURL: &quot;https://ai-gateway.vercel.sh/typesafe&quot;,
+});</code></pre></div>
+<p><strong>OpenRouter</strong> — base URL <code>https://openrouter.ai/api</code>, model <code>~typesafe/jev-latest</code>, using your OpenRouter key:</p>
+<div class="codewrap"><pre data-lang="python"><code>import os
+from typesafe_sdk import Noul, TypeSafeClient
+
+with TypeSafeClient(
+    api_key=os.environ[&quot;OPENROUTER_API_KEY&quot;],
+    base_url=&quot;https://openrouter.ai/api&quot;,
+    model=&quot;~typesafe/jev-latest&quot;,
+) as client:
+    result = client.system_one(
+        &quot;I was charged twice.&quot;,
+        {&quot;billing&quot;: Noul(instructions=&quot;Is this about billing?&quot;)},
+    )
+    print(result.nouls[&quot;billing&quot;].noul)</code></pre></div>
+<p>Both paths bill through the gateway and show up in its usage and observability.</p>
+<blockquote>
+<p><strong>This changes fast.</strong> Gateway model strings and base URLs are version-specific and move. Confirm the string on the gateway&#39;s own docs page before you paste it, and pin it in config rather than scattering it.</p>
+</blockquote>
+<hr>
+</section><section id="part-4--state-craft-the-input-is-the-whole-game"><h2 id="part-4--state-craft-the-input-is-the-whole-game">Part 4 — State Craft: The Input Is the Whole Game</h2>
+<p>State is the content the questions read. It can be a plain string, a JSON object, or an array of text. Getting state right is 80% of getting Jev right.</p>
+<h3 id="41-prefer-an-object-with-named-fields">4.1 Prefer an object with named fields</h3>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;ticket&quot;: {
+    &quot;subject&quot;: &quot;Duplicate charge&quot;,
+    &quot;messages&quot;: [
+      {&quot;from&quot;: &quot;customer&quot;, &quot;text&quot;: &quot;I was charged twice for order A-104. Please refund the duplicate.&quot;},
+      {&quot;from&quot;: &quot;support&quot;,  &quot;text&quot;: &quot;We are checking the charges.&quot;}
+    ]
+  },
+  &quot;order&quot;: {
+    &quot;id&quot;: &quot;A-104&quot;,
+    &quot;charges&quot;: [
+      {&quot;amount_usd&quot;: 49, &quot;status&quot;: &quot;captured&quot;},
+      {&quot;amount_usd&quot;: 49, &quot;status&quot;: &quot;captured&quot;}
+    ]
+  },
+  &quot;refund_policy&quot;: &quot;Duplicate charges are eligible for a refund.&quot;
+}</code></pre></div>
+<p>This is one state even though it contains a conversation, an order, and a policy. Then point each question at the field it needs with a backticked dot-and-index path:</p>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;refund_requested&quot;: {
+    &quot;type&quot;: &quot;noul&quot;,
+    &quot;instructions&quot;: &quot;Does `ticket.messages[0].text` request a refund?&quot;
+  },
+  &quot;policy_supports_refund&quot;: {
+    &quot;type&quot;: &quot;noul&quot;,
+    &quot;instructions&quot;: &quot;Does `refund_policy` support the refund requested in `ticket.messages[0].text`, given `order.charges`?&quot;
+  }
+}</code></pre></div>
+<p>Explicit paths do two things: they tell the model where to look, and they make the request readable to the next engineer.</p>
+<h3 id="42-filter-ruthlessly">4.2 Filter ruthlessly</h3>
+<p>This is the failure mode people underrate. <strong>Accuracy falls as state fills with irrelevant detail</strong> — unrelated content acts as a distractor and makes a wrong answer harder to debug. Retrieve and filter <em>in code</em> first, then send only the fields a question needs.</p>
+<p>If you cannot filter in code, you can use a <code>Noul</code> to judge relevance before the next request. That is the <em>classifying RAG passages</em> cookbook.</p>
+<h3 id="43-put-policy-in-state-judgment-in-the-question">4.3 Put policy in state, judgment in the question</h3>
+<p>Keep the content and the supporting facts in state (the message, the order, the refund policy). Keep the <em>judgment</em> in the questions. That separation is what lets you change a threshold or a policy document without rewriting a prompt.</p>
+<h3 id="44-structured-instructions-when-a-string-wont-do">4.4 Structured instructions when a string won&#39;t do</h3>
+<p><code>instructions</code>, Choice option descriptions, Score level descriptions, and Noul <code>true</code>/<code>false</code> criteria can all be strings <strong>or</strong> JSON objects or arrays. Reach for structure when:</p>
+<ul>
+<li>The question needs labeled supporting data (a database row, a schema, a candidate record).</li>
+<li>Part of the question comes from your code.</li>
+<li>Several questions share the same shape and need to be distinguishable.</li>
+</ul>
+<p>A worked habit: build one question per candidate record, with the record in a named field and the same question text for all of them.</p>
+<div class="codewrap"><pre data-lang="python"><code>from typesafe_sdk import Noul, TypeSafeClient
+
+SAME_PERSON = &quot;Is the resume for the same person as `potential_duplicate`?&quot;
+
+def duplicate_questions(candidates: list[dict]) -&gt; dict[str, Noul]:
+    return {
+        f&quot;same_as_record_{c['id']}&quot;: Noul(
+            instructions={
+                &quot;potential_duplicate&quot;: {
+                    &quot;name&quot;: c[&quot;name&quot;],
+                    &quot;location&quot;: c[&quot;location&quot;],
+                    &quot;last_employer&quot;: c[&quot;last_employer&quot;],
+                },
+                &quot;question&quot;: SAME_PERSON,
+            },
+        )
+        for c in candidates
+    }</code></pre></div>
+<p>One request, one answer per candidate, then threshold the probabilities in code. That is entity resolution without a paragraph of prose anywhere.</p>
+<hr>
+</section><section id="part-5--confidence-and-probabilities-how-to-act-on-uncertainty"><h2 id="part-5--confidence-and-probabilities-how-to-act-on-uncertainty">Part 5 — Confidence and Probabilities: How to Act on Uncertainty</h2>
+<h3 id="51-what-confidence-actually-is">5.1 What confidence actually is</h3>
+<p>Choice and Score answers both come with a <code>probabilities</code> map and a derived <code>confidence</code> between 0 and 1. Confidence is a statistic over that distribution: <strong>all the probability on one option gives 1.0; an even spread gives a low number.</strong> Noul answers have no separate confidence, because with only two outcomes the <code>noul</code> value <em>is</em> the full distribution.</p>
+<p>TypeSafe provides a sensible default, but you are not locked into it — the raw <code>probabilities</code> are always there, so you can compute your own statistic if your domain needs something else.</p>
+<h3 id="52-probability-is-not-accuracy">5.2 Probability is not accuracy</h3>
+<p>Two things it is not:</p>
+<ul>
+<li><strong>It is not a per-answer guarantee.</strong> Calibration is measured across groups of predictions. A single answer marked 0.9 can still be wrong.</li>
+<li><strong>It is not a business-accuracy promise.</strong> A confident answer can be wrong for <em>your</em> domain, language, or data. Calibrate on your own labeled set before you trust a threshold.</li>
+</ul>
+<h3 id="53-the-three-band-pattern">5.3 The three-band pattern</h3>
+<p>The docs&#39; starting pattern is three bands, each with a different behavior:</p>
+<div class="codewrap"><pre data-lang="python"><code>answer = response.answers[&quot;intent&quot;]
+
+if answer.confidence &lt; 0.5:
+    route_to_human(message)            # genuinely unsure — do not guess
+elif answer.choice == &quot;check_balance&quot;:
+    show_balance(account_id)           # low stakes, act even at moderate confidence
+elif answer.choice == &quot;approve_transfer&quot;:
+    if answer.confidence &gt; 0.9:
+        confirm_then_execute(account_id)   # high stakes, high confidence
+    else:
+        ask_user_to_confirm(account_id)    # high stakes, moderate confidence</code></pre></div>
+<p>The important nuance: <strong>one threshold is not enough.</strong> The confidence you require to show a balance is different from the confidence you require to move money. Encode the risk tolerance in code, next to the action.</p>
+<h3 id="54-rank-with-probabilities-gate-with-confidence">5.4 Rank with probabilities, gate with confidence</h3>
+<ul>
+<li><strong>Probabilities</strong> are for sorting and for weighted combinations. &quot;Which of these 200 passages is most relevant?&quot; → one Noul per passage, sort by value. Don&#39;t threshold a ranking.</li>
+<li><strong>Confidence</strong> is for deciding <em>whether to act</em>. &quot;Is the model sure enough to skip a human?&quot;</li>
+<li><strong>Noul values</strong> are for thresholding into booleans, and for feeding as features into a classical model.</li>
+</ul>
+<h3 id="55-a-checklist-for-using-confidence-well">5.5 A checklist for using confidence well</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Every automated action has a named threshold, in one place.</li>
+<li><input disabled="" type="checkbox"> Low-confidence paths go <em>somewhere</em> — human review, a retry, a stronger model. Never &quot;take the top answer anyway&quot;.</li>
+<li><input disabled="" type="checkbox"> Thresholds are set from labeled examples, not vibes.</li>
+<li><input disabled="" type="checkbox"> Anything destructive (delete, pay, permission change) requires either a hard rule plus high confidence, or human confirmation.</li>
+<li><input disabled="" type="checkbox"> You log the model version, the question definitions, and the final action, so you can replay and evaluate later.</li>
+</ul>
+<hr>
+</section><section id="part-6--the-four-patterns-that-cover-most-work"><h2 id="part-6--the-four-patterns-that-cover-most-work">Part 6 — The Four Patterns That Cover Most Work</h2>
+<p>TypeSafe documents four architectural patterns. Learn these four and you can build almost anything.</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>What it does</th>
+<th>Where you&#39;ll use it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Speculative fan-out</strong></td>
+<td>Send every question, including ones only some inputs need</td>
+<td>Ticket triage, feature extraction</td>
+</tr>
+<tr>
+<td><strong>Confidence-gated routing</strong></td>
+<td>Use confidence as a second axis on top of the answer</td>
+<td>Anything that takes an irreversible action</td>
+</tr>
+<tr>
+<td><strong>Composite scoring</strong></td>
+<td>Several atomic Scores, combined with weights you own</td>
+<td>Ranking, prioritization, lead scoring</td>
+</tr>
+<tr>
+<td><strong>Intent routing</strong></td>
+<td>Classify, then route to deterministic code, a specialist LLM, or a human</td>
+<td>Front doors: support, agents, forms</td>
+</tr>
+</tbody></table>
+<h3 id="61-speculative-fan-out">6.1 Speculative fan-out</h3>
+<p>Ask everything. Ignore what doesn&#39;t apply.</p>
+<div class="codewrap"><pre data-lang="python"><code>category = response.answers[&quot;category&quot;]
+if category.choice == &quot;bug_report&quot;:
+    if response.answers[&quot;bug_severity&quot;].score &gt; 1.5 and response.answers[&quot;has_reproducible_steps&quot;].noul &gt; 0.6:
+        escalate_to_engineering(ticket_id, severity=&quot;high&quot;)
+    else:
+        add_to_bug_backlog(ticket_id)
+elif category.choice == &quot;billing&quot;:
+    if response.answers[&quot;refund_requested&quot;].noul &gt; 0.7:
+        route_to_billing_with_flag(ticket_id, refund_likely=True)
+    else:
+        route_to_billing(ticket_id)</code></pre></div>
+<p>The <code>bug_severity</code> answer is simply never read on the billing branch. No extra round trip.</p>
+<h3 id="62-confidence-gated-routing">6.2 Confidence-gated routing</h3>
+<p>The voice-banking example from the docs is the canonical shape: classify the intent, then gate <em>what you do about it</em> on confidence.</p>
+<div class="codewrap"><pre data-lang=""><code>intent confidence &lt; 0.6         → human agent
+intent == check_balance, ≥ 0.6  → show the balance
+intent == approve_transfer, 0.6–0.85 → ask the user to confirm
+intent == approve_transfer, &gt; 0.85   → approve the transfer</code></pre></div>
+<h3 id="63-composite-scoring">6.3 Composite scoring</h3>
+<p>Break a complex judgment into one Score per dimension, normalize each, and combine with weights in code — so the ranking is inspectable and tunable.</p>
+<div class="codewrap"><pre data-lang="python"><code>py      = response.answers[&quot;python_depth&quot;].score / 4
+lead    = response.answers[&quot;team_leadership&quot;].score / 4
+arch    = response.answers[&quot;system_design&quot;].score / 4
+general = response.answers[&quot;generalist&quot;].score / 4
+
+# Two roles, two weightings, one set of scores
+ic_score = 0.40 * py + 0.10 * lead + 0.40 * arch + 0.10 * general
+em_score = 0.15 * py + 0.40 * lead + 0.20 * arch + 0.25 * general</code></pre></div>
+<p>When the ranking looks wrong, you change a coefficient and re-run — you do not rewrite a prompt. The same trick works for a <code>Noul</code> plus a <code>Score</code> combination:</p>
+<div class="codewrap"><pre data-lang="python"><code>spam_risk = (
+    0.45 * answers[&quot;requests_credentials&quot;].noul
+    + 0.30 * answers[&quot;sender_identity_mismatch&quot;].noul
+    + 0.25 * answers[&quot;unexpected_reward&quot;].noul
+)
+
+if 0.4 &lt; spam_risk &lt; 0.6:
+    route_to_human_review(ticket)     # unsure → a person
+elif spam_risk &gt;= 0.6:
+    quarantine_as_spam(ticket)</code></pre></div>
+<h3 id="64-intent-routing">6.4 Intent routing</h3>
+<p>Sit in front of everything and decide <em>which</em> handler runs: deterministic code (cheap, instant), a specialist LLM (expensive), or a human (slowest).</p>
+<div class="codewrap"><pre data-lang="python"><code>if intent.confidence &lt; 0.5:
+    return route_to_human_agent(ticket_id)
+
+if intent.choice == &quot;order_status&quot;:
+    handle_order_status(ticket_id)                     # no LLM at all
+elif intent.choice == &quot;product_question&quot;:
+    handle_with_llm(ticket_id, PRODUCT_SPECIALIST)     # specialist model
+elif intent.choice == &quot;complaint&quot;:
+    if complexity.score &gt; 1 or complexity.confidence &lt; 0.5:
+        return route_to_human_agent(ticket_id)
+    handle_with_llm(ticket_id, COMPLAINT_RESOLUTION)</code></pre></div>
+<p>This is the highest-leverage pattern in the whole model. A fast, cheap classifier in front of expensive calls is where the cost savings and the reliability both come from.</p>
+<hr>
+</section><section id="part-7--jev-inside-a-real-nextjs-saas-a-worked-example"><h2 id="part-7--jev-inside-a-real-nextjs-saas-a-worked-example">Part 7 — Jev Inside a Real Next.js SaaS (a Worked Example)</h2>
+<p>Let me make this concrete against the kind of product in this shelf: a <strong>competitive-audit report generator</strong> — a Next.js app on Vercel, a Postgres database, a few LLM calls, and users who pay per report. Jev slots in at four places, and none of them replace an LLM.</p>
+<h3 id="71-the-four-insertion-points">7.1 The four insertion points</h3>
+<div class="codewrap"><pre data-lang=""><code>                       ┌──────────────────────────────┐
+   user submits  ─────► │ 1. INTAKE ROUTER   (Jev)     │  which kind of request is this?
+   a request            │    Choice + Noul             │  is it abusive? is it a refund ask?
+                       └──────────────┬───────────────┘
+                                      ▼
+                       ┌──────────────────────────────┐
+                       │ 2. MODEL ROUTER    (Jev)     │  cheap model, frontier model, or a human?
+                       │    Choice + Score            │  how hard / how risky is this one?
+                       └──────────────┬───────────────┘
+                                      ▼
+                       ┌──────────────────────────────┐
+   fetch context ─────► │ 3. RAG RERANK      (Jev)     │  which retrieved passages actually matter?
+                       │    Noul, one per passage     │  is the question even answerable from them?
+                       └──────────────┬───────────────┘
+                                      ▼
+                       ┌──────────────────────────────┐
+   LLM drafts  ───────► │ 4. QUALITY GATE    (Jev)     │  does the report meet the rubric?
+                       │    Score + Noul              │  is every claim supported by a source?
+                       └──────────────┬───────────────┘
+                                      ▼
+                              ship / retry / refund / human review</code></pre></div>
+<p>Notice the shape: the <em>expensive</em> LLM call sits in the middle, and Jev sits on both sides of it — cheap enough to run on every request, fast enough not to be the bottleneck.</p>
+<h3 id="72-put-all-the-questions-in-one-file">7.2 Put all the questions in one file</h3>
+<p>Following the agent-skill advice: one file holds questions and thresholds, so review is a single read.</p>
+<div class="codewrap"><pre data-lang="ts"><code>// lib/decisions.ts — the only file a human needs to review
+import { choice, noul, score } from &quot;@typesafe-ai/sdk&quot;;
+
+export const INTAKE_QUESTIONS = {
+  request_type: choice(&quot;What is the user asking for?&quot;, {
+    new_report:     &quot;A new competitive audit report&quot;,
+    edit_report:    &quot;Changes to a report already generated&quot;,
+    billing:        &quot;Invoices, refunds, failed payments&quot;,
+    support:        &quot;A bug or a question about the product&quot;,
+  }),
+  is_abusive: noul(&quot;Does the message contain abuse, threats, or harassment?&quot;),
+  refund_requested: noul(&quot;Is the user explicitly asking for money back or a credit?&quot;),
+  urgency: score(&quot;How time-sensitive is this request?&quot;, [
+    &quot;Can wait indefinitely&quot;,
+    &quot;Wants it this week&quot;,
+    &quot;Wants it today&quot;,
+    &quot;Production is down or money is actively lost&quot;,
+  ]),
+};
+
+export const ROUTING_QUESTIONS = {
+  difficulty: score(&quot;How hard is this request for a language model to handle well?&quot;, [
+    &quot;Trivial: a lookup or a one-line answer&quot;,
+    &quot;Routine: a standard generation with clear instructions&quot;,
+    &quot;Hard: multiple sources must be reconciled&quot;,
+    &quot;Frontier: deep reasoning across conflicting evidence&quot;,
+  ]),
+  risk: score(&quot;What is the downside if the model gets this wrong?&quot;, [
+    &quot;None: an internal draft nobody else sees&quot;,
+    &quot;Low: a cosmetic issue the user can regenerate&quot;,
+    &quot;High: a paid deliverable the user will act on&quot;,
+    &quot;Severe: legal, financial, or safety consequences&quot;,
+  ]),
+};
+
+export const RAG_QUESTIONS = { ... };   // one Noul per retrieved passage, built in code
+
+export const QUALITY_QUESTIONS = {
+  rubric_fit: score(&quot;How well does the report satisfy the delivery rubric?&quot;, [
+    &quot;Empty or off-topic&quot;,
+    &quot;Covers some sections, misses the core question&quot;,
+    &quot;Covers the core question with thin evidence&quot;,
+    &quot;Complete, specific, and well evidenced&quot;,
+  ]),
+  claims_supported: noul(
+    &quot;Is every factual claim in the report supported by a cited source passage?&quot;,
+  ),
+};
+
+// Thresholds, in one place, next to the questions they gate.
+export const THRESHOLDS = {
+  minIntakeConfidence: 0.6,
+  refundToHuman: 0.7,
+  escalateToFrontier: 1.5,   // normalized difficulty above this
+  highRisk: 2.0,             // risk above this requires high confidence
+  blockReport: 0.4,          // rubric_fit below this: do not ship
+  mustCite: 0.7,             // claims_supported below this: do not ship
+};</code></pre></div>
+<h3 id="73-the-server-side-call">7.3 The server-side call</h3>
+<p>Everything here is server-side. The API key never reaches the browser.</p>
+<div class="codewrap"><pre data-lang="ts"><code>// app/api/intake/route.ts
+import { TypeSafeClient } from &quot;@typesafe-ai/sdk&quot;;
+import { INTAKE_QUESTIONS, THRESHOLDS } from &quot;@/lib/decisions&quot;;
+
+const client = new TypeSafeClient(); // TYPESAFE_API_KEY from the server env
+
+export async function POST(req: Request) {
+  const { message, account } = await req.json();
+
+  // Filter and shape state in code. Send only what the questions need.
+  const state = {
+    message,
+    account: { plan: account.plan, open_orders: account.openOrders },
+  };
+
+  const { answers } = await client.systemOne({
+    state,
+    questions: INTAKE_QUESTIONS,
+  });
+
+  // Policy lives in code, not in a prompt.
+  if (answers.is_abusive.noul &gt; 0.8) return block(message);
+
+  if (answers.request_type.confidence &lt; THRESHOLDS.minIntakeConfidence) {
+    return routeToHuman(message, &quot;low-confidence intake&quot;);
+  }
+
+  switch (answers.request_type.choice) {
+    case &quot;billing&quot;:
+      return answers.refund_requested.noul &gt; THRESHOLDS.refundToHuman
+        ? routeToBilling(message, { refundLikely: true })
+        : routeToBilling(message);
+    case &quot;new_report&quot;:
+    case &quot;edit_report&quot;:
+      return enqueueReportJob(message, {
+        priority: answers.urgency.score &gt;= 2 ? &quot;high&quot; : &quot;normal&quot;,
+      });
+    default:
+      return routeToSupport(message);
+  }
+}</code></pre></div>
+<h3 id="74-the-quality-gate-in-front-of-the-deliverable">7.4 The quality gate in front of the deliverable</h3>
+<p>The highest-value insertion point for a paid product: never ship a report that scored below your bar.</p>
+<div class="codewrap"><pre data-lang="ts"><code>// lib/quality-gate.ts
+import { TypeSafeClient } from &quot;@typesafe-ai/sdk&quot;;
+import { QUALITY_QUESTIONS, THRESHOLDS } from &quot;@/lib/decisions&quot;;
+
+const client = new TypeSafeClient();
+
+export async function gateReport(report: string, sources: string[]) {
+  const { answers } = await client.systemOne({
+    state: { report, sources },
+    questions: QUALITY_QUESTIONS,
+  });
+
+  const fit = answers.rubric_fit;
+  const cited = answers.claims_supported;
+
+  if (fit.confidence &lt; 0.5) {
+    return { action: &quot;human_review&quot;, reason: &quot;rubric ambiguous&quot; };
+  }
+  if (fit.score &lt; THRESHOLDS.blockReport || cited.noul &lt; THRESHOLDS.mustCite) {
+    // Do not charge the user for a report that misses the bar.
+    return { action: &quot;retry&quot;, reason: &quot;below delivery bar&quot;, fit: fit.score, cited: cited.noul };
+  }
+  return { action: &quot;ship&quot; };
+}</code></pre></div>
+<p>One call, a rubric score, a citation check, and a decision. If you had built this with a generative model, half the code would be parsing.</p>
+<h3 id="75-rag-reranking-without-a-second-model">7.5 RAG reranking, without a second model</h3>
+<p>Build one <code>Noul</code> per retrieved passage, ask whether the passage answers the question, then keep the top ones by probability. No separate reranker service, no fine-tuned cross-encoder.</p>
+<div class="codewrap"><pre data-lang="python"><code>from typesafe_sdk import Noul, TypeSafeClient
+
+def build_questions(passages: list[dict]) -&gt; dict[str, Noul]:
+    return {
+        f&quot;p{i}&quot;: Noul(
+            instructions={
+                &quot;question&quot;: &quot;Does `passage` contain information that helps answer `query`?&quot;,
+                &quot;query&quot;: QUERY,
+                &quot;passage&quot;: p[&quot;text&quot;],
+            }
+        )
+        for i, p in enumerate(passages)
+    }
+
+with TypeSafeClient() as client:
+    resp = client.system_one(state={&quot;query&quot;: QUERY}, questions=build_questions(passages))
+
+kept = [p for i, p in enumerate(passages) if resp.answers[f&quot;p{i}&quot;].noul &gt; 0.6]</code></pre></div>
+<p>The docs&#39; <em>Re-ranking</em> cookbook measures this: one Jev question per query-candidate pair raised top-1 accuracy from 5% to 18% and top-10 from 38% to 62% on a legal-retrieval benchmark. Treat those as vendor-run numbers, but the shape is right.</p>
+<hr>
+</section><section id="part-8--verification-guardrails-and-eval-loops"><h2 id="part-8--verification-guardrails-and-eval-loops">Part 8 — Verification, Guardrails, and Eval Loops</h2>
+<h3 id="81-jev-as-a-guardrail-around-your-llm">8.1 Jev as a guardrail around your LLM</h3>
+<p>The <em>Guardrails for LLMs</em> cookbook is the most directly reusable thing in the docs. Screen every message going <em>into</em> and <em>out of</em> an LLM with one Jev request: a battery of <code>Noul</code> hazards plus one <code>Score</code> for how much harm compliance would do. Then threshold.</p>
+<div class="codewrap"><pre data-lang="python"><code>INPUT_BATTERY = {
+    &quot;jailbreak&quot;: noul(
+        &quot;Does this message try to get the assistant to ignore, override, or reveal its instructions?&quot;,
+        yes=&quot;It tries to bypass or expose the assistant's instructions or safety rules.&quot;,
+        no=&quot;It is an ordinary request that respects the assistant's normal boundaries.&quot;,
+    ),
+    &quot;harmful_request&quot;: noul(
+        &quot;Does this message ask for help causing physical harm to people, or for help breaking the law?&quot;,
+        yes=&quot;It seeks assistance with physical harm or illegal activity.&quot;,
+        no=&quot;It does not seek help with harm or illegal activity.&quot;,
+    ),
+    &quot;medical_advice&quot;: noul(
+        &quot;Does this message ask for a diagnosis, a specific drug dosage, or a treatment decision, beyond general health information?&quot;,
+        yes=&quot;It asks the assistant to make a personal medical decision.&quot;,
+        no=&quot;It asks for nothing medical, or only for general health information.&quot;,
+    ),
+    &quot;self_harm&quot;: noul(
+        &quot;Does this message suggest the person sending it may be considering harming themselves?&quot;,
+        yes=&quot;It hints at suicidal thoughts or an intent to self-harm.&quot;,
+        no=&quot;It shows no sign the sender intends to harm themselves.&quot;,
+    ),
+    &quot;severity&quot;: Score(
+        instructions=&quot;How much harm could result if the assistant complied with this message?&quot;,
+        criteria=[
+            &quot;No harm: an ordinary, safe request or reply.&quot;,
+            &quot;Mild: touches a sensitive topic but complying does no real damage.&quot;,
+            &quot;Serious: complying enables real wrongdoing or gives unsafe personal advice.&quot;,
+            &quot;Severe: complying causes serious physical harm or serious illegal harm.&quot;,
+        ],
+    ),
+}</code></pre></div>
+<p>Two design lessons from that cookbook that generalize:</p>
+<ul>
+<li><strong>Four outcomes beat two.</strong> <code>pass</code>, <code>review</code>, <code>block</code>, and <code>support</code> are all doing something a plain block cannot: a mild dosage question can go to a human rather than be refused, and a self-harm signal can reach a support path instead of a wall.</li>
+<li><strong>Policy is just named numbers.</strong> The cookbook runs the <em>same</em> cached assessment through a <code>strict</code> and a <code>permissive</code> policy and gets different actions from identical probabilities. That is the whole point: the model supplies evidence, the product decides how much evidence is enough.</li>
+</ul>
+<p>This pairs directly with Paper 2 in this series. Prompt injection is a property of the medium; Jev is a fast, typed check you can put at the boundary.</p>
+<h3 id="82-verification-is-a-first-class-use-case">8.2 Verification is a first-class use case</h3>
+<p>Because Jev never generates and returns only constrained values, it is unusually good at <em>checking</em> artifacts other models produced:</p>
+<ul>
+<li><strong>Citation support.</strong> Does the quoted passage actually support the claim? One Choice question. This is the <em>double-checking citations</em> cookbook.</li>
+<li><strong>Tool-call verification.</strong> Decompose &quot;is this tool-call trace correct?&quot; into one Noul per property: is the tool relevant, do the arguments match the schema, do the coordinates match the geocode result, does the unit match the request. Nine small questions beat one big one.</li>
+<li><strong>Reasoning-trace classification.</strong> Read an agent&#39;s run and decide whether a human needs to look at it, and how soon. That is literally one of TypeSafe&#39;s published workflow evals.</li>
+<li><strong>Structured-data-extraction cascades.</strong> Extract with a generative model, then verify field by field with Jev before trusting the record.</li>
+</ul>
+<h3 id="83-close-the-loop-jev-as-the-scorer-in-your-eval-suite">8.3 Close the loop: Jev as the scorer in your eval suite</h3>
+<p>Paper 1 argues that evals are how you know an LLM feature got worse. Jev is a natural scorer for them: deterministic in shape, cheap enough to run on every commit, and calibrated enough to threshold.</p>
+<p>The skeleton:</p>
+<ol>
+<li>Keep a JSONL of real production examples with human labels.</li>
+<li>For each example, call Jev and record the answer and the metric that matters (the <code>noul</code>, or the max probability for a Choice, or the normalized score).</li>
+<li>Compare Jev&#39;s answer to the human label, per segment.</li>
+<li>Gate CI on the agreement rate, exactly the way you gate on a test suite.</li>
+</ol>
+<div class="codewrap"><pre data-lang="python"><code># evals/jev_triage.py — a tiny Jev-based scorer set, runnable in CI
+import json
+from pathlib import Path
+from typesafe_sdk import Choice, TypeSafeClient
+
+QUESTIONS = {
+    &quot;intent&quot;: Choice(
+        instructions=&quot;What is the primary intent of this message?&quot;,
+        criteria={
+            &quot;refund&quot;: &quot;Wants money back&quot;,
+            &quot;rebook&quot;: &quot;Wants a replacement&quot;,
+            &quot;info&quot;: &quot;Only wants information&quot;,
+        },
+    ),
+}
+
+def score_case(case: dict, client: TypeSafeClient) -&gt; bool:
+    resp = client.system_one(state=case[&quot;text&quot;], questions=QUESTIONS)
+    return resp.answers[&quot;intent&quot;].choice == case[&quot;expected&quot;]
+
+def main() -&gt; int:
+    cases = [json.loads(l) for l in Path(&quot;evals/datasets/triage.jsonl&quot;).read_text().splitlines() if l.strip()]
+    with TypeSafeClient() as client:
+        passed = sum(score_case(c, client) for c in cases)
+    rate = passed / len(cases)
+    print(f&quot;{passed}/{len(cases)} = {rate:.0%}&quot;)
+    return 0 if rate &gt;= 0.9 else 1   # exit code gates the build
+
+if __name__ == &quot;__main__&quot;:
+    raise SystemExit(main())</code></pre></div>
+<p>Two cautions, both straight from Paper 1: <strong>calibrate the judge against human labels before trusting it</strong>, and <strong>never gate on a scorer you have not validated</strong>. Jev being fast and cheap does not make it right.</p>
+<h3 id="84-comparing-jev-against-an-llm-on-the-same-questions">8.4 Comparing Jev against an LLM on the same questions</h3>
+<p>TypeSafe publishes an adapter that lets you run the <em>same</em> harness against an LLM instead of Jev, so you can compare cost, speed, and answers on your own data.</p>
+<div class="codewrap"><pre data-lang="bash"><code>pip install 'system-one-adapter[openai]'      # OpenAI-compatible providers
+pip install 'system-one-adapter[anthropic]'   # native Anthropic
+pip install 'system-one-adapter[gemini]'      # native Gemini</code></pre></div>
+<div class="codewrap"><pre data-lang="python"><code>from system_one_adapter import SystemOneAdapterClient, Noul
+
+client = SystemOneAdapterClient(
+    structured_outputs=True,
+    llm_answer_mode=&quot;probabilities&quot;,
+    normalize_probabilities=True,
+)
+
+response = client.system_one(
+    state=&quot;This book was a delight to read.&quot;,
+    questions={&quot;positive&quot;: Noul(instructions=&quot;The book review is positive.&quot;)},
+    provider=&quot;openai&quot;,
+    model=&quot;gpt-4o-mini&quot;,
+)</code></pre></div>
+<p>This is the honest way to answer &quot;is Jev actually better for <em>my</em> decision?&quot; rather than trusting a chart. Run both, on your data, and compare.</p>
+<hr>
+</section><section id="part-9--what-its-good-for-and-where-it-breaks"><h2 id="part-9--what-its-good-for-and-where-it-breaks">Part 9 — What It&#39;s Good For, and Where It Breaks</h2>
+<h3 id="91-where-jev-fits">9.1 Where Jev fits</h3>
+<p>Straight from the docs&#39; use-case map, plus what I would actually reach for first:</p>
+<table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Primitive</th>
+<th>Why Jev</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ticket / lead / document classification</td>
+<td>Choice</td>
+<td>Fast, gives a distribution and confidence</td>
+</tr>
+<tr>
+<td>Routing to a handler, a queue, a model</td>
+<td>Choice + Score</td>
+<td>The intent-routing pattern</td>
+</tr>
+<tr>
+<td>Severity, quality, risk, frustration</td>
+<td>Score</td>
+<td>A rubric you can read and tune</td>
+</tr>
+<tr>
+<td>Guardrails, moderation, PII detection</td>
+<td>Noul battery</td>
+<td>Cheap enough to run on every message</td>
+</tr>
+<tr>
+<td>Search, reranking, retrieval filtering</td>
+<td>Noul per candidate</td>
+<td>Replaces a reranker service</td>
+</tr>
+<tr>
+<td>Feature extraction for a classical model</td>
+<td>Noul / Score</td>
+<td>Probabilities become numeric features</td>
+</tr>
+<tr>
+<td>Verifying citations, tools, extractions</td>
+<td>Noul battery</td>
+<td>Never generates, only judges against criteria</td>
+</tr>
+<tr>
+<td>Model routing for agents</td>
+<td>Choice + Score</td>
+<td>Pick the cheap path when it will do</td>
+</tr>
+</tbody></table>
+<h3 id="92-where-it-breaks--the-jaggedness-list">9.2 Where it breaks — the jaggedness list</h3>
+<p>TypeSafe documents its own failure modes for <code>jev-1.13</code>, and they matter more than the benchmarks. Learn them and you will avoid most bad integrations:</p>
+<table>
+<thead>
+<tr>
+<th>Failure mode</th>
+<th>What happens</th>
+<th>Do this instead</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Literal reading</strong></td>
+<td>It answers the question you <em>wrote</em>, not the one you meant. &quot;It can be quite literal&quot;</td>
+<td>Write the exact condition; put boundary cases in the criteria. If you find yourself explaining what you meant, that explanation belongs in the instruction</td>
+</tr>
+<tr>
+<td><strong>Math and numbers</strong></td>
+<td>It is not a calculator. Counting is unreliable and gets worse with size</td>
+<td>Do arithmetic in code. Iterate and count with one question per item, then add them up yourself</td>
+</tr>
+<tr>
+<td><strong>Date and time comparison</strong></td>
+<td>It reads dates as text, not ordered quantities</td>
+<td>Extract date parts (a Choice over months/days, with a &quot;not stated&quot; option), then compare in code</td>
+</tr>
+<tr>
+<td><strong>Indirection</strong></td>
+<td>Double negatives and multi-hop questions cost accuracy</td>
+<td>Ask directly; point to the relevant state by name</td>
+</tr>
+<tr>
+<td><strong>Large, noisy state</strong></td>
+<td>Accuracy falls with irrelevant detail; &quot;context rot&quot;</td>
+<td>Filter in code first; send only what the question needs</td>
+</tr>
+<tr>
+<td><strong>Adversarial content</strong></td>
+<td>State is treated as data, not as hostile. Injected instructions can move the answer</td>
+<td>Be explicit in criteria; test edge cases before deploying broadly</td>
+</tr>
+<tr>
+<td><strong>Contradictory instructions/criteria</strong></td>
+<td>If instruction and criteria ask for different things, it gets confused</td>
+<td>Treat criteria as an extension of the instruction; align them</td>
+</tr>
+<tr>
+<td><strong>Structural invariants</strong></td>
+<td><code>Noul</code> and a yes/no <code>Choice</code> on the same question will not sum to 1; a question and its negation may not add to 1</td>
+<td>Don&#39;t rely on arithmetic identities across separate questions; word each to mean exactly what you want</td>
+</tr>
+<tr>
+<td><strong>Generation</strong></td>
+<td>It does not generate text. Forcing it is slow and bad</td>
+<td>Use a generative model. Jev picks, judges, and scores</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The big one is math.</strong> Do not ask Jev &quot;how many of these 40 items are defects?&quot; Ask 40 Noul questions — one per item — and count in code. The <em>Jev 1.13 jaggedness</em> page spells this out with a worked example.</p>
+</blockquote>
+<h3 id="93-the-decision-table">9.3 The decision table</h3>
+<table>
+<thead>
+<tr>
+<th>The answer I need is…</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>One of a fixed set, unordered</td>
+<td><strong>Choice</strong></td>
+</tr>
+<tr>
+<td>A position on a described scale</td>
+<td><strong>Score</strong></td>
+</tr>
+<tr>
+<td>Yes/no, and the probability matters</td>
+<td><strong>Noul</strong></td>
+</tr>
+<tr>
+<td>A number I can compute</td>
+<td><strong>Code</strong></td>
+</tr>
+<tr>
+<td>Several independent factors</td>
+<td><strong>Several questions, combined in code</strong></td>
+</tr>
+<tr>
+<td>A paragraph of prose</td>
+<td><strong>A generative LLM</strong></td>
+</tr>
+<tr>
+<td>A date comparison or a count</td>
+<td><strong>Extract with Jev, compute in code</strong></td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="part-10--cost-rate-limits-and-data-handling"><h2 id="part-10--cost-rate-limits-and-data-handling">Part 10 — Cost, Rate Limits, and Data Handling</h2>
+<h3 id="101-pricing">10.1 Pricing</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Jev 1.13 (<code>jev-1.13.0</code>)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Input</td>
+<td><strong>$0.042 per million tokens</strong> — i.e. <strong>$42 per billion</strong></td>
+</tr>
+<tr>
+<td>Output</td>
+<td><strong>Free</strong></td>
+</tr>
+<tr>
+<td>Rate limits</td>
+<td>250,000 tokens/sec, 1,200 requests/min</td>
+</tr>
+<tr>
+<td>Context</td>
+<td>64k tokens per request; 32k for state + the longest single question</td>
+</tr>
+</tbody></table>
+<p>Billing is <strong>per input token</strong>. Because questions are evaluated in parallel, adding questions adds only their tokens — and because the state is the bulk of most requests, batching many questions into one call is dramatically cheaper than one call per question. The docs&#39; cookbook measured <strong>12.2× cheaper and 10.0× faster</strong> for 13 batched questions versus 13 single-question calls.</p>
+<blockquote>
+<p><strong>These numbers change.</strong> Pricing and rate limits are live figures. Rate limits in particular are documented as adjusting dynamically while TypeSafe scales capacity. Re-check the Models page before you size a build.</p>
+</blockquote>
+<h3 id="102-vendor-claims-clearly-labeled">10.2 Vendor claims, clearly labeled</h3>
+<p>TypeSafe&#39;s launch post claims Jev is &quot;two orders of magnitude faster and more efficient&quot;, with home-page figures of <strong>193.6× faster and 444.6× cheaper</strong> on their workflow evals, and <strong>zero hallucinations</strong> because the output space is constrained. Their published workflow evals show Jev around 67.8% mean accuracy at roughly $0.0004 and 0.4 s per case, against much more expensive LLM configurations.</p>
+<p>These are <strong>vendor-run evaluations</strong>. The methodology is disclosed and the reference labels are an ensemble of other frontier models, which is a reasonable approach — but it is still the vendor grading the vendor. Treat the <em>shape</em> of the result as credible (a small, constrained decision model is far cheaper and faster at bounded judgments than a frontier LLM) and the <em>numbers</em> as marketing until you reproduce them on your own data. The adapter in Part 8.4 is how you reproduce them.</p>
+<h3 id="103-rate-limits-and-errors">10.3 Rate limits and errors</h3>
+<ul>
+<li><code>401 Unauthorized</code> — missing or bad API key.</li>
+<li><code>422 Unprocessable Entity</code> — request failed validation (missing field, malformed question). The body names the offending field.</li>
+<li><code>429 Too Many Requests</code> — over a rate limit. Back off and retry.</li>
+<li><code>529 Overloaded</code> — TypeSafe is temporarily overloaded. Retry after a short delay.</li>
+</ul>
+<p>The official SDKs retry with backoff by default and honor <code>retry-after</code>. If you call HTTP directly, implement exponential backoff yourself.</p>
+<h3 id="104-data-handling">10.4 Data handling</h3>
+<p>Jev is <strong>not trained on customer requests or responses</strong>. The same weights serve every account; you shape answers through state and questions, not through fine-tuning. There is a Data Processing Agreement, a Privacy Policy, and zero data retention (ZDR) for enterprise customers. If your product handles regulated data, read those documents rather than trusting a summary — including this one.</p>
+<hr>
+</section><section id="cheat-sheet"><h2 id="cheat-sheet">Cheat Sheet</h2>
+<div class="codewrap"><pre data-lang="bash"><code># One decision, from the shell
+curl -X POST https://api.typesafe.ai/v1/systemone \
+  -H &quot;Authorization: Bearer $TYPESAFE_API_KEY&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;state&quot;:&quot;My card was charged twice.&quot;,&quot;model&quot;:&quot;jev-latest&quot;,
+       &quot;questions&quot;:{&quot;refund&quot;:{&quot;type&quot;:&quot;noul&quot;,&quot;instructions&quot;:&quot;Is the customer asking for money back?&quot;}}}'
+
+# What can my key call?
+curl https://api.typesafe.ai/v1/models -H &quot;Authorization: Bearer $TYPESAFE_API_KEY&quot;
+
+# SDKs
+pip install typesafe-sdk          # Python 3.10+
+npm install @typesafe-ai/sdk      # Node 20+
+
+# Agent skill
+npx skills add typesafe-ai/skills --skill typesafe-ai</code></pre></div>
+<div class="codewrap"><pre data-lang="python"><code># Python, the shape you'll write most often
+from typesafe_sdk import Choice, Noul, Score, TypeSafeClient
+
+with TypeSafeClient() as client:
+    r = client.system_one(
+        state=text,
+        questions={
+            &quot;category&quot;: Choice(instructions=&quot;...&quot;, criteria={&quot;a&quot;: &quot;...&quot;, &quot;b&quot;: &quot;...&quot;}),
+            &quot;severity&quot;: Score(instructions=&quot;...&quot;, criteria=[&quot;low&quot;, &quot;medium&quot;, &quot;high&quot;]),
+            &quot;urgent&quot;:   Noul(instructions=&quot;...&quot;),
+        },
+    )
+
+r.answers[&quot;category&quot;].choice, r.answers[&quot;category&quot;].confidence
+r.answers[&quot;severity&quot;].score, r.answers[&quot;severity&quot;].probabilities
+r.answers[&quot;urgent&quot;].noul</code></pre></div>
+<div class="codewrap"><pre data-lang="json"><code>// Question shapes, verbatim
+{&quot;type&quot;:&quot;choice&quot;,&quot;instructions&quot;:&quot;…&quot;,&quot;criteria&quot;:{&quot;key&quot;:&quot;description&quot;,&quot;key2&quot;:null}}
+{&quot;type&quot;:&quot;score&quot;,&quot;instructions&quot;:&quot;…&quot;,&quot;criteria&quot;:[&quot;level 0&quot;,&quot;level 1&quot;,&quot;level 2&quot;]}
+{&quot;type&quot;:&quot;noul&quot;,&quot;instructions&quot;:&quot;…&quot;,&quot;criteria&quot;:{&quot;true&quot;:&quot;…&quot;,&quot;false&quot;:&quot;…&quot;}}</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+<th>Use it for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>choice</code></td>
+<td>Highest-probability option</td>
+<td>Branching</td>
+</tr>
+<tr>
+<td><code>probabilities</code></td>
+<td>Full distribution (Choice: options, Score: levels)</td>
+<td>Ranking, weighted combines</td>
+</tr>
+<tr>
+<td><code>confidence</code></td>
+<td>0–1, peakedness of the distribution</td>
+<td>Gating automation</td>
+</tr>
+<tr>
+<td><code>score</code></td>
+<td>Probability-weighted position on levels</td>
+<td>Thresholds, ranking</td>
+</tr>
+<tr>
+<td><code>legend</code></td>
+<td>Score levels mapped back to descriptions</td>
+<td>Auditing</td>
+</tr>
+<tr>
+<td><code>noul</code></td>
+<td>0–1 probability that the answer is yes</td>
+<td>Boolean gating, features</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>One request, many questions</td>
+<td>Parallel, near-constant latency, far cheaper</td>
+</tr>
+<tr>
+<td>One judgment per question</td>
+<td>Higher accuracy, easier to debug</td>
+</tr>
+<tr>
+<td>Filter state in code first</td>
+<td>Irrelevant context lowers accuracy</td>
+</tr>
+<tr>
+<td>Keep questions and thresholds in one file</td>
+<td>A human must be able to review the policy</td>
+</tr>
+<tr>
+<td>Never do math, counting, or date math in Jev</td>
+<td>It is not a calculator</td>
+</tr>
+<tr>
+<td>Add an <code>other</code> option to every Choice</td>
+<td>Avoid forcing a bad match</td>
+</tr>
+<tr>
+<td>Threshold confidence by risk</td>
+<td>Cheap actions and destructive actions differ</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>401</code></td>
+<td>Key missing, whitespace, or wrong env var</td>
+<td>Re-export <code>TYPESAFE_API_KEY</code>; SDK strips surrounding whitespace but rejects internal whitespace and non-ASCII</td>
+</tr>
+<tr>
+<td><code>422</code></td>
+<td>Missing <code>criteria</code>, wrong <code>type</code>, malformed field</td>
+<td>Read the error body; it names the field</td>
+</tr>
+<tr>
+<td><code>429</code> / <code>529</code></td>
+<td>Rate limit or overload</td>
+<td>Use the SDK&#39;s default retry, or back off exponentially</td>
+</tr>
+<tr>
+<td>Answers look arbitrary</td>
+<td>Question is compound or ambiguous</td>
+<td>Split it; add structured criteria with <code>what</code> / <code>not_for</code> / <code>examples</code></td>
+</tr>
+<tr>
+<td>Confidence always low</td>
+<td>Levels overlap, or the question measures several things, or state lacks the facts</td>
+<td>One dimension per question; describe situations not degrees; add the missing state</td>
+</tr>
+<tr>
+<td>Model picks the wrong option</td>
+<td>Options too similar</td>
+<td>Add <code>not_for</code> and <code>examples</code> to each option</td>
+</tr>
+<tr>
+<td>Wrong answer on an obviously easy case</td>
+<td>State is full of distractors</td>
+<td>Filter the state; send only relevant fields</td>
+</tr>
+<tr>
+<td>Counting is wrong</td>
+<td>Jev does not count</td>
+<td>One question per item; add the numbers in code</td>
+</tr>
+<tr>
+<td>Scores used as exact magnitudes</td>
+<td>Scores are not numerically calibrated</td>
+<td>Use the score to threshold or rank, not to reconstruct a number</td>
+</tr>
+<tr>
+<td><code>Noul</code> and its negation don&#39;t sum to 1</td>
+<td>Not a guaranteed invariant</td>
+<td>Don&#39;t rely on cross-question arithmetic; word each independently</td>
+</tr>
+<tr>
+<td>Agent invented a request field</td>
+<td>Stale skill</td>
+<td>Update the skill (<code>npx skills update</code> / plugin update)</td>
+</tr>
+<tr>
+<td>Results moved after a deploy</td>
+<td>You used the <code>jev-latest</code> alias and a new release shipped</td>
+<td>Pin the versioned ID (<code>jev-1.13.0</code>); the response&#39;s <code>model</code> field tells you which answered</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="production-checklist"><h2 id="production-checklist">Production Checklist</h2>
+<ul>
+<li><input disabled="" type="checkbox"> API key is server-side only, in the platform&#39;s secret store.</li>
+<li><input disabled="" type="checkbox"> Every question lives in one reviewable file, with thresholds beside it.</li>
+<li><input disabled="" type="checkbox"> Each question asks exactly one thing.</li>
+<li><input disabled="" type="checkbox"> Every Choice has an <code>other</code> / <code>none of the above</code> option.</li>
+<li><input disabled="" type="checkbox"> Score levels describe situations, not degrees, and cover the extreme case.</li>
+<li><input disabled="" type="checkbox"> Nouls are phrased so a high value means yes.</li>
+<li><input disabled="" type="checkbox"> State is filtered to relevant fields before the call.</li>
+<li><input disabled="" type="checkbox"> Every automated action has a named confidence threshold.</li>
+<li><input disabled="" type="checkbox"> Low-confidence and high-risk paths have a human or retry fallback.</li>
+<li><input disabled="" type="checkbox"> No math, counting, or date arithmetic in a question.</li>
+<li><input disabled="" type="checkbox"> The model is pinned to a versioned ID, and you log the <code>model</code> returned.</li>
+<li><input disabled="" type="checkbox"> Requests and responses are logged with question definitions, so you can replay.</li>
+<li><input disabled="" type="checkbox"> A labeled eval set exists, and a Jev-based scorer is validated against human labels before it gates anything.</li>
+<li><input disabled="" type="checkbox"> You have compared Jev against an LLM on your own data before committing.</li>
+<li><input disabled="" type="checkbox"> Vendor benchmark numbers are treated as vendor numbers.</li>
+</ul>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>No official TypeSafe video series exists yet. Search rather than follow a link that may rot.</p>
+<table>
+<thead>
+<tr>
+<th>Search</th>
+<th>What you&#39;ll find</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://www.youtube.com/results?search_query=TypeSafe+Jev+System+One+model" target="_blank" rel="noopener">TypeSafe Jev System One model</a></td>
+<td>Launch coverage and explainers</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Jev+TypeSafe+tutorial" target="_blank" rel="noopener">Jev TypeSafe tutorial</a></td>
+<td>Walkthroughs and integrations</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=System+One+model+vs+LLM" target="_blank" rel="noopener">System One model vs LLM</a></td>
+<td>Conceptual comparisons</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=structured+outputs+vs+decision+models" target="_blank" rel="noopener">structured outputs vs decision models</a></td>
+<td>Why typed decisions differ from JSON mode</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Kahneman+Thinking+Fast+and+Slow+explained" target="_blank" rel="noopener">Kahneman Thinking Fast and Slow explained</a></td>
+<td>The naming inspiration, and the idea behind it</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=LLM+guardrails+architecture" target="_blank" rel="noopener">LLM guardrails architecture</a></td>
+<td>Where a fast classifier fits in front of an LLM</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=model+routing+LLM" target="_blank" rel="noopener">model routing LLM</a></td>
+<td>The cost-reduction pattern Jev is built for</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--docs"><h2 id="written-references--docs">Written References &amp; Docs</h2>
+<p>Official TypeSafe sources first. Where a page is version-specific, I say so.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TypeSafe home</td>
+<td><code>https://typesafe.ai</code></td>
+</tr>
+<tr>
+<td>Launch post — System One Models &amp; Jev</td>
+<td><code>https://typesafe.ai/blog/introducing-system-one-models-and-jev</code></td>
+</tr>
+<tr>
+<td>Manifesto</td>
+<td><code>https://typesafe.ai/manifesto</code></td>
+</tr>
+<tr>
+<td>Docs index (machine-readable)</td>
+<td><code>https://docs.typesafe.ai/llms.txt</code></td>
+</tr>
+<tr>
+<td>Docs — Introduction</td>
+<td><code>https://docs.typesafe.ai/</code></td>
+</tr>
+<tr>
+<td>Docs — Quick start</td>
+<td><code>https://docs.typesafe.ai/introduction/quickstart</code></td>
+</tr>
+<tr>
+<td>Docs — Jev with coding agents</td>
+<td><code>https://docs.typesafe.ai/introduction/coding-agents</code></td>
+</tr>
+<tr>
+<td>Docs — AI primer (RLCD)</td>
+<td><code>https://docs.typesafe.ai/introduction/machine-learning-primer</code></td>
+</tr>
+<tr>
+<td>Docs — System One</td>
+<td><code>https://docs.typesafe.ai/concepts/system-one</code></td>
+</tr>
+<tr>
+<td>Docs — State</td>
+<td><code>https://docs.typesafe.ai/concepts/state</code></td>
+</tr>
+<tr>
+<td>Docs — How to build with System One</td>
+<td><code>https://docs.typesafe.ai/concepts/how-to-build-with-system-one</code></td>
+</tr>
+<tr>
+<td>Docs — Example use cases</td>
+<td><code>https://docs.typesafe.ai/concepts/use-case-map</code></td>
+</tr>
+<tr>
+<td>Docs — Primitives (questions)</td>
+<td><code>https://docs.typesafe.ai/primitives</code></td>
+</tr>
+<tr>
+<td>Docs — Choice</td>
+<td><code>https://docs.typesafe.ai/primitives/choice</code></td>
+</tr>
+<tr>
+<td>Docs — Score</td>
+<td><code>https://docs.typesafe.ai/primitives/score</code></td>
+</tr>
+<tr>
+<td>Docs — Noul</td>
+<td><code>https://docs.typesafe.ai/primitives/noul</code></td>
+</tr>
+<tr>
+<td>Docs — Advanced: structure</td>
+<td><code>https://docs.typesafe.ai/primitives/advanced</code></td>
+</tr>
+<tr>
+<td>Docs — Confidence</td>
+<td><code>https://docs.typesafe.ai/confidence</code></td>
+</tr>
+<tr>
+<td>Docs — Patterns</td>
+<td><code>https://docs.typesafe.ai/patterns</code></td>
+</tr>
+<tr>
+<td>Docs — Speculative fan-out</td>
+<td><code>https://docs.typesafe.ai/patterns/fan-out</code></td>
+</tr>
+<tr>
+<td>Docs — Confidence-gated routing</td>
+<td><code>https://docs.typesafe.ai/patterns/confidence-routing</code></td>
+</tr>
+<tr>
+<td>Docs — Composite scoring</td>
+<td><code>https://docs.typesafe.ai/patterns/composite-scoring</code></td>
+</tr>
+<tr>
+<td>Docs — Intent routing</td>
+<td><code>https://docs.typesafe.ai/patterns/intent-routing</code></td>
+</tr>
+<tr>
+<td>Docs — Cookbooks index</td>
+<td><code>https://docs.typesafe.ai/cookbooks</code></td>
+</tr>
+<tr>
+<td>Cookbook — Parallel questions</td>
+<td><code>https://docs.typesafe.ai/cookbooks/parallel_questions</code></td>
+</tr>
+<tr>
+<td>Cookbook — Guardrails for LLMs</td>
+<td><code>https://docs.typesafe.ai/cookbooks/llm_guardrails</code></td>
+</tr>
+<tr>
+<td>Cookbook — Re-ranking</td>
+<td><code>https://docs.typesafe.ai/cookbooks/rerank_typesafe</code></td>
+</tr>
+<tr>
+<td>Cookbook — Classifying RAG passages</td>
+<td><code>https://docs.typesafe.ai/cookbooks/classifying_rag_passages</code></td>
+</tr>
+<tr>
+<td>Cookbook — Double-checking citations</td>
+<td><code>https://docs.typesafe.ai/cookbooks/citation_check</code></td>
+</tr>
+<tr>
+<td>Cookbook — Structured-data-extraction cascade</td>
+<td><code>https://docs.typesafe.ai/cookbooks/sde_cascade</code></td>
+</tr>
+<tr>
+<td>Cookbook — Hierarchical classification</td>
+<td><code>https://docs.typesafe.ai/cookbooks/hierarchical_classification</code></td>
+</tr>
+<tr>
+<td>Cookbook — Classification using confidence</td>
+<td><code>https://docs.typesafe.ai/cookbooks/classification_using_confidence</code></td>
+</tr>
+<tr>
+<td>Cookbook — Self-consistency (Noul)</td>
+<td><code>https://docs.typesafe.ai/cookbooks/consistency_noul_cookbook</code></td>
+</tr>
+<tr>
+<td>Docs — Models, pricing, limits</td>
+<td><code>https://docs.typesafe.ai/models</code></td>
+</tr>
+<tr>
+<td>Docs — Jev 1.13 jaggedness</td>
+<td><code>https://docs.typesafe.ai/model-jaggedness/jev-1.13</code></td>
+</tr>
+<tr>
+<td>Docs — HTTP API reference</td>
+<td><code>https://docs.typesafe.ai/api</code></td>
+</tr>
+<tr>
+<td>Docs — Client SDKs</td>
+<td><code>https://docs.typesafe.ai/sdk</code></td>
+</tr>
+<tr>
+<td>Docs — Python SDK</td>
+<td><code>https://docs.typesafe.ai/sdk/python</code></td>
+</tr>
+<tr>
+<td>Docs — Python SDK usage</td>
+<td><code>https://docs.typesafe.ai/sdk/python/usage</code></td>
+</tr>
+<tr>
+<td>Docs — JavaScript SDK</td>
+<td><code>https://docs.typesafe.ai/sdk/javascript</code></td>
+</tr>
+<tr>
+<td>Docs — Agent skill</td>
+<td><code>https://docs.typesafe.ai/agent-skill</code></td>
+</tr>
+<tr>
+<td>Docs — Legal (DPA, privacy, ZDR)</td>
+<td><code>https://docs.typesafe.ai/legal</code></td>
+</tr>
+<tr>
+<td>Console — Playground</td>
+<td><code>https://console.typesafe.ai/playground</code></td>
+</tr>
+<tr>
+<td>Console — API keys</td>
+<td><code>https://console.typesafe.ai/keys</code></td>
+</tr>
+<tr>
+<td>TypeSafe workflow evals</td>
+<td><code>https://evals.typesafe.ai/</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>Repo / package</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Python SDK repo</td>
+<td><code>https://github.com/typesafe-ai/typesafe-sdk-python</code></td>
+</tr>
+<tr>
+<td>JavaScript SDK repo</td>
+<td><code>https://github.com/typesafe-ai/typesafe-sdk-js</code></td>
+</tr>
+<tr>
+<td>Agent skill repo</td>
+<td><code>https://github.com/typesafe-ai/skills</code></td>
+</tr>
+<tr>
+<td>LLM comparison adapter (Python)</td>
+<td><code>https://github.com/typesafe-ai/system-one-adapter-python</code></td>
+</tr>
+<tr>
+<td>Python package on PyPI</td>
+<td><code>https://pypi.org/project/typesafe-sdk/</code></td>
+</tr>
+<tr>
+<td>JS package on npm</td>
+<td><code>https://www.npmjs.com/package/@typesafe-ai/sdk</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>Integration</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Vercel AI Gateway — TypeSafe API</td>
+<td><code>https://vercel.com/docs/ai-gateway/sdks-and-apis/typesafe</code></td>
+</tr>
+<tr>
+<td>OpenRouter — TypeSafe/Jev</td>
+<td><code>https://openrouter.ai/~typesafe/jev-latest</code></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Third-party &quot;Jev AI&quot; site — <strong>not TypeSafe</strong></td>
+<td><code>https://thejevai.com/</code></td>
+</tr>
+<tr>
+<td>Community article on Jev (Hugging Face blog)</td>
+<td><code>https://huggingface.co/blog/sora-2/what-is-jev-ai-a-practical-guide-to-system-one-and</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Read this before you follow any &quot;Jev&quot; link.</strong> There is a cluster of third-party sites — <code>thejevai.com</code>, <code>jevaimodel.net</code>, <code>jevaimodel.org</code>, <code>bestjevai.com</code>, <code>jevmodel.net</code> — that present themselves as Jev products. One of them states plainly that it is <em>&quot;an independently operated product and is not affiliated with, operated by, or endorsed by TypeSafe.&quot;</em> The Hugging Face community article that compares them even shows a request against <code>https://thejevai.com/v1/systemone</code>, which is <strong>not</strong> the TypeSafe API. The real endpoint is <code>https://api.typesafe.ai/v1/systemone</code>, the real docs are <code>https://docs.typesafe.ai/</code>, and the real console is <code>https://console.typesafe.ai/</code>. Verify the domain before you send a key or a credit card anywhere.</p>
+</blockquote>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English definition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>System One model</td>
+<td>A model class built for fast, structured decisions that software consumes directly</td>
+</tr>
+<tr>
+<td>Jev</td>
+<td>TypeSafe&#39;s flagship System One model; does not generate text</td>
+</tr>
+<tr>
+<td>State</td>
+<td>The content a request is evaluated against; string, JSON object, or array of text</td>
+</tr>
+<tr>
+<td>Question</td>
+<td>A typed judgment about the state: Choice, Score, or Noul</td>
+</tr>
+<tr>
+<td>Choice</td>
+<td>A question returning one option from a defined set, plus probabilities and confidence</td>
+</tr>
+<tr>
+<td>Score</td>
+<td>A question returning a position on an ordered rubric, plus probabilities and confidence</td>
+</tr>
+<tr>
+<td>Noul</td>
+<td>A yes/no question returning the probability that the answer is yes, 0 to 1</td>
+</tr>
+<tr>
+<td>Criteria</td>
+<td>The options (Choice) or levels (Score) or yes/no descriptions (Noul)</td>
+</tr>
+<tr>
+<td><code>choice</code></td>
+<td>The winning option on a Choice answer</td>
+</tr>
+<tr>
+<td><code>score</code></td>
+<td>The probability-weighted position on a Score answer; may fall between levels</td>
+</tr>
+<tr>
+<td><code>noul</code></td>
+<td>The yes-probability on a Noul answer</td>
+</tr>
+<tr>
+<td><code>probabilities</code></td>
+<td>The model&#39;s full distribution over your options or levels</td>
+</tr>
+<tr>
+<td><code>confidence</code></td>
+<td>A 0–1 statistic describing how peaked the distribution is (Choice and Score only)</td>
+</tr>
+<tr>
+<td>Calibration</td>
+<td>Whether stated probabilities match observed outcome rates across many predictions</td>
+</tr>
+<tr>
+<td>RLCD</td>
+<td>Reinforcement Learning for Calibrated Decisions — how Jev is post-trained</td>
+</tr>
+<tr>
+<td>RLHF</td>
+<td>Reinforcement Learning from Human Feedback — how chat models are post-trained</td>
+</tr>
+<tr>
+<td>Speculative fan-out</td>
+<td>Asking every question, including ones only some inputs need</td>
+</tr>
+<tr>
+<td>Composite scoring</td>
+<td>Combining several atomic Scores with weights you control</td>
+</tr>
+<tr>
+<td>Confidence-gated routing</td>
+<td>Choosing an action based on how confident the answer is</td>
+</tr>
+<tr>
+<td>Intent routing</td>
+<td>Classifying a request, then choosing the handler</td>
+</tr>
+<tr>
+<td>State filtering</td>
+<td>Sending only the fields a question needs, to protect accuracy</td>
+</tr>
+<tr>
+<td>Alias (<code>jev-latest</code>)</td>
+<td>A name that resolves to the current versioned model ID</td>
+</tr>
+<tr>
+<td>Pin / pinning</td>
+<td>Choosing a versioned model ID so answers don&#39;t shift under you</td>
+</tr>
+<tr>
+<td>ZDR</td>
+<td>Zero data retention; available to enterprise customers</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Can Jev replace my LLM?</strong> No. It replaces the <em>parsing and branching</em> around your LLM calls. Keep the LLM for generation and reasoning; use Jev for the bounded decisions.</p>
+<p><strong>Is it a smaller LLM?</strong> No. It is a different class of model, trained to return calibrated decisions rather than text. TypeSafe&#39;s own docs call out that framing as wrong.</p>
+<p><strong>Is this just JSON mode?</strong> No. JSON mode makes an LLM produce structured text that you then validate; it can still invent fields and go off the rails. Jev&#39;s output space is defined up front, so there is nothing to invent — every answer is a distribution over your options.</p>
+<p><strong>How fast is it, really?</strong> Vendor figures land between 70 and 500 ms, with a fast lane on paid plans. Treat those as positioning, not an SLA, and validate latency from your own region and at your own concurrency.</p>
+<p><strong>How accurate is it?</strong> On TypeSafe&#39;s published workflow evals, around 68% mean accuracy at a fraction of a cent. On their own benchmark that is competitive-in-the-neighborhood of much larger models — but it is their benchmark. Measure on your data.</p>
+<p><strong>Do I need to fine-tune it?</strong> No, and you can&#39;t per-account. You adapt it through state and questions. TypeSafe states it does not train on customer data.</p>
+<p><strong>What about non-English?</strong> English is the primary training language. Other languages, including CJK, are accepted but at lower accuracy. Test on your own content and watch confidence.</p>
+<p><strong>Can I use it for images?</strong> Not yet. Text, JSON objects, and arrays of text only. Pre-process images into text or structured fields first.</p>
+<p><strong>How do I deal with a question whose answer depends on another?</strong> If your code cannot build the second question until it has the first answer, make a second request. Otherwise ask both and combine in code.</p>
+<p><strong>What&#39;s the single best first use?</strong> A low-risk classification on your real traffic — ticket type, lead quality, content category — measured against twenty labeled examples. Then expand.</p>
+<h3 id="next-steps-in-order">Next steps, in order</h3>
+<ol>
+<li><strong>Today:</strong> run one decision in the Playground. No code.</li>
+<li><strong>This week:</strong> create a key, call the API with cURL, then port it to the SDK in your language.</li>
+<li><strong>Next week:</strong> pick one real decision in your product. Write the questions in one file. Log the answers and the actions.</li>
+<li><strong>Week 3:</strong> collect 20–50 labeled examples. Measure Jev against them. Tune criteria and thresholds.</li>
+<li><strong>Week 4:</strong> add a confidence gate and a human fallback. Run the LLM-comparison adapter on the same examples.</li>
+<li><strong>Month 2:</strong> add Jev as a guardrail on the LLM call and as a scorer in your eval suite.</li>
+</ol>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p><strong>Verified as of September 2026 from primary sources:</strong></p>
+<ul>
+<li><strong>Model and pricing:</strong> <code>jev-1.13.0</code>, alias <code>jev-latest</code>; $42 per billion input tokens ($0.042/Mtok); output tokens free; 250,000 tokens/sec and 1,200 requests/min, documented as dynamically adjusting; 64k-token request context with a 32k state + longest-question budget; text-only input (<code>docs.typesafe.ai/models</code>).</li>
+<li><strong>Endpoint and shapes:</strong> <code>POST https://api.typesafe.ai/v1/systemone</code>; request fields <code>state</code>, <code>model</code>, <code>questions</code>; answer fields per primitive (<code>docs.typesafe.ai/api</code>, <code>docs.typesafe.ai/primitives/*</code>).</li>
+<li><strong>SDKs:</strong> Python <code>typesafe-sdk</code> 0.7.1, released Sep 21 2026, Python ≥3.10 (PyPI); JavaScript <code>@typesafe-ai/sdk</code> 0.6.0, Node ≥20 (npm).</li>
+<li><strong>Agent skill:</strong> install via the Claude Code plugin marketplace or <code>npx skills add typesafe-ai/skills --skill typesafe-ai</code> (<code>docs.typesafe.ai/agent-skill</code>).</li>
+<li><strong>Patterns and cookbooks:</strong> the four named patterns; the parallel-questions result of 12.2× cheaper / 10.0× faster for 13 batched questions; the guardrails battery structure and its four routing outcomes; the citation, re-ranking, and cascade cookbooks (<code>docs.typesafe.ai/patterns/*</code>, <code>docs.typesafe.ai/cookbooks/*</code>).</li>
+<li><strong>Jaggedness:</strong> the nine documented failure modes for <code>jev-1.13</code>, last reviewed 2026-09-17 (<code>docs.typesafe.ai/model-jaggedness/jev-1.13</code>).</li>
+<li><strong>Data handling:</strong> not trained on customer requests or responses; DPA, privacy policy, and enterprise ZDR (<code>docs.typesafe.ai/legal</code>).</li>
+<li><strong>Integrations:</strong> Vercel AI Gateway base URL <code>https://ai-gateway.vercel.sh/typesafe</code> with model <code>typesafe-ai/jev</code>; OpenRouter base URL <code>https://openrouter.ai/api</code> with model <code>~typesafe/jev-latest</code> (Vercel docs; TypeSafe Python SDK usage page).</li>
+<li><strong>The LLM comparison adapter:</strong> <code>system-one-adapter-python</code>, installable with <code>[openai]</code> / <code>[anthropic]</code> / <code>[gemini]</code> extras (GitHub).</li>
+</ul>
+<p><strong>Vendor claims, not independently verified:</strong> the 193.6× / 444.6× headline figures; &quot;zero hallucinations&quot;; the 238× lower input price versus a named competitor; the workflow-eval accuracy, cost, and latency numbers on <code>evals.typesafe.ai</code>; the re-ranking and parallel-question percentages (these come from TypeSafe&#39;s own cookbooks, with published methodology and cached results, but they are still vendor-run on vendor-chosen tasks). Reproduce on your own data before relying on any of them.</p>
+<p><strong>Changes fast:</strong> pricing, rate limits (explicitly dynamic), the default model alias, gateway model strings and base URLs, and SDK versions. Re-check the Models page and the relevant package registry before sizing a build or pinning a model.</p>
+<p><strong>Not legal advice.</strong> If you handle regulated data, read TypeSafe&#39;s DPA and Privacy Policy directly.</p>
+<p><strong>A note on third-party sites.</strong> Several domains present themselves as &quot;Jev&quot; products and are explicitly unaffiliated with TypeSafe. One popular community article links to them and shows a non-TypeSafe endpoint. This paper cites TypeSafe&#39;s own domains for every technical claim; where it cites the community article, it is labeled as such.</p>
+<hr>
+</section><section id="your-setup-notes-mac--vs-code--opencode"><h2 id="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</h2>
+<p><strong>How I&#39;d actually wire this into my own stack.</strong></p>
+<table>
+<thead>
+<tr>
+<th>In my workspace</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Solo Next.js SaaS on Vercel, Postgres, one paid deliverable</td>
+<td>Jev&#39;s sweet spot: a cheap classifier and a quality gate around the expensive LLM call</td>
+</tr>
+<tr>
+<td>opencode as the coding agent</td>
+<td>Install the TypeSafe skill so it writes correct integrations</td>
+</tr>
+<tr>
+<td>LLM calls already in route handlers</td>
+<td>Put Jev server-side, in the same handlers, one module away</td>
+</tr>
+<tr>
+<td>No eval suite yet</td>
+<td>Paper 1&#39;s 5-case dataset is the prerequisite; Jev is the scorer you add to it</td>
+</tr>
+</tbody></table>
+<p><strong>Recommended stack for this paper&#39;s workflows:</strong></p>
+<ul>
+<li><strong>Language:</strong> TypeScript in the app (<code>@typesafe-ai/sdk</code>), Python for evals and one-off analysis (<code>typesafe-sdk</code>). Both speak the same HTTP shape, so you can mix.</li>
+<li><strong>Where the key lives:</strong> Vercel environment variable, server-only. Never <code>NEXT_PUBLIC_</code>.</li>
+<li><strong>Where the questions live:</strong> one <code>lib/decisions.ts</code> per product area, with <code>THRESHOLDS</code> right below them. This is the file you review in a PR.</li>
+<li><strong>Where the decision runs:</strong> the Route Handler, before any expensive work. Log <code>{question set, model, answer, confidence, action}</code> to Postgres so you can replay.</li>
+<li><strong>Version pinning:</strong> use <code>jev-latest</code> while exploring, pin <code>jev-1.13.0</code> once thresholds are tuned, and log the <code>model</code> field from the response.</li>
+<li><strong>The first three insertions I&#39;d make, in order:</strong> (1) an intake classifier in front of support/contact forms; (2) the quality gate in front of the paid deliverable; (3) a citation check on anything the LLM writes that quotes a source.</li>
+<li><strong>What I would not use it for:</strong> generating any user-facing prose, any arithmetic or date math, anything needing an image, and anything where a wrong answer is unrecoverable <em>and</em> I have not yet measured confidence on my own labels.</li>
+<li><strong>The habit that matters:</strong> when a decision goes wrong, first ask whether the bug is in the <em>question</em>, the <em>state</em>, or the <em>threshold</em>. Nine times out of ten it is the question — it was compound, or literal, or the criteria did not separate the options.</li>
+</ul>
+<p><strong>Smoke test for the first session, in order:</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code>export TYPESAFE_API_KEY=&quot;ts_...&quot;
+curl https://api.typesafe.ai/v1/models -H &quot;Authorization: Bearer $TYPESAFE_API_KEY&quot;
+# then run the quickstart cURL from Part 3.1 and read the probabilities</code></pre></div>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">AI &amp; Agents</span> · 10 parts · 20-item checklist · ~39 min · Generated from <code>markdown_docs/11-jev-system-one-decisions.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>

@@ -17,6 +17,7 @@ export const GUIDES = {
     order: 10,
     title: "Linear + opencode Workflow",
   },
+  "11-jev-system-one-decisions": { category: "AI & Agents", order: 11 },
 };
 
 // Docs that are not reader-facing guides (meta / tooling material).
