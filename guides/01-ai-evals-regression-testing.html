@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Evals &amp; Regression Testing for LLM Apps — Learning Center</title>
+<meta name="description" content="How do you know your LLM app got worse ? This paper turns &quot;the output felt worse today&quot; into a number you can gate a deploy on.">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="01-ai-evals-regression-testing">
+<header class="topbar">
+  <a class="homebtn" href="../index.html">⌂ Home</a>
+  <span class="brand">AI Evals &amp; Regression Testing for LLM Apps</span>
+  <button id="themeToggle" title="Toggle dark / light">🌙 Dark</button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#the-loop" data-sec="the-loop" class="sub">The loop</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--why-evals-the-silent-regression-problem" data-sec="part-1--why-evals-the-silent-regression-problem">Part 1 — Why Evals: The Silent Regression Problem</a><a href="#part-2--golden-sets-build-from-your-own-real-outputs" data-sec="part-2--golden-sets-build-from-your-own-real-outputs">Part 2 — Golden Sets: Build From Your Own Real Outputs</a><a href="#part-3--deterministic-scorers-first-judge-second" data-sec="part-3--deterministic-scorers-first-judge-second">Part 3 — Deterministic Scorers First, Judge Second</a><a href="#part-4--llm-as-judge-bias-calibration-baseline-discipline" data-sec="part-4--llm-as-judge-bias-calibration-baseline-discipline">Part 4 — LLM-as-Judge: Bias, Calibration, Baseline Discipline</a><a href="#part-5--offline-vs-online-closing-the-loop" data-sec="part-5--offline-vs-online-closing-the-loop">Part 5 — Offline vs Online: Closing the Loop</a><a href="#part-6--the-tooling-landscape" data-sec="part-6--the-tooling-landscape">Part 6 — The Tooling Landscape</a><a href="#part-7--rag-and-agent-metrics" data-sec="part-7--rag-and-agent-metrics">Part 7 — RAG and Agent Metrics</a><a href="#part-8--ci-gating-and-the-worked-example" data-sec="part-8--ci-gating-and-the-worked-example">Part 8 — CI Gating and the Worked Example</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#pick-one-ci-tool-and-one-dashboard-tool-running-five-tools-is-its-own-regression" data-sec="pick-one-ci-tool-and-one-dashboard-tool-running-five-tools-is-its-own-regression">Pick <strong>one</strong> CI tool and <strong>one</strong> dashboard tool. Running five tools is its own regression.</a><a href="#command--config-cheat-sheet" data-sec="command--config-cheat-sheet">Command &amp; Config Cheat Sheet</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--repos" data-sec="written-references--repos">Written References &amp; Repos</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#next-steps-in-order" data-sec="next-steps-in-order" class="sub">Next steps, in order</a><a href="#verification-note" data-sec="verification-note">Verification Note</a></div>
+</nav>
+<main>
+<h1>AI Evals &amp; Regression Testing for LLM Apps</h1>
+<div class="callout lede"><strong>How do you know your LLM app got <em>worse</em>?</strong> This paper turns &quot;the output felt worse today&quot; into a number you can gate a deploy on.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>Your tests make CI red when a route 500s, because the output is <em>decidable</em>: same input, same answer. LLM output isn&#39;t. Same prompt, different text every call; rarely one right answer. Worst of all: a prompt &quot;improvement&quot; can raise quality on the cases you stared at while quietly destroying cases you never looked at — a <strong>silent regression</strong>. Product broken, nothing red, no ticket filed.</p>
+<blockquote>
+<p><strong>Framing:</strong> &quot;Evals&quot; is scoring LLM/agent output against criteria you define, on a fixed input set, so version A can be compared to B — a <em>measurement</em> discipline, not a product feature.</p>
+</blockquote>
+<p><strong>Three things people conflate:</strong> <strong>tracing / observability</strong> answers <em>&quot;what happened?&quot;</em> (facts, not judgments); <strong>evals</strong> answer <em>&quot;how good was it, consistently?&quot;</em> (scores across a dataset); <strong>guardrails</strong> answer <em>&quot;should this be blocked?&quot;</em> (a runtime allow/block/redact decision). Tracing without evals is a security camera with no definition of &quot;burglary.&quot; Evals without tracing can&#39;t explain <em>why</em> a score dropped.</p>
+<h3 id="the-loop">The loop</h3>
+<div class="codewrap"><pre data-lang="text"><code>┌──────────┐   ┌──────────┐   ┌──────────┐   ┌───────────┐   ┌──────────┐
+│ DATASET  │──▶│   RUN    │──▶│  SCORE   │──▶│ COMPARE   │──▶│   GATE   │
+│ fixed    │   │ app on   │   │ code +   │   │ vs        │   │ pass or  │
+│ cases    │   │ each     │   │ judge    │   │ BASELINE  │   │ fail the │
+│ (+labels)│   │ case     │   │ scorers  │   │ (prod)    │   │ build    │
+└──────────┘   └──────────┘   └──────────┘   └───────────┘   └────┬─────┘
+     ▲                                                             │
+     │                   ┌──────────────────────┐                  │
+     │                   │  PRODUCTION TRAFFIC  │                  │
+     │                   │  sampled + scored    │                  │
+     │                   └──────────┬───────────┘                  │
+     │                              │                              │
+     └──────────────────────────────┴──────────────────────────────┘
+              failures become new dataset cases (the feedback loop)</code></pre></div>
+<p>Offline catches regressions you know about; online catches the ones you don&#39;t; online failures become tomorrow&#39;s dataset rows.</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Plain-English analogy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Eval</td>
+<td>A unit test for output with no single correct answer</td>
+</tr>
+<tr>
+<td>Golden set / dataset</td>
+<td>A frozen photo album of inputs you always re-shoot</td>
+</tr>
+<tr>
+<td>Deterministic scorer</td>
+<td>A metal detector — beeps or doesn&#39;t, every time</td>
+</tr>
+<tr>
+<td>LLM-as-judge</td>
+<td>A substitute teacher — smart, fast, biased, needs calibration</td>
+</tr>
+<tr>
+<td>Baseline</td>
+<td>Yesterday&#39;s report card, so today&#39;s scores mean something</td>
+</tr>
+<tr>
+<td>CI gate</td>
+<td>The bouncer at the door of production</td>
+</tr>
+<tr>
+<td>Trace</td>
+<td>The receipt: everything that happened on one visit</td>
+</tr>
+<tr>
+<td>Guardrail</td>
+<td>The smoke alarm — acts in the moment, not after</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li>Collect <strong>5–10 real cases</strong> — a few you&#39;re proud of, a few that failed in production.</li>
+<li>Write <strong>deterministic checks first</strong>: valid JSON/HTML? required sections? score in range? Free, never flake.</li>
+<li>Add <strong>one LLM-as-judge</strong> for the subjective criterion (1–5 with written rationale).</li>
+<li>Record the <strong>baseline</strong>: run the current production prompt, save the scores.</li>
+<li>Make <strong>one change</strong>. Re-run. Compare per case and per metric.</li>
+<li><strong>Gate CI</strong> on the aggregate not dropping below baseline minus a tolerance you chose.</li>
+<li>Later: sample <strong>5–10% of live traffic</strong>, score it online, paste failures back into the dataset.</li>
+</ol>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Why</th>
+<th>How to check / get</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Node.js ≥ 22</td>
+<td>promptfoo and most JS eval CLIs need a modern Node</td>
+<td><code>node --version</code></td>
+</tr>
+<tr>
+<td>Python 3.10+</td>
+<td>DeepEval, Ragas, Phoenix SDKs are Python-first</td>
+<td><code>python3 --version</code></td>
+</tr>
+<tr>
+<td>An API key for a judge model</td>
+<td>The judge is a model call</td>
+<td><code>echo $OPENAI_API_KEY</code></td>
+</tr>
+<tr>
+<td>Your app callable in code</td>
+<td>Evals run your <em>task</em>, not a re-implementation</td>
+<td>A function or HTTP endpoint callable from a script</td>
+</tr>
+<tr>
+<td>App outputs live somewhere</td>
+<td>Traces are the raw material for datasets</td>
+<td>Existing logs, or add tracing (Part 5)</td>
+</tr>
+<tr>
+<td>Version control</td>
+<td>Baseline discipline needs &quot;what changed&quot;</td>
+<td><code>git log</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Assumption:</strong> if your LLM logic only exists inside a React component, extract the model call into a reusable function first.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--why-evals-the-silent-regression-problem"><h2 id="part-1--why-evals-the-silent-regression-problem">Part 1 — Why Evals: The Silent Regression Problem</h2>
+<p>Three sources of change, none visible as a code diff: <strong>you</strong> change a prompt/model/retrieval setting; <strong>the vendor</strong> changes something (deprecation, silent version bump, changed defaults — release notes are the only warning, and sometimes there is none); <strong>the world</strong> changes. Only a fixed dataset with recorded scores defends against all three.</p>
+<div class="codewrap"><pre data-lang="text"><code>TRACING (facts)      : input, retrieved docs, tool calls, output, latency, cost
+EVALS (judgments)    : scores/labels on those facts, aggregated
+GUARDRAILS (actions) : block/allow/redact decisions at request time</code></pre></div>
+<p><strong>Step 1.1 — Name the dimensions you care about.</strong> Don&#39;t evaluate &quot;quality.&quot; Evaluate what a user would notice: <strong>structural validity</strong>, <strong>numeric correctness</strong>, <strong>grounding</strong>, <strong>actionability</strong>, <strong>tone</strong>, <strong>cost &amp; latency</strong>. Each dimension gets <em>the cheapest method that measures it reliably</em> (Part 3). That mapping is your eval strategy.</p>
+<p><strong>Step 1.2 — Define &quot;worse&quot; before you can detect it.</strong> Examples: aggregate pass rate drops &gt;3 points vs baseline; any P0 segment drops &gt;1 point on the 1–5 judge scale; structural validity falls below 100%. A 4.1 → 4.0 move shouldn&#39;t paralyze you.</p>
+<hr>
+</section><section id="part-2--golden-sets-build-from-your-own-real-outputs"><h2 id="part-2--golden-sets-build-from-your-own-real-outputs">Part 2 — Golden Sets: Build From Your Own Real Outputs</h2>
+<p>The most common mistake is building 500 synthetic cases before writing one scorer. You&#39;ll spend a weekend imagining edge cases and learn less than from 8 real ones.</p>
+<blockquote>
+<p><strong>Verified practice (Braintrust docs, Sept 2026):</strong> &quot;Begin with 5–10 representative examples that cover your core use cases. A small, well-chosen dataset is more useful than a large dataset of easy cases.&quot; Expand &quot;guided by actual failures from production — not by synthetic construction of edge cases you imagine might exist.&quot;</p>
+</blockquote>
+<p><strong>Step 2.1 — Build the first dataset by hand.</strong> <code>evals/datasets/audit-reports.jsonl</code>:</p>
+<div class="codewrap"><pre data-lang="jsonl"><code>{&quot;input&quot;: {&quot;company&quot;: &quot;Acme Corp&quot;}, &quot;expected&quot;: {&quot;has_sections&quot;: [&quot;summary&quot;,&quot;pricing&quot;,&quot;features&quot;,&quot;risks&quot;]}, &quot;metadata&quot;: {&quot;topic&quot;: &quot;pricing&quot;, &quot;tier&quot;: &quot;enterprise&quot;, &quot;source&quot;: &quot;manual&quot;}}
+{&quot;input&quot;: {&quot;company&quot;: &quot;Globex&quot;}, &quot;expected&quot;: {&quot;has_sections&quot;: [&quot;summary&quot;,&quot;pricing&quot;,&quot;features&quot;,&quot;risks&quot;]}, &quot;metadata&quot;: {&quot;topic&quot;: &quot;features&quot;, &quot;tier&quot;: &quot;self-serve&quot;, &quot;source&quot;: &quot;prod-failure-2026-07&quot;}}</code></pre></div>
+<ul>
+<li><strong>Metadata on every case</strong> (<code>topic</code>, <code>tier</code>, <code>intent</code>, <code>source</code>) so you can later find <em>which segment</em> regressed. Aggregates hide problems.</li>
+<li><strong>Mark the source</strong>: <code>manual</code>, <code>prod-failure-&lt;date&gt;</code>, <code>synthetic</code>.</li>
+<li><strong>Keep <code>expected</code> minimal</strong> — decidable facts (required sections, range) only.</li>
+<li><strong>One case = one realistic input.</strong></li>
+</ul>
+<p><strong>Step 2.2 — Pull in production failures.</strong> Capture the exact failing input from your trace; add the wrong output as a <code>notes</code> field (never as <code>expected</code>); add the missing decidable facts; tag <code>prod-failure-&lt;date&gt;</code>.</p>
+<blockquote>
+<p><strong>This changes fast:</strong> Langfuse promotes traces into datasets, Braintrust &quot;promotes traces from logs,&quot; promptfoo points at CSV/JSONL. The practice is stable; the button names are not.</p>
+</blockquote>
+<p><strong>Step 2.3 — Grow from failures, not imagination.</strong> Add a case when production fails, when an experiment yields an output you can&#39;t explain, or when a new segment appears.</p>
+<p><strong>Step 2.4 — Freeze a version.</strong> Hash the dataset and record <strong>four coordinates</strong> with every kept result: dataset hash, prompt version, model ID, scorer version. Without them, &quot;we used to score 4.2&quot; is folklore.</p>
+<hr>
+</section><section id="part-3--deterministic-scorers-first-judge-second"><h2 id="part-3--deterministic-scorers-first-judge-second">Part 3 — Deterministic Scorers First, Judge Second</h2>
+<p><strong>If a check is decidable, do it in code.</strong> Code scorers are free, millisecond-fast, identical every run. LLM judges are slow, cost money, and disagree with themselves.</p>
+<blockquote>
+<p><strong>Verified (Langfuse docs, Sept 2026):</strong> &quot;a free deterministic screen runs on everything, the judge runs on what the screen flags plus a sample of the rest, and humans review where the judge is uncertain or the stakes are high.&quot;</p>
+</blockquote>
+<div class="codewrap"><pre data-lang="python"><code># evals/scorers/structure.py
+from bs4 import BeautifulSoup
+
+def structural_validity(output: str) -&gt; dict:
+    required = [&quot;summary&quot;, &quot;pricing&quot;, &quot;features&quot;, &quot;risks&quot;]
+    soup = BeautifulSoup(output, &quot;html.parser&quot;)
+    found = {s.get(&quot;data-section&quot;) for s in soup.select(&quot;[data-section]&quot;)}
+    missing = [s for s in required if s not in found]
+    return {&quot;score&quot;: 1.0 if not missing else 0.0, &quot;reason&quot;: f&quot;missing: {missing}&quot;}
+
+def numeric_score_in_range(output: str) -&gt; dict:
+    node = BeautifulSoup(output, &quot;html.parser&quot;).select_one(&quot;[data-score]&quot;)
+    if node is None:
+        return {&quot;score&quot;: 0.0, &quot;reason&quot;: &quot;no [data-score] element&quot;}
+    value = float(node[&quot;data-score&quot;])          # wrap in try/except in real code
+    return {&quot;score&quot;: 1.0 if 0 &lt;= value &lt;= 100 else 0.0, &quot;reason&quot;: f&quot;score={value}&quot;}</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Check type</th>
+<th>Catches</th>
+<th>Typical syntax</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Schema validation</td>
+<td>Malformed structure</td>
+<td>JSON Schema / Pydantic / Zod</td>
+</tr>
+<tr>
+<td>Exact match</td>
+<td>Classification, labels, enums</td>
+<td><code>equals</code></td>
+</tr>
+<tr>
+<td>Contains / regex</td>
+<td>Required/forbidden phrases, IDs</td>
+<td><code>contains</code>, <code>regex</code></td>
+</tr>
+<tr>
+<td>Numeric range</td>
+<td>Scores, prices, counts out of bounds</td>
+<td>custom code</td>
+</tr>
+<tr>
+<td>Cost / latency</td>
+<td>Runaway verbiage, slow or expensive runs</td>
+<td><code>cost</code>, <code>latency</code></td>
+</tr>
+<tr>
+<td>Tool correctness</td>
+<td>Wrong tool or args (agents)</td>
+<td>trajectory assertions</td>
+</tr>
+<tr>
+<td>HTML/SQL/XML validity</td>
+<td>Structurally broken artifacts</td>
+<td><code>is-html</code>, <code>is-sql</code>, <code>is-xml</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Verify names:</strong> promptfoo&#39;s list (verified Sept 2026) includes <code>equals</code>, <code>contains</code>, <code>regex</code>, <code>is-json</code>, <code>is-html</code>, <code>javascript</code>, <code>python</code>, <code>cost</code>, <code>latency</code>, plus <code>trajectory:tool-used</code>, <code>trajectory:tool-sequence</code>, <code>trajectory:step-count</code>. Your tool will differ in spelling.</p>
+</blockquote>
+<p><strong>The pre-screen cost pattern.</strong> Run free code checks on every sampled case; score 0 and flag failures without a judge call; send only the passes (plus a ~20% sample) to the judge.</p>
+<blockquote>
+<p><strong>Cost note (vendor figure, Sept 2026):</strong> Langfuse documents a typical evaluation costing <strong>$0.01–$0.10 per assessment</strong>, with three levers — sampling rate, targeting observations rather than whole traces, and cheaper judge models for simpler criteria. Ballpark, not a quote.</p>
+</blockquote>
+<hr>
+</section><section id="part-4--llm-as-judge-bias-calibration-baseline-discipline"><h2 id="part-4--llm-as-judge-bias-calibration-baseline-discipline">Part 4 — LLM-as-Judge: Bias, Calibration, Baseline Discipline</h2>
+<p>A judge gives a model the input, your output, and a rubric, and asks for a score plus reasoning. promptfoo&#39;s <code>llm-rubric</code> returns (verified Sept 2026):</p>
+<div class="codewrap"><pre data-lang="json"><code>{ &quot;reason&quot;: &quot;Analysis of the rubric and the output&quot;, &quot;score&quot;: 0.5, &quot;pass&quot;: true }</code></pre></div>
+<p><strong>Biases you must design around:</strong> <strong>verbosity bias</strong> (longer answers score higher regardless of correctness — Braintrust: judges &quot;favor longer, more formal, or more confident-sounding outputs regardless of accuracy&quot;); <strong>self-preference</strong> (a judge prefers its own model family); <strong>confidence/format bias</strong>; <strong>non-determinism</strong> (a 0.02 change is not signal); <strong>position bias</strong> (randomize order). Test for it explicitly: compare a correct short answer against a wrong but verbose one.</p>
+<p><strong>Calibration loop.</strong> Pick one failure mode. If a stored output or state can settle it, write code and stop. Otherwise label 10–20 cases with the score <em>you</em> would give, write the judge prompt (context, one precise criterion, a few labeled examples, reasoning before verdict), run the judge against those labels, and iterate until agreement is stable. <strong>Watch class balance:</strong> if the failure you care about occurs in 10% of cases, a judge that always answers <em>pass</em> still agrees with you 90% of the time. Measure <strong>TPR and TNR</strong>, not raw accuracy.</p>
+<blockquote>
+<p><strong>Verified numbers (Langfuse docs, Sept 2026):</strong> strong judges &quot;reach 80–90% agreement with human reviewers on many criteria, which is comparable to agreement between two humans.&quot;</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Scale</th>
+<th>Use when</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Boolean</td>
+<td>Criterion is genuinely binary</td>
+<td>Easiest to calibrate; start here</td>
+</tr>
+<tr>
+<td>Categorical</td>
+<td>You want <em>which kind</em> of outcome</td>
+<td>e.g. <code>complete</code> / <code>partial</code> / <code>wrong</code></td>
+</tr>
+<tr>
+<td>1–5 numeric</td>
+<td>Degree matters</td>
+<td>Flakier; anchor every number</td>
+</tr>
+</tbody></table>
+<p>Anchor every number: <code>5 = complete, grounded, actionable</code>; <code>3 = usable but a section is empty</code>; <code>1 = unusable or fabricated</code>.</p>
+<p><strong>Compare to baseline; never trust an absolute score.</strong> A judge score of 4.1 means nothing on its own — only relative to the same judge, rubric, dataset, model, and prompt measured yesterday. Braintrust (verified Sept 2026): run a baseline <strong>before</strong> changes; compare against <strong>the version actually in production</strong>; <strong>update the baseline</strong> whenever prompt, model, or scorer changes; for differences under 5 points, compare <strong>averages over multiple trials</strong>. <strong>One change per experiment</strong> — several simultaneous changes mean you can attribute nothing.</p>
+<hr>
+</section><section id="part-5--offline-vs-online-closing-the-loop"><h2 id="part-5--offline-vs-online-closing-the-loop">Part 5 — Offline vs Online: Closing the Loop</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Offline (dataset runs)</th>
+<th>Online (production scoring)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>When</td>
+<td>Before shipping; in CI</td>
+<td>Continuously on live traffic</td>
+</tr>
+<tr>
+<td>Data</td>
+<td>Curated dataset, often with expected outputs</td>
+<td>Real inputs, no ground truth</td>
+</tr>
+<tr>
+<td>Catches</td>
+<td>Regressions from prompt/model/tool changes</td>
+<td>Drift, novel inputs, real tool failures</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>Bounded by dataset size</td>
+<td>Controlled by sampling rate</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Verified (Langfuse, Sept 2026):</strong> &quot;Offline evaluation runs your application against a fixed dataset... Online evaluation scores live production traffic, sampled to control cost... A complete strategy needs both, connected by datasets that grow from production failures.&quot;</p>
+</blockquote>
+<p><strong>The cadence that closes the loop:</strong> sample 5–10% of production → score it online → review weekly → triage each failure → add 1–3 cases per failure mode → run the offline experiment → update the baseline → gate CI → ship → monitor.</p>
+<p><strong>Reference-free judging for production.</strong> No <code>expected</code> online, so use <strong>rubric judges</strong> (&quot;does the output address the goal and stay grounded in retrieved context?&quot;), <strong>property checks</strong> (valid format, required tool called, step budget respected), and <strong>human annotation</strong> on a small sample.</p>
+<blockquote>
+<p><strong>Verified (Langfuse, Sept 2026):</strong> judge at observation level, not whole-trace — &quot;They complete in seconds (vs minutes for trace-level).&quot; Trace-level judge evaluators are legacy as of July 2026.</p>
+</blockquote>
+<p><strong>Sampling math:</strong> at $0.02/assessment, sampling 5% of 10,000 daily runs ≈ $10/day (~$300/month); 10% ≈ $600/month. Langfuse: &quot;Sampling 5 to 10 percent of traffic is usually enough to see quality trends without paying to judge everything.&quot; Sample deterministically per user/run ID.</p>
+<blockquote>
+<p><strong>This changes fast:</strong> sampling UX, cost per assessment, and the default judge model move month to month. Date every number; verify pricing on the vendor page, never a blog post.</p>
+</blockquote>
+<hr>
+</section><section id="part-6--the-tooling-landscape"><h2 id="part-6--the-tooling-landscape">Part 6 — The Tooling Landscape</h2>
+<p>Two composable layers: a <strong>fast CI gate</strong> (CLI, runs a dataset, exits non-zero on regression) and a <strong>dataset/dashboard layer</strong> (stores datasets, tracks experiments, scores production).</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Shape</th>
+<th>What you use it for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>promptfoo</strong></td>
+<td>Open-source CLI/library, YAML assertions</td>
+<td>CI gate. <code>llm-rubric</code> (returns <code>{reason, score, pass}</code>, supports <code>threshold</code>), <code>g-eval</code>, deterministic checks, red-teaming.</td>
+</tr>
+<tr>
+<td><strong>Braintrust</strong></td>
+<td>Managed platform</td>
+<td>Datasets, experiments, scorers (<code>autoevals</code> + custom code + judges), online scoring. Pass thresholds via <code>__pass_threshold</code>.</td>
+</tr>
+<tr>
+<td><strong>Langfuse</strong></td>
+<td>Open-source (MIT except <code>ee/</code>), self-hostable</td>
+<td>Tracing, prompt management, datasets, annotation, judges. Connected loop first-class.</td>
+</tr>
+<tr>
+<td><strong>DeepEval</strong></td>
+<td>Python framework (&quot;Pytest for LLM apps&quot;)</td>
+<td>G-Eval, DAG (deterministic decision-tree judging), Hallucination, Bias, Toxicity, agent/trajectory metrics.</td>
+</tr>
+<tr>
+<td><strong>Ragas</strong></td>
+<td>Apache-2.0 Python metrics</td>
+<td>RAG-specific: Faithfulness, Answer Relevancy, Context Precision/Recall, Groundedness.</td>
+</tr>
+<tr>
+<td><strong>OpenAI Evals</strong></td>
+<td>Evals API + dashboard</td>
+<td><strong>Deprecating:</strong> read-only Oct 31 2026, shutdown Nov 30 2026. Use Datasets for new work.</td>
+</tr>
+<tr>
+<td><strong>Arize Phoenix</strong></td>
+<td>Open-source (Elastic License 2.0)</td>
+<td>Built-in evaluators (<code>FaithfulnessEvaluator</code>, <code>CorrectnessEvaluator</code>, <code>ToolSelectionEvaluator</code>) + <code>ClassificationEvaluator</code>.</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Material change (verified March–Sept 2026):</strong> OpenAI announced an agreement to acquire <strong>promptfoo</strong> on <strong>March 9, 2026</strong>; both parties publicly stated the open-source project <strong>continues to be maintained</strong>. Re-check before betting a long-lived pipeline on it.</p>
+</blockquote>
+<blockquote>
+<p><strong>Vendor claim:</strong> DeepEval calls its metrics &quot;research-backed&quot; and cites &quot;20 million+ daily evaluations&quot; — the metric <em>definitions</em> are useful; the popularity figure is marketing. Ragas&#39; repo moved to <code>vibrantlabsai/ragas</code>. Langfuse is MIT <em>except</em> <code>ee/</code>; Phoenix is Elastic 2.0 — free to self-host, but it restricts offering the software as a managed service.</p>
+</blockquote>
+<div class="codewrap"><pre data-lang="text"><code>CI gate (fast)                   → promptfoo or DeepEval in GitHub Actions
+Dataset + dashboard (long-lived) → Langfuse (self-host) or Braintrust (managed)
+RAG metrics                      → Ragas (pulled into the above)
+Tracing backbone                 → OpenTelemetry; the platforms ingest it</code></pre></div>
+</section><section id="pick-one-ci-tool-and-one-dashboard-tool-running-five-tools-is-its-own-regression"><h2 id="pick-one-ci-tool-and-one-dashboard-tool-running-five-tools-is-its-own-regression">Pick <strong>one</strong> CI tool and <strong>one</strong> dashboard tool. Running five tools is its own regression.</h2>
+</section><section id="part-7--rag-and-agent-metrics"><h2 id="part-7--rag-and-agent-metrics">Part 7 — RAG and Agent Metrics</h2>
+<p>RAG fails three distinguishable ways. Measure each separately or you&#39;ll fix the wrong thing:</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Metric</th>
+<th>Plain English</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Did we fetch the right stuff?</td>
+<td>Context Precision / Recall</td>
+<td>Relevant chunks retrieved and ranked high?</td>
+</tr>
+<tr>
+<td>Did the answer stick to it?</td>
+<td>Faithfulness / Groundedness</td>
+<td>Is every claim supported by retrieved context?</td>
+</tr>
+<tr>
+<td>Did it answer the question?</td>
+<td>Answer / Response Relevancy</td>
+<td>Addresses the question without padding?</td>
+</tr>
+</tbody></table>
+<p>Add <strong>Faithfulness</strong> first — the anti-hallucination metric. Ragas computes it as <em>supported claims ÷ total claims</em>; &quot;Einstein was born in Germany&quot; (supported) + &quot;on 20th March 1879&quot; (not) scores 0.5.</p>
+<blockquote>
+<p><strong>Distinction:</strong> DeepEval&#39;s <code>HallucinationMetric</code> compares output against <strong><code>context</code></strong> (curated ground truth) and measures the <em>generator</em>. Ragas&#39; <code>Faithfulness</code> compares against <strong>retrieved context</strong> and measures the <em>runtime pipeline</em>.</p>
+</blockquote>
+<p><strong>Agents: evaluate the trajectory.</strong> Evaluate four dimensions — <strong>trajectory</strong>, <strong>tool use</strong>, <strong>task completion</strong>, <strong>multi-turn quality</strong> — starting with one metric per dimension. Step counts, tool selection, and argument validation are <strong>free code checks</strong>; only task completion and conversational resolution need a judge.</p>
+<blockquote>
+<p><strong>Verified (Langfuse, Sept 2026):</strong> since <strong>July 2026</strong> agent evaluators can read recorded tool calls through a structured field, so trajectory checks like &quot;did the agent call search before answering&quot; are <strong>decidable in code</strong> rather than requiring a judge.</p>
+</blockquote>
+<p><strong>Key insight:</strong> an agent that called the wrong tool but got lucky scores well on an answer-only judge. Only a trajectory check catches that.</p>
+<hr>
+</section><section id="part-8--ci-gating-and-the-worked-example"><h2 id="part-8--ci-gating-and-the-worked-example">Part 8 — CI Gating and the Worked Example</h2>
+<p><strong>Step 8.1 — Gate the build.</strong> Run the suite on every PR touching prompts, evals, or LLM code. Fail when the aggregate drops below baseline minus tolerance (verify the tool exits non-zero: <code>npx promptfoo@latest eval; echo &quot;exit=$?&quot;</code>); fail on structural-validity violations even if the aggregate is fine; post the diff in the PR — &quot;regressed on 2 cases, both tagged <code>topic=risks</code>&quot; makes a gate useful.</p>
+<p><strong>Step 8.2 — Control CI cost.</strong> Pre-screen with free code checks; run a <strong>short subset on PRs</strong> and the <strong>full suite nightly</strong>; use a cheaper judge in CI and the strongest judge weekly.</p>
+<p><strong>Step 8.3 — Group by metadata.</strong> An overall 0.85 can hide a 0.40 on a segment that matters. Break down by <code>topic</code>, <code>tier</code>, <code>intent</code>, <code>language</code>: &quot;If you only ever look at aggregate scores, you will miss the most actionable signal in your evaluations.&quot;</p>
+<p><strong>Step 8.4 — Worked example: competitive-audit report generator.</strong> Input <code>{company, url, your_product}</code>; output is HTML with four <code>data-section</code> elements (<code>summary</code>, <code>pricing</code>, <code>features</code>, <code>risks</code>) and a numeric competitive score in <code>[0, 100]</code> inside <code>[data-score]</code>.</p>
+<div class="codewrap"><pre data-lang="yaml"><code># evals/promptfooconfig.yaml
+description: Competitive audit report generator — regression suite
+prompts:
+  - file://prompts/audit-report.txt            # production prompt
+  - file://prompts/audit-report.candidate.txt  # change under test
+providers:
+  - { id: openai:gpt-5, label: prod-model }
+  - { id: openai:gpt-5-mini, label: cheaper-candidate }
+
+defaultTest:
+  options:
+    provider: { id: openai:gpt-5-mini, config: { temperature: 0 } }
+  assert:
+    # FREE PRE-SCREEN — every case, no judge call
+    - { type: is-html, metric: structure }
+    - { type: contains-html, value: 'data-section=&quot;summary&quot;',  metric: structure }
+    - { type: contains-html, value: 'data-section=&quot;pricing&quot;',  metric: structure }
+    - { type: contains-html, value: 'data-section=&quot;features&quot;', metric: structure }
+    - { type: contains-html, value: 'data-section=&quot;risks&quot;',    metric: structure }
+    - { type: javascript, metric: numeric_range,
+        value: &quot;const m=output.match(/data-score=\&quot;([0-9.]+)\&quot;/); return m &amp;&amp; +m[1]&gt;=0 &amp;&amp; +m[1]&lt;=100 ? 1 : 0;&quot; }
+    - { type: latency, threshold: 45000, metric: performance }
+
+tests:
+  - description: Enterprise prospect, pricing-heavy comparison
+    vars: { company: Acme Corp, url: &quot;https://acme.example&quot;, your_product: WidgetPro }
+    metadata: { topic: pricing, tier: enterprise, source: manual }
+    assert:
+      # JUDGE — only reached because the screen passed
+      - type: llm-rubric
+        metric: quality
+        threshold: 0.75
+        value: |
+          Grade a competitive-audit report for a B2B SaaS sales team.
+          Grade ONLY the criterion below. Do not reward length or confident tone.
+          Criterion: GROUNDED ACTIONABILITY — every comparative claim must trace
+          to the fetched competitor data, and the report must end with at least
+          two concrete next actions.
+          Score 1.0 — all claims traceable AND 2+ concrete actions
+          Score 0.75 — claims traceable but actions are generic
+          Score 0.5 — a comparative claim lacks support in the source data
+          Score 0.0 — sections present but empty, or facts fabricated
+          Respond with JSON only: {&quot;reason&quot;: &quot;&lt;2 sentences&gt;&quot;, &quot;score&quot;: &lt;number&gt;, &quot;pass&quot;: &lt;boolean&gt;}</code></pre></div>
+<p><strong>Why it&#39;s shaped this way:</strong> two prompts × two models gives a cheap 2×2 comparison; <code>threshold: 0.75</code> prevents the documented footgun where a judge returning <code>{pass: true, score: 0}</code> passes; metadata enables segment analysis; the rubric anchors every number and forbids rewarding length. Add a <strong>sparse-data guard</strong> case with a rubric that demands the report state the limitation rather than fabricate — your highest-risk failure mode.</p>
+<div class="codewrap"><pre data-lang="bash"><code>npx promptfoo@latest eval -c evals/promptfooconfig.yaml   # baseline
+git checkout -b try-new-prompt                            # one change
+npx promptfoo@latest eval -c evals/promptfooconfig.yaml
+npx promptfoo@latest view                                 # per-case diffs</code></pre></div>
+<p>Check three things before shipping: targeted cases improved, previously-passing cases didn&#39;t regress, and changed scores reflect real output differences. If scores moved but outputs are identical, your scorer moved.</p>
+<p><strong>Step 8.5 — Cost ballpark (vendor figure, Sept 2026):</strong> 10 cases × 2 prompts × 2 models = 40 generations; judges run only on cases clearing the pre-screen (~34 calls); at $0.01–$0.10 per assessment, roughly <strong>$0.34–$3.40 per full CI run</strong>, plus generation cost.</p>
+<hr>
+</section><section id="command--config-cheat-sheet"><h2 id="command--config-cheat-sheet">Command &amp; Config Cheat Sheet</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>npx promptfoo@latest eval</code></td>
+<td>Run the suite in <code>promptfooconfig.yaml</code></td>
+</tr>
+<tr>
+<td><code>npx promptfoo@latest eval -c path</code></td>
+<td>Run a specific config</td>
+</tr>
+<tr>
+<td><code>npx promptfoo@latest eval --grader openai:gpt-5-mini</code></td>
+<td>Override the judge model</td>
+</tr>
+<tr>
+<td><code>npx promptfoo@latest view</code></td>
+<td>Open results in the web viewer</td>
+</tr>
+<tr>
+<td><code>npx promptfoo@latest redteam setup</code> / <code>run</code> / <code>report</code></td>
+<td>Red-teaming: configure, run, report</td>
+</tr>
+<tr>
+<td><code>bt eval --first N</code> / <code>--sample N</code></td>
+<td>Braintrust: quick check on first / random N cases</td>
+</tr>
+<tr>
+<td><code>bt functions push scorer.py</code></td>
+<td>Braintrust: share a scorer team-wide</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Deterministic</th>
+<th>Model-graded</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Valid structure</td>
+<td><code>is-json</code>, <code>is-html</code>, <code>is-sql</code>, JSON Schema</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Required content</td>
+<td><code>contains</code>, <code>contains-all</code>, <code>regex</code></td>
+<td><code>llm-rubric</code></td>
+</tr>
+<tr>
+<td>Numeric range</td>
+<td>custom JS/Python</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Groundedness</td>
+<td>—</td>
+<td><code>context-faithfulness</code>, Ragas Faithfulness</td>
+</tr>
+<tr>
+<td>Relevance</td>
+<td>—</td>
+<td><code>answer-relevance</code>, <code>context-relevance</code></td>
+</tr>
+<tr>
+<td>Tone / style</td>
+<td>—</td>
+<td><code>llm-rubric</code>, <code>g-eval</code></td>
+</tr>
+<tr>
+<td>Cost / latency</td>
+<td><code>cost</code>, <code>latency</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Tool use (agents)</td>
+<td><code>trajectory:tool-used</code>, <code>trajectory:tool-sequence</code></td>
+<td><code>trajectory:goal-success</code></td>
+</tr>
+</tbody></table>
+<p>Key config fields: <code>threshold</code> (minimum score to pass — essential for <code>llm-rubric</code>), <code>weight</code>, <code>metric</code>, <code>provider</code> (judge override), <code>metadata</code> (segment by <code>topic</code>/<code>tier</code>), <code>defaultTest</code>, <code>repeat</code> (trials for variance).</p>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Judge scores swing every run</td>
+<td>Non-determinism; temperature &gt; 0; ambiguous rubric</td>
+<td>Pin <code>temperature: 0</code>, tighten the rubric, compare trial averages</td>
+</tr>
+<tr>
+<td>Verbose wrong answers outscore short correct ones</td>
+<td>Verbosity bias</td>
+<td>Penalize length in the rubric; test short-correct vs verbose-wrong</td>
+</tr>
+<tr>
+<td>Judge agrees 90% but misses everything</td>
+<td>Class imbalance — &quot;pass&quot; always agrees on a rare failure</td>
+<td>Measure TPR and TNR separately; put real failures in the dataset</td>
+</tr>
+<tr>
+<td>Aggregate fine, users complain</td>
+<td>Aggregate hides a bad segment</td>
+<td>Group by <code>metadata.topic</code>/<code>tier</code>; sort by regressions</td>
+</tr>
+<tr>
+<td>Scores improved, outputs identical</td>
+<td>The scorer moved, not the app</td>
+<td>Fix/validate the scorer before trusting the run</td>
+</tr>
+<tr>
+<td>Everything passes but the product is broken</td>
+<td>Dataset only has easy cases</td>
+<td>Pull real production failures in; add adversarial cases</td>
+</tr>
+<tr>
+<td>CI costs more than expected</td>
+<td>Judges running on everything</td>
+<td>Add the code pre-screen; lower judge sampling; cheaper judge</td>
+</tr>
+<tr>
+<td>Comparisons seem meaningless</td>
+<td>Stale baseline, or the judge/model changed</td>
+<td>Re-run a fresh baseline; record judge + model + dataset hash</td>
+</tr>
+<tr>
+<td><code>llm-rubric</code> passes with <code>score: 0</code></td>
+<td><code>pass</code> defaults to true and no threshold set</td>
+<td>Set <code>threshold</code>, or require explicit <code>pass</code></td>
+</tr>
+<tr>
+<td>RAG faithfulness low but the answer looks right</td>
+<td>Retrieval returned noise; the model improvised</td>
+<td>Check Context Precision/Recall separately — fix the retriever</td>
+</tr>
+<tr>
+<td>Agent answers well but made bad tool calls</td>
+<td>Only the final answer was scored</td>
+<td>Add deterministic trajectory/tool checks</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>Not invented URLs — YouTube search links, always valid. Click and pick the current best result.</p>
+<table>
+<thead>
+<tr>
+<th>Search link</th>
+<th>What to search for, and why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://www.youtube.com/results?search_query=LLM+evals+explained" target="_blank" rel="noopener">LLM evals explained</a></td>
+<td>Conceptual intro; watch how &quot;no single correct answer&quot; is framed.</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=LLM+as+a+judge+bias" target="_blank" rel="noopener">LLM as a judge bias</a></td>
+<td>Verbosity bias and self-preference discussed concretely.</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=promptfoo+tutorial" target="_blank" rel="noopener">promptfoo tutorial</a></td>
+<td>YAML, assertions, <code>llm-rubric</code>, CI built end to end.</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Braintrust+evals+tutorial" target="_blank" rel="noopener">Braintrust evals tutorial</a></td>
+<td>Managed workflow: datasets, scorers, experiments, online scoring.</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Langfuse+evaluation+tutorial" target="_blank" rel="noopener">Langfuse evaluation tutorial</a></td>
+<td>Open-source tracing + judges; traces flowing into datasets and scores.</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=RAGAS+metrics+tutorial" target="_blank" rel="noopener">RAGAS metrics tutorial</a></td>
+<td>Faithfulness, answer relevancy, context precision/recall.</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=DeepEval+tutorial+pytest" target="_blank" rel="noopener">DeepEval pytest tutorial</a></td>
+<td>Pytest-style LLM testing for Python-centric workflows.</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Arize+Phoenix+evals+tutorial" target="_blank" rel="noopener">Arize Phoenix evals tutorial</a></td>
+<td>Phoenix evals on traced data; scores logged to spans.</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=AI+agent+evaluation+trajectory" target="_blank" rel="noopener">AI agent evaluation trajectory</a></td>
+<td>Trajectory, tool use, and task completion for agents.</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=LLM+regression+testing+CI" target="_blank" rel="noopener">LLM regression testing CI</a></td>
+<td>Exit-code gating and handling flaky judge scores.</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--repos"><h2 id="written-references--repos">Written References &amp; Repos</h2>
+<p>Official docs and repos only. Where I&#39;m unsure of a URL, I say so rather than guessing.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Langfuse evals guide</td>
+<td><code>https://langfuse.com/blog/2025-11-12-evals</code></td>
+</tr>
+<tr>
+<td>Langfuse LLM-as-a-judge docs</td>
+<td><code>https://langfuse.com/docs/evaluation/evaluation-methods/llm-as-a-judge</code></td>
+</tr>
+<tr>
+<td>Braintrust evaluation best practices</td>
+<td><code>https://braintrust.dev/docs/evaluate/best-practices</code></td>
+</tr>
+<tr>
+<td>Braintrust scorers guide</td>
+<td><code>https://www.braintrust.dev/docs/best-practices/scorers</code></td>
+</tr>
+<tr>
+<td>promptfoo</td>
+<td><code>https://promptfoo.dev</code></td>
+</tr>
+<tr>
+<td>promptfoo assertions reference</td>
+<td><code>https://www.promptfoo.dev/docs/configuration/expected-outputs/</code></td>
+</tr>
+<tr>
+<td>promptfoo <code>llm-rubric</code></td>
+<td><code>https://www.promptfoo.dev/docs/configuration/expected-outputs/model-graded/llm-rubric/</code></td>
+</tr>
+<tr>
+<td>OpenAI Evals guide</td>
+<td><code>https://platform.openai.com/docs/guides/evals</code></td>
+</tr>
+<tr>
+<td>DeepEval docs</td>
+<td><code>https://deepeval.com/docs/metrics-introduction</code></td>
+</tr>
+<tr>
+<td>DeepEval repo</td>
+<td><code>https://github.com/confident-ai/deepeval</code></td>
+</tr>
+<tr>
+<td>Ragas docs</td>
+<td><code>https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/</code></td>
+</tr>
+<tr>
+<td>Ragas repo</td>
+<td><code>https://github.com/vibrantlabsai/ragas</code></td>
+</tr>
+<tr>
+<td>Arize Phoenix docs</td>
+<td><code>https://arize.com/docs/phoenix/evaluation/llm-evals</code></td>
+</tr>
+<tr>
+<td>Arize Phoenix custom evaluators</td>
+<td><code>https://arize.com/docs/phoenix/evaluation/how-to-evals/custom-llm-evaluators</code></td>
+</tr>
+<tr>
+<td>Arize Phoenix repo</td>
+<td><code>https://github.com/Arize-ai/phoenix</code></td>
+</tr>
+</tbody></table>
+<p>Langfuse for calibration/sampling/cost, Braintrust for dataset and baseline discipline, promptfoo for YAML assertions and <code>llm-rubric</code> semantics, Ragas for RAG metric definitions, Phoenix for categorical-vs-numeric judge research. Verified Sept 2026.</p>
+<blockquote>
+<p><strong>Verification tip:</strong> if a link 404s, search: <code>&lt;product name&gt; official docs</code> and navigate from the vendor&#39;s own domain — never trust a mirror or an AI-generated link.</p>
+</blockquote>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English definition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Eval</td>
+<td>A scored test of LLM output against criteria you define, on a fixed input set</td>
+</tr>
+<tr>
+<td>Golden set / dataset</td>
+<td>A versioned collection of test inputs with optional expected outputs and metadata</td>
+</tr>
+<tr>
+<td>Baseline</td>
+<td>Recorded scores of the current production version, the comparison point</td>
+</tr>
+<tr>
+<td>Regression</td>
+<td>A score that dropped relative to baseline</td>
+</tr>
+<tr>
+<td>Deterministic scorer</td>
+<td>A code check that always returns the same verdict for the same input</td>
+</tr>
+<tr>
+<td>LLM-as-judge</td>
+<td>A model that scores another model&#39;s output against a rubric</td>
+</tr>
+<tr>
+<td>Calibration</td>
+<td>Measuring how often your judge agrees with human labels, and fixing it until stable</td>
+</tr>
+<tr>
+<td>TPR / TNR</td>
+<td>True positive / true negative rate — the right metrics when failures are rare</td>
+</tr>
+<tr>
+<td>Judge bias</td>
+<td>Systematic distortion, e.g. favoring longer, more formal, or self-family outputs</td>
+</tr>
+<tr>
+<td>Offline / online eval</td>
+<td>Dataset run before shipping vs. scoring sampled live production traffic</td>
+</tr>
+<tr>
+<td>Trace</td>
+<td>The recorded execution: inputs, context, tool calls, output, timing, cost</td>
+</tr>
+<tr>
+<td>Guardrail</td>
+<td>A runtime allow/block/redact policy, distinct from measurement</td>
+</tr>
+<tr>
+<td>Pre-screen</td>
+<td>Free code checks that run before a judge, filtering what reaches it</td>
+</tr>
+<tr>
+<td>Faithfulness</td>
+<td>Fraction of an answer&#39;s claims supported by the provided context</td>
+</tr>
+<tr>
+<td>Trajectory</td>
+<td>The ordered sequence of steps an agent took</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Do I need a managed platform?</strong> No. Start with a JSONL file and one script. Add a platform when more than one person reviews results or you exceed ~50 cases.</p>
+<p><strong>How many cases is enough?</strong> 5–10 to start, 30–100 once you&#39;re pulling real production failures. Add cases only when a failure mode appears.</p>
+<p><strong>Can I use one big judge instead of many scorers?</strong> No. Single-aspect scorers are more reliable and more debuggable.</p>
+<p><strong>Do evals replace my deterministic tests?</strong> Never. Keep unit and integration tests; evals cover what isn&#39;t decidable.</p>
+<p><strong>My judge disagrees with me. Is it wrong?</strong> Maybe you are. Calibration cuts both ways — a disagreement sometimes reveals that <em>your</em> labels are inconsistent.</p>
+<p><strong>First thing to build?</strong> A 5-case dataset and three deterministic checks. Today.</p>
+<h3 id="next-steps-in-order">Next steps, in order</h3>
+<ol>
+<li><strong>Today:</strong> create <code>evals/datasets/*.jsonl</code> with 5 real cases and metadata.</li>
+<li><strong>This week:</strong> write 3–5 deterministic scorers for structural requirements.</li>
+<li><strong>Next week:</strong> add one calibrated judge with anchored scoring and a threshold.</li>
+<li><strong>Week 3:</strong> run a baseline, then one isolated change, and compare per segment.</li>
+<li><strong>Week 4:</strong> wire the suite into CI on a fresh baseline.</li>
+<li><strong>Month 2:</strong> add tracing, sample 5% of production, feed failures back into the dataset.</li>
+</ol>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p><strong>Verified as of September 2026 from primary sources:</strong></p>
+<ul>
+<li>Braintrust best practices — small datasets, dataset-from-failures, scorer validation, explicit verbosity-bias testing, baseline currency, one-change-per-experiment, trials for nondeterminism, segment-by-metadata (<code>braintrust.dev/docs</code>).</li>
+<li>Langfuse evals guidance — the code-vs-judge-vs-human table, the pre-screen pattern, the $0.01–$0.10 per-assessment ballpark, 80–90% judge-vs-human agreement, the 10%-failure-class warning, 5–10% production sampling, observation-level judges recommended (trace-level legacy as of July 2026), trajectory tool calls decidable in code since July 2026.</li>
+<li>promptfoo&#39;s assertion catalog, <code>llm-rubric</code> behavior (JSON verdict, threshold semantics, pass-defaults-to-true footgun, grader override), config/CLI reference, and red-team commands (<code>promptfoo.dev/docs</code>).</li>
+<li>promptfoo&#39;s acquisition by OpenAI <strong>announced March 9, 2026</strong>; both parties stated the open-source project continues.</li>
+<li>Licenses: Langfuse MIT except <code>ee/</code>; Ragas Apache-2.0 (repo now <code>vibrantlabsai/ragas</code>); Phoenix Elastic 2.0.</li>
+</ul>
+<p><strong>Changes fast:</strong> pricing and cost ballparks (check the pricing page, never a blog); the default judge model; license boundaries; OpenAI Evals deprecation dates (read-only Oct 31 2026, shutdown Nov 30 2026); CLI flag spellings (verify with <code>--help</code>); promptfoo&#39;s ownership.</p>
+<p><strong>Vendor claims, not independently verified:</strong> DeepEval&#39;s &quot;20 million+ daily evaluations&quot;; Arize&#39;s preference for categorical over numeric scales; adoption figures attributed to promptfoo. Test <em>definitions</em> are reliable; <em>marketing numbers</em> are marketing.</p>
+<p><strong>Nothing here is legal advice.</strong> If you self-host Langfuse or Phoenix commercially, read the actual LICENSE files.</p>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">AI &amp; Agents</span> · 8 parts · ~18 min · Generated from <code>markdown_docs/01-ai-evals-regression-testing.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>

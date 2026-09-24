@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning Center</title>
+<meta name="description" content="A shelf of long-form, follow-along guides on AI agents, databases, the web platform, and the tools behind modern software.">
+<link rel="stylesheet" href="assets/dashboard.css">
+</head>
+<body data-page-size="8">
+<header class="topbar">
+  <span class="brand">Learning Center<small>Guides &amp; interactive walkthroughs</small></span>
+  <button id="themeToggle" title="Toggle dark / light">🌙 Dark</button>
+</header>
+
+<main class="dash">
+  <div class="hero">
+    <h1>Learning Center</h1>
+    <p>A shelf of long-form guides on the tools and ideas behind modern software — AI agents, databases, containers, billing, and the web platform.</p>
+    <p>Each guide is a full walkthrough: read it top to bottom, copy the code as you go, and tick off the checklist to track your progress. <strong>Filter below, or open any guide to start.</strong></p>
+  </div>
+
+  <div class="toolbar">
+    <div class="searchrow">
+      <input id="searchInput" type="search" placeholder="Search guides by title or topic…" autocomplete="off" aria-label="Search guides">
+    </div>
+    <select id="catSelect" aria-label="Filter by category"></select>
+    <select id="sortSelect" aria-label="Sort guides">
+      <option value="order">Sort: Recommended</option>
+      <option value="az">Sort: A → Z</option>
+      <option value="time">Sort: Longest first</option>
+    </select>
+  </div>
+
+  <div class="pills" id="pills"></div>
+
+  <div class="resultbar">
+    <span id="resultCount"></span>
+    <button id="clearBtn" type="button" hidden>Clear filters</button>
+  </div>
+
+  <div class="list" id="list">
+    <article class="card" data-href="guides/01-ai-evals-regression-testing.html" data-cat="AI &amp; Agents" data-mins="18" data-title="AI Evals &amp; Regression Testing for LLM Apps">
+      <div class="body">
+        <span class="cat">AI &amp; Agents</span>
+        <div><a class="g-name" href="guides/01-ai-evals-regression-testing.html">AI Evals &amp; Regression Testing for LLM Apps</a></div>
+        <div class="g-meta">8 parts · ~18 min</div>
+        <span class="g-short"><strong>How do you know your LLM app got <em>worse</em>?</strong> This paper turns &quot;the output felt worse today&quot; into a number you can gate a deploy on.</span>
+        <div class="g-long">Your tests make CI red when a route 500s, because the output is <em>decidable</em>: same input, same answer. LLM output isn&#39;t. Same prompt, different text every call; rarely one right answer. Worst of all: a prompt &quot;improvement&quot; can raise quality on the cases you stared at while quietly destroying cases you never looked at — a <strong>silent regression</strong>. Product broken, nothing red, no ticket filed.</div>
+        <button class="readmore" type="button">Read more</button>
+      </div>
+      <div class="action"><a class="btn" href="guides/01-ai-evals-regression-testing.html">Open →</a></div>
+    </article>
+    <article class="card" data-href="guides/02-prompt-injection-agent-security.html" data-cat="AI &amp; Agents" data-mins="17" data-title="Prompt Injection &amp; Agent Security">
+      <div class="body">
+        <span class="cat">AI &amp; Agents</span>
+        <div><a class="g-name" href="guides/02-prompt-injection-agent-security.html">Prompt Injection &amp; Agent Security</a></div>
+        <div class="g-meta">9 parts · 13-item checklist · ~17 min</div>
+        <span class="g-short">A field guide to the attack surface created when an LLM browses, calls tools, and reads files — and the defenses that cut blast radius.</span>
+        <div class="g-long">One sentence contains the entire problem: <strong>a large language model receives instructions and data through the same channel and cannot reliably tell them apart.</strong></div>
+        <button class="readmore" type="button">Read more</button>
+      </div>
+      <div class="action"><a class="btn" href="guides/02-prompt-injection-agent-security.html">Open →</a></div>
+    </article>
+    <article class="card" data-href="guides/03-postgres-as-the-whole-backend.html" data-cat="Data &amp; Backend" data-mins="29" data-title="Postgres as the Whole Backend">
+      <div class="body">
+        <span class="cat">Data &amp; Backend</span>
+        <div><a class="g-name" href="guides/03-postgres-as-the-whole-backend.html">Postgres as the Whole Backend</a></div>
+        <div class="g-meta">9 parts · ~29 min</div>
+        <span class="g-short">One Postgres instance can be your relational store, your document store, your vector store, your search engine, your job queue, and your tenant firewall — if you know which knobs to turn.</span>
+        <div class="g-long">You are building a Next.js + Postgres SaaS. The default move is to sign up for four or five vendors: Neon or Supabase for the database, a vector store for RAG, Redis for caching and queues, Inngest for durable workflows, maybe a hosted search engine. Every one of those vendors is a dashboard, an API key, a bill, a status page, a data-residency conversation, and a copy of your data that can drift out of sync with the source of truth.</div>
+        <button class="readmore" type="button">Read more</button>
+      </div>
+      <div class="action"><a class="btn" href="guides/03-postgres-as-the-whole-backend.html">Open →</a></div>
+    </article>
+    <article class="card" data-href="guides/04-local-on-device-ai-stack.html" data-cat="AI &amp; Agents" data-mins="20" data-title="Local &amp; On-Device AI">
+      <div class="body">
+        <span class="cat">AI &amp; Agents</span>
+        <div><a class="g-name" href="guides/04-local-on-device-ai-stack.html">Local &amp; On-Device AI</a></div>
+        <div class="g-meta">8 parts · ~20 min</div>
+        <span class="g-short">Run the weights on your own metal — private, offline, no per-token bill.</span>
+        <div class="g-long">You already call hosted LLM APIs every day. This paper is about owning the other half: the part that runs on the machine under your desk. Local inference is not a replacement for frontier models — it is a second tool. For embeddings, bulk classification, private documents, and offline work, it is often the <em>better</em> tool, and it costs nothing per token.</div>
+        <button class="readmore" type="button">Read more</button>
+      </div>
+      <div class="action"><a class="btn" href="guides/04-local-on-device-ai-stack.html">Open →</a></div>
+    </article>
+    <article class="card" data-href="guides/05-web-platform-2026-rsc-streaming-edge-wasm.html" data-cat="Web Platform" data-mins="36" data-title="The Web Platform in 2026">
+      <div class="body">
+        <span class="cat">Web Platform</span>
+        <div><a class="g-name" href="guides/05-web-platform-2026-rsc-streaming-edge-wasm.html">The Web Platform in 2026</a></div>
+        <div class="g-meta">8 parts · ~36 min</div>
+        <span class="g-short">You already ship Next.js. This paper explains the substrate underneath it — server components, streaming, caching, runtimes, and WebAssembly — so &quot;it compiles&quot; becomes &quot;I know why.&quot;</span>
+        <div class="g-long">A modern Next.js request is not one thing. It is a relay race through four or five different execution environments, each with its own rules, its own available APIs, and its own failure modes. Here is the whole path in one diagram:</div>
+        <button class="readmore" type="button">Read more</button>
+      </div>
+      <div class="action"><a class="btn" href="guides/05-web-platform-2026-rsc-streaming-edge-wasm.html">Open →</a></div>
+    </article>
+    <article class="card" data-href="guides/06-linear-mastered.html" data-cat="Workflow" data-mins="23" data-title="Linear, Mastered">
+      <div class="body">
+        <span class="cat">Workflow</span>
+        <div><a class="g-name" href="guides/06-linear-mastered.html">Linear, Mastered</a></div>
+        <div class="g-meta">10 parts · ~23 min</div>
+        <span class="g-short"><strong>Linear is not a task list — it&#39;s an opinionated model of how work flows.</strong> Learn the model and the tool disappears into muscle memory.</span>
+        <div class="g-long">Most people use Linear like a faster Jira: create issue, move issue, close issue. That works, and it wastes the product. Linear&#39;s real value is that it has <em>opinions</em> — about what an issue is, what a cycle is for, and where a human&#39;s judgment belongs — and the tool is designed so that following those opinions is faster than fighting them.</div>
+        <button class="readmore" type="button">Read more</button>
+      </div>
+      <div class="action"><a class="btn" href="guides/06-linear-mastered.html">Open →</a></div>
+    </article>
+    <article class="card" data-href="guides/07-containers-dev-environments-macos.html" data-cat="Infra &amp; Dev Env" data-mins="19" data-title="Containers &amp; Dev Environments on Apple Silicon">
+      <div class="body">
+        <span class="cat">Infra &amp; Dev Env</span>
+        <div><a class="g-name" href="guides/07-containers-dev-environments-macos.html">Containers &amp; Dev Environments on Apple Silicon</a></div>
+        <div class="g-meta">9 parts · ~19 min</div>
+        <span class="g-short"><strong>On a Mac, a &quot;container&quot; is a Linux VM wearing a very good disguise.</strong> Understand that one fact and everything else — performance, networking, memory, licensing — stops being mysterious.</span>
+        <div class="g-long">Every tutorial you&#39;ve read says containers are &quot;lightweight because they share the host kernel.&quot; That is true on Linux. It is <strong>not</strong> true on macOS, because macOS has no Linux kernel to share. So on your MacBook, a container is a process inside a small Linux virtual machine — and that VM is the real thing you&#39;re configuring, paying for, and occasionally cursing at.</div>
+        <button class="readmore" type="button">Read more</button>
+      </div>
+      <div class="action"><a class="btn" href="guides/07-containers-dev-environments-macos.html">Open →</a></div>
+    </article>
+    <article class="card" data-href="guides/08-stripe-billing-for-saas.html" data-cat="Business &amp; Billing" data-mins="31" data-title="Stripe Billing for a Solo SaaS">
+      <div class="body">
+        <span class="cat">Business &amp; Billing</span>
+        <div><a class="g-name" href="guides/08-stripe-billing-for-saas.html">Stripe Billing for a Solo SaaS</a></div>
+        <div class="g-meta">11 parts · ~31 min</div>
+        <span class="g-short">Take money correctly the first time: hosted Checkout, verified webhooks, and a credits ledger you control — the three things that separate a working SaaS from one that leaks cash and double-grants value.</span>
+        <div class="g-long">You are building a competitive-audit report generator. Free instant scan as a lead magnet. A paid one-off full report. Prepaid credit packs — 3 for $79, 10 for $199 — because every run costs you real money (LLM tokens plus third-party APIs). And an agency subscription tier with white-label branding.</div>
+        <button class="readmore" type="button">Read more</button>
+      </div>
+      <div class="action"><a class="btn" href="guides/08-stripe-billing-for-saas.html">Open →</a></div>
+    </article>
+    <article class="card" data-href="guides/graphify-obsidian-ai-agent-guide.html" data-cat="AI &amp; Agents" data-mins="19" data-title="AI Agents + Graphify + Obsidian">
+      <div class="body">
+        <span class="cat">AI &amp; Agents</span>
+        <div><a class="g-name" href="guides/graphify-obsidian-ai-agent-guide.html">AI Agents + Graphify + Obsidian</a></div>
+        <div class="g-meta">9 parts · ~19 min</div>
+        <span class="g-short"><strong>A practical, step-by-step reference for building a persistent knowledge graph that your AI agent can query — and that you can see, explore, and edit in Obsidian.</strong></span>
+        <div class="g-long">Three tools, three jobs. Each one does one thing well, and they snap together like this:</div>
+        <button class="readmore" type="button">Read more</button>
+      </div>
+      <div class="action"><a class="btn" href="guides/graphify-obsidian-ai-agent-guide.html">Open →</a></div>
+    </article>
+    <article class="card" data-href="guides/linear-opencode-workflow.html" data-cat="Workflow" data-mins="1" data-title="Linear + opencode Workflow">
+      <div class="body">
+        <span class="cat">Workflow</span>
+        <div><a class="g-name" href="guides/linear-opencode-workflow.html">Linear + opencode Workflow</a></div>
+        <div class="g-meta">5 sections · ~1 min</div>
+        <span class="g-short">The optimal workflow for using Linear and opencode together.</span>
+      </div>
+      <div class="action"><a class="btn" href="guides/linear-opencode-workflow.html">Open →</a></div>
+    </article>
+  </div>
+
+  <p class="empty" id="empty" hidden>No guides match that filter. Try a shorter term or another category.</p>
+  <nav class="pager" id="pager" aria-label="Pagination"></nav>
+</main>
+
+<p class="note">Generated by <code>npm run build</code> from <code>markdown_docs/</code>. 10 guides.</p>
+
+<script src="assets/theme.js"></script>
+<script src="assets/dashboard.js"></script>
+</body>
+</html>

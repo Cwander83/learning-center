@@ -1,0 +1,16 @@
+{
+  "name": "learning-center",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static learning-center site generated from markdown_docs/",
+  "scripts": {
+    "build": "node build/build.mjs",
+    "watch": "node build/build.mjs --watch",
+    "clean": "rm -rf guides assets index.html"
+  },
+  "dependencies": {
+    "github-slugger": "^2.0.0",
+    "marked": "^18.0.0"
+  }
+}

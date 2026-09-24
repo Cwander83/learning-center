@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Containers &amp; Dev Environments on Apple Silicon — Learning Center</title>
+<meta name="description" content="On a Mac, a &quot;container&quot; is a Linux VM wearing a very good disguise. Understand that one fact and everything else — performance, networking, memory, licensing — stops being mysterious.">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="07-containers-dev-environments-macos">
+<header class="topbar">
+  <a class="homebtn" href="../index.html">⌂ Home</a>
+  <span class="brand">Containers &amp; Dev Environments on Apple Silicon</span>
+  <button id="themeToggle" title="Toggle dark / light">🌙 Dark</button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--the-mental-model-you-actually-need" data-sec="part-1--the-mental-model-you-actually-need">Part 1 — The Mental Model You Actually Need</a><a href="#part-2--choosing-a-runtime-on-apple-silicon" data-sec="part-2--choosing-a-runtime-on-apple-silicon">Part 2 — Choosing a Runtime on Apple Silicon</a><a href="#pick-one" data-sec="pick-one" class="sub">Pick one</a><a href="#apple-container-honestly" data-sec="apple-container-honestly" class="sub">Apple <code>container</code>, honestly</a><a href="#part-3--install-and-your-first-container" data-sec="part-3--install-and-your-first-container">Part 3 — Install and Your First Container</a><a href="#part-4--images-and-the-build-loop" data-sec="part-4--images-and-the-build-loop">Part 4 — Images and the Build Loop</a><a href="#part-5--postgres-with-pgvector-locally" data-sec="part-5--postgres-with-pgvector-locally">Part 5 — Postgres With pgvector, Locally</a><a href="#part-6--file-performance-on-macos-the-part-everyone-learns-the-hard-way" data-sec="part-6--file-performance-on-macos-the-part-everyone-learns-the-hard-way">Part 6 — File Performance on macOS (the Part Everyone Learns the Hard Way)</a><a href="#part-7--vs-code-dev-containers" data-sec="part-7--vs-code-dev-containers">Part 7 — VS Code Dev Containers</a><a href="#editor-alternatives-honestly" data-sec="editor-alternatives-honestly" class="sub">Editor alternatives, honestly</a><a href="#part-8--sandboxing-ai-coding-agents-the-payoff" data-sec="part-8--sandboxing-ai-coding-agents-the-payoff">Part 8 — Sandboxing AI Coding Agents (the Payoff)</a><a href="#the-pattern" data-sec="the-pattern" class="sub">The pattern</a><a href="#where-this-connects-to-everything-else" data-sec="where-this-connects-to-everything-else" class="sub">Where this connects to everything else</a><a href="#part-9--resource-budgets-on-24-gb-and-disk-hygiene" data-sec="part-9--resource-budgets-on-24-gb-and-disk-hygiene">Part 9 — Resource Budgets on 24 GB, and Disk Hygiene</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheet" data-sec="cheat-sheet">Cheat Sheet</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--docs" data-sec="written-references--docs">Written References &amp; Docs</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#next-steps-in-order" data-sec="next-steps-in-order" class="sub">Next steps, in order</a><a href="#verification-note" data-sec="verification-note">Verification Note</a></div>
+</nav>
+<main>
+<h1>Containers &amp; Dev Environments on Apple Silicon</h1>
+<div class="callout lede"><strong>On a Mac, a &quot;container&quot; is a Linux VM wearing a very good disguise.</strong> Understand that one fact and everything else — performance, networking, memory, licensing — stops being mysterious.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>Every tutorial you&#39;ve read says containers are &quot;lightweight because they share the host kernel.&quot; That is true on Linux. It is <strong>not</strong> true on macOS, because macOS has no Linux kernel to share. So on your MacBook, a container is a process inside a small Linux virtual machine — and that VM is the real thing you&#39;re configuring, paying for, and occasionally cursing at.</p>
+<div class="codewrap"><pre data-lang="text"><code>┌──────────────────────────────── macOS host (M5 Pro, 24 GB unified memory) ─────────────────────────────┐
+│                                                                                                        │
+│   Terminal / VS Code / your agent                                                                      │
+│        │  docker / podman / container / orb CLI                                                        │
+│        ▼                                                                                               │
+│  ┌──────────────────────────────────────────────────────────────────────────────────────┐             │
+│  │  CONTAINER RUNTIME + its Linux VM                                                    │             │
+│  │  (Docker Desktop · OrbStack · Colima · Podman · Apple container)                      │             │
+│  │                                                                                       │             │
+│  │     ┌───────────┐   ┌───────────┐   ┌───────────┐                                    │             │
+│  │     │ container │   │ container │   │ container │     ← your Postgres, your Node app, │             │
+│  │     │ postgres  │   │  node/next│   │   agent   │       your sandboxed AI agent       │             │
+│  │     └───────────┘   └───────────┘   └───────────┘                                    │             │
+│  │           ▲ volumes (named)    ▲ bind mount to ~/code (shared, slower)               │             │
+│  └──────────────────────────────────────────────────────────────────────────────────────┘             │
+│                                                                                                        │
+│   Apple `container` differs: 1 micro-VM PER CONTAINER, no shared VM, no daemon.                        │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘</code></pre></div>
+<p>Two consequences you will feel immediately:</p>
+<ol>
+<li><strong>Every runtime is a different VM implementation</strong>, so &quot;which runtime&quot; is a real decision with real tradeoffs — not a cosmetic choice.</li>
+<li><strong>Files crossing the host↔VM boundary are slow-ish</strong>, which is why <code>node_modules</code> placement matters more on a Mac than on Linux.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Plain-English analogy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Image</td>
+<td>A recipe + a sealed lunchbox of ingredients</td>
+</tr>
+<tr>
+<td>Container</td>
+<td>A meal cooked from that lunchbox — running, disposable</td>
+</tr>
+<tr>
+<td>VM</td>
+<td>The kitchen the meal is cooked in</td>
+</tr>
+<tr>
+<td>Volume (named)</td>
+<td>A pantry the kitchen owns; survives the meal</td>
+</tr>
+<tr>
+<td>Bind mount</td>
+<td>Reaching through a hatch into your own fridge (<code>~/code</code>)</td>
+</tr>
+<tr>
+<td>Dockerfile</td>
+<td>The recipe card</td>
+</tr>
+<tr>
+<td>Compose file</td>
+<td>A menu describing several dishes served together</td>
+</tr>
+<tr>
+<td>Registry</td>
+<td>The grocery store (Docker Hub, GHCR)</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td>Which kitchen you rented</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The single most important Mac fact:</strong> because each runtime is a VM, &quot;Docker is using 4 GB of RAM&quot; is really &quot;the Linux VM is using 4 GB.&quot; That is why runtime choice on a 24 GB machine is a memory decision, not a taste decision.</p>
+</blockquote>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>Learn the model</strong> (below). A container is a thin Linux process; on macOS it rides inside a VM.</li>
+<li><strong>Pick a runtime.</strong> On your M5 Pro: <strong>OrbStack</strong> for speed and low RAM (paid for commercial use), <strong>Colima</strong> if you want free/MIT and don&#39;t need a GUI, <strong>Docker Desktop</strong> if a team standard demands it, <strong>Apple <code>container</code></strong> if you want no daemon and are on macOS 26.</li>
+<li><strong>Install one</strong>, run <code>hello</code>, then run <strong>Postgres with pgvector</strong> via Compose.</li>
+<li><strong>Use VS Code Dev Containers</strong> for the &quot;clone the repo, run it exactly the same&quot; story.</li>
+<li><strong>Sandbox your AI agents</strong> in ephemeral containers with read-only mounts — this is the payoff.</li>
+<li><strong>Know the budget:</strong> give the VM <strong>6–10 GB</strong> on a 24 GB Mac. Not more.</li>
+<li><strong>Clean up</strong> with targeted commands, never a blind <code>prune -a</code>.</li>
+</ol>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Why</th>
+<th>How to check / get</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>macOS on Apple Silicon</td>
+<td>All of this assumes arm64</td>
+<td><code>uname -m</code> → <code>arm64</code></td>
+</tr>
+<tr>
+<td>Homebrew</td>
+<td>Installs runtimes and the CLI</td>
+<td><code>brew --version</code></td>
+</tr>
+<tr>
+<td>~20+ GB free disk</td>
+<td>Images and VMs are hungry</td>
+<td><code>df -h /</code></td>
+</tr>
+<tr>
+<td>macOS 26 (for Apple <code>container</code>)</td>
+<td>Full networking features need it</td>
+<td><code>sw_vers</code></td>
+</tr>
+<tr>
+<td>VS Code + Dev Containers extension</td>
+<td>The dev-environment story</td>
+<td>Extensions → &quot;Dev Containers&quot;</td>
+</tr>
+<tr>
+<td>24 GB unified memory</td>
+<td>You have it; the budget section allocates it</td>
+<td>About This Mac</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Apple Silicon floor:</strong> everything in this paper is arm64-native. Anything that says &quot;Windows (WSL 2)&quot; does not apply to you. When you see <code>--platform linux/amd64</code> in a tutorial, that is emulation and it will be slow — avoid it unless a dependency forces it.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--the-mental-model-you-actually-need"><h2 id="part-1--the-mental-model-you-actually-need">Part 1 — The Mental Model You Actually Need</h2>
+<p><strong>Image vs container.</strong> An image is an immutable filesystem plus metadata. A container is a running process with a writable layer on top. Delete the container and the image remains; that&#39;s why <code>docker run</code> is cheap the second time.</p>
+<p><strong>Layers and caching.</strong> Images are built in layers. Change one <code>RUN</code> line and only that layer and those after it rebuild. This is why <strong>order matters in a Dockerfile</strong>: copy your lockfile and install dependencies <em>before</em> copying source, so editing code doesn&#39;t reinstall everything.</p>
+<p><strong>Volume vs bind mount.</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Named volume</th>
+<th>Bind mount</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Looks like</td>
+<td><code>pgdata:/var/lib/postgresql/data</code></td>
+<td><code>./app:/app</code></td>
+</tr>
+<tr>
+<td>Managed by</td>
+<td>The runtime</td>
+<td>You, on the Mac filesystem</td>
+</tr>
+<tr>
+<td>Speed on macOS</td>
+<td>Fast (lives inside the VM)</td>
+<td>Slower (crosses the boundary)</td>
+</tr>
+<tr>
+<td>Use it for</td>
+<td>Databases, caches</td>
+<td>Source code you&#39;re editing</td>
+</tr>
+</tbody></table>
+<p><strong>Networking.</strong> Containers get their own network namespace. Two facts that solve most confusion:</p>
+<ul>
+<li>Containers reach <strong>each other</strong> by service name in Compose (<code>db:5432</code>), not <code>localhost</code>.</li>
+<li>Containers reach <strong>your Mac</strong> at a special hostname; on Docker Desktop and OrbStack that&#39;s <code>host.docker.internal</code>.</li>
+</ul>
+<p><strong>Lifecycle.</strong> <code>run</code> → <code>stop</code> → <code>start</code> → <code>rm</code>. A stopped container is still on disk using space. <code>docker ps -a</code> shows them; <code>docker ps</code> does not.</p>
+<blockquote>
+<p><strong>The &quot;it works on Linux&quot; trap:</strong> on Linux you can <code>--network host</code> and share the host&#39;s networking directly. On macOS, <code>host.docker.internal</code> is the portable answer. Tutorials written for Linux servers routinely skip this.</p>
+</blockquote>
+<hr>
+</section><section id="part-2--choosing-a-runtime-on-apple-silicon"><h2 id="part-2--choosing-a-runtime-on-apple-silicon">Part 2 — Choosing a Runtime on Apple Silicon</h2>
+<p>This is the decision that shapes your next year, so here is the honest table. All figures are from benchmarks and vendor pages read in September 2026; treat them as directional, not gospel.</p>
+<table>
+<thead>
+<tr>
+<th>Runtime</th>
+<th>License / cost</th>
+<th>Idle RAM</th>
+<th>Startup</th>
+<th>GUI</th>
+<th>Compose</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Docker Desktop</strong></td>
+<td>Paid for orgs ≥250 employees <strong>and</strong> ≥$10M revenue; free below that</td>
+<td>~600 MB–2 GB (improved by Resource Saver Mode)</td>
+<td>Seconds to ~a minute on cold start</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Team standard, Docker Scout/Build Cloud</td>
+</tr>
+<tr>
+<td><strong>OrbStack</strong></td>
+<td><strong>Free for personal use</strong>; ~$8/user/mo Pro; Teams tier</td>
+<td>~150–500 MB</td>
+<td>~2–5 s</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Fastest, lightest daily driver on Apple Silicon</td>
+</tr>
+<tr>
+<td><strong>Colima</strong></td>
+<td><strong>Free, MIT, no restrictions</strong></td>
+<td>~200–600 MB</td>
+<td>~5 s</td>
+<td>No (CLI)</td>
+<td>Yes</td>
+<td>Free/OSS, automation, CI, corporate policy</td>
+</tr>
+<tr>
+<td><strong>Podman</strong></td>
+<td>Free, Apache-2.0</td>
+<td>~80–200 MB</td>
+<td>Fast</td>
+<td>Podman Desktop optional</td>
+<td>Yes</td>
+<td>Rootless/daemonless security posture</td>
+</tr>
+<tr>
+<td><strong>Apple <code>container</code></strong></td>
+<td>Free, Apache-2.0</td>
+<td>1 micro-VM per container</td>
+<td>Fast</td>
+<td>No (CLI)</td>
+<td><strong>No native Compose</strong></td>
+<td>No daemon, strong isolation, macOS 26</td>
+</tr>
+</tbody></table>
+<p><strong>The benchmark picture (April 2026, 16 GB M-series, 4 CPU / 4 GB fairness limits):</strong> volume write throughput roughly doubled across all runtimes; OrbStack led on container-to-container throughput (~130 Gbps) and volume-read speed; Colima was fastest to start and is fully free. Apple <code>container</code> (0.11.0 at benchmark time) is a different architecture — one VM per container — which is more isolated but heavier per container.</p>
+<h3 id="pick-one">Pick one</h3>
+<ul>
+<li><strong>You want the best daily experience on a personal Mac → OrbStack.</strong> It is free for personal use, boots in seconds, and idles at a fraction of Docker Desktop&#39;s memory. This is the recommendation for your machine.</li>
+<li><strong>You want free-no-matter-what (or you&#39;ll use this commercially without paying) → Colima.</strong> MIT, scriptable, no GUI. Config lives in <code>~/.colima/default/colima.yaml</code>.</li>
+<li><strong>A client or team mandates Docker → Docker Desktop.</strong> Check the license threshold honestly before installing it at work.</li>
+<li><strong>You want maximum isolation and no background daemon → Apple <code>container</code>.</strong> But read the limits below first.</li>
+</ul>
+<h3 id="apple-container-honestly">Apple <code>container</code>, honestly</h3>
+<p>Apple shipped <strong>1.0 on 9 June 2026</strong> (a year after the WWDC 2025 introduction); releases are product-versioned, not semver, and a 1.4.x line existed by September 2026. It is written in Swift, optimized for Apple Silicon, OCI-compatible (so Docker Hub images work unchanged), and runs <strong>each container in its own lightweight micro-VM</strong> with no system-wide daemon.</p>
+<p>Install and first run, per Apple&#39;s docs:</p>
+<div class="codewrap"><pre data-lang="bash"><code># Install via the signed package from the apple/container releases page,
+# then start the system service:
+container system start
+
+# First container — pulls alpine, runs it in a lightweight VM, removes it
+container run --rm alpine echo hello</code></pre></div>
+<p>Known limits as of September 2026:</p>
+<ul>
+<li><strong>No native Docker Compose.</strong> Third-party bridges exist but are not official.</li>
+<li><strong>Dev Container support is incomplete</strong> — networking issues, setup scripts not fully supported.</li>
+<li><strong>macOS 26 is the supported target.</strong> It may run on macOS 15, but issues not reproducible on macOS 26 are typically not fixed.</li>
+<li><strong>Apple Silicon only.</strong> No Intel Macs.</li>
+<li>Default resources are deliberately small: containers get roughly <strong>1 GB RAM / 4 CPUs</strong>, and the builder VM about <strong>2 GB / 2 CPUs</strong> — worth knowing before you wonder why a build is slow.</li>
+<li>Config moved to a TOML file at <code>~/.config/container/config.toml</code>.</li>
+</ul>
+<blockquote>
+<p><strong>Verdict for you:</strong> Apple <code>container</code> is genuinely interesting and improving fast, but the missing Compose and shaky devcontainer support mean it is not your daily driver yet if you want Dev Containers in VS Code. Watch it; don&#39;t build on it this month.</p>
+</blockquote>
+<hr>
+</section><section id="part-3--install-and-your-first-container"><h2 id="part-3--install-and-your-first-container">Part 3 — Install and Your First Container</h2>
+<p>Assuming OrbStack as the daily driver (substitute the Colima or Docker lines if you chose otherwise):</p>
+<div class="codewrap"><pre data-lang="bash"><code># OrbStack (recommended: fast, low RAM, free for personal use)
+brew install --cask orbstack
+
+# --- or Colima (fully free, CLI only) ---
+brew install colima docker docker-compose
+colima start --cpu 4 --memory 8 --disk 60 --vm-type vz
+
+# --- or Docker Desktop ---
+brew install --cask docker</code></pre></div>
+<p>Verify, then run something:</p>
+<div class="codewrap"><pre data-lang="bash"><code>docker version
+docker run --rm hello-world
+docker run --rm -it alpine sh -c 'uname -a'   # note: a REAL Linux kernel</code></pre></div>
+<p>That last command is the whole lesson. You asked a Mac for <code>uname -a</code> and got a Linux kernel, because you were inside a VM the whole time. <code>--rm</code> deletes the container when it exits; the image stays cached.</p>
+<p><strong>Colima lifecycle</strong> (worth memorizing, it&#39;s your free option):</p>
+<div class="codewrap"><pre data-lang="bash"><code>colima status
+colima list
+colima stop
+colima start
+colima delete          # destroys the VM and its containers</code></pre></div>
+<blockquote>
+<p><strong>Colima tip:</strong> <code>--vm-type vz</code> uses Apple&#39;s Virtualization.framework (faster, lower overhead) instead of QEMU. On an M-series Mac, use it.</p>
+</blockquote>
+<hr>
+</section><section id="part-4--images-and-the-build-loop"><h2 id="part-4--images-and-the-build-loop">Part 4 — Images and the Build Loop</h2>
+<p>A minimal multi-stage Dockerfile for a Node/Next app, ordered for cache efficiency:</p>
+<div class="codewrap"><pre data-lang="dockerfile"><code># syntax=docker/dockerfile:1
+
+########## deps ##########
+FROM node:22-alpine AS deps
+WORKDIR /app
+# Copy ONLY manifests first → this layer is cached until deps change
+COPY package.json package-lock.json ./
+RUN npm ci
+
+########## builder ##########
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+########## runner ##########
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+EXPOSE 3000
+CMD [&quot;npm&quot;, &quot;start&quot;]</code></pre></div>
+<div class="codewrap"><pre data-lang="bash"><code># .dockerignore — the single biggest build-speed win
+node_modules
+.next
+.git
+.env*
+*.log</code></pre></div>
+<p>Build and inspect:</p>
+<div class="codewrap"><pre data-lang="bash"><code>docker build -t myapp:dev .
+docker images
+docker history myapp:dev
+docker buildx build --platform linux/arm64 -t myapp:arm64 .</code></pre></div>
+<blockquote>
+<p><strong>Why <code>node_modules</code> never goes in <code>.dockerignore</code> for a <em>build</em>:</strong> you want it excluded from the build <em>context</em> (so uploads are fast) but recreated inside the image by <code>npm ci</code>. The Dockerfile above does exactly that.</p>
+</blockquote>
+<p><strong>arm64 vs amd64.</strong> Your M5 wants <code>linux/arm64</code> images. If an image is only published for <code>amd64</code>, you&#39;ll be emulating — slow and occasionally broken. Fixes, in order of preference: (1) find an arm64 image, (2) build your own multi-stage image on arm64, (3) last resort, enable Rosetta emulation in your runtime settings.</p>
+<hr>
+</section><section id="part-5--postgres-with-pgvector-locally"><h2 id="part-5--postgres-with-pgvector-locally">Part 5 — Postgres With pgvector, Locally</h2>
+<p>Since your SaaS plan already leans on pgvector (Paper 3), run it locally in a container. <code>pgvector</code> publishes an official image — always confirm the tag on the registry before pinning it.</p>
+<div class="codewrap"><pre data-lang="yaml"><code># docker-compose.yml
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    container_name: saas-db
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: saas_dev
+    ports:
+      - &quot;5432:5432&quot;
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [&quot;CMD-SHELL&quot;, &quot;pg_isready -U app -d saas_dev&quot;]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:</code></pre></div>
+<div class="codewrap"><pre data-lang="bash"><code>docker compose up -d
+docker compose ps
+docker compose logs -f db
+
+# connect without installing anything locally
+docker compose exec db psql -U app -d saas_dev -c 'SELECT version();'
+docker compose exec db psql -U app -d saas_dev -c 'CREATE EXTENSION IF NOT EXISTS vector;'</code></pre></div>
+<p>Then from your host app, the connection string is just:</p>
+<div class="codewrap"><pre data-lang="bash"><code>DATABASE_URL=&quot;postgresql://app:devpassword@localhost:5432/saas_dev&quot;</code></pre></div>
+<blockquote>
+<p><strong>Named volume, not bind mount, for <code>pgdata</code>.</strong> This is the single most common Postgres-in-Docker mistake on macOS: a bind mount for the data directory is slower and has historically had permission problems. Named volume is correct.</p>
+</blockquote>
+<p><strong>Reset when you break something:</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code>docker compose down            # stop + remove containers, KEEP data
+docker compose down -v         # stop + remove containers AND the volume (destroys data)</code></pre></div>
+<blockquote>
+<p><strong><code>down -v</code> is destructive.</strong> It deletes <code>pgdata</code> permanently. Use it when you genuinely want a clean slate, never as a reflex.</p>
+</blockquote>
+<hr>
+</section><section id="part-6--file-performance-on-macos-the-part-everyone-learns-the-hard-way"><h2 id="part-6--file-performance-on-macos-the-part-everyone-learns-the-hard-way">Part 6 — File Performance on macOS (the Part Everyone Learns the Hard Way)</h2>
+<p>Bind mounts on macOS go through a file-sharing layer (VirtioFS on current runtimes), which is far slower than native disk for many small files. <code>node_modules</code> is the worst possible case: tens of thousands of tiny files, touched constantly.</p>
+<p><strong>Three fixes, best first:</strong></p>
+<ol>
+<li><strong>Keep <code>node_modules</code> inside the container</strong>, not on the bind mount. In Compose, declare an anonymous/named volume at that path so it shadows the host directory:</li>
+</ol>
+<div class="codewrap"><pre data-lang="yaml"><code>services:
+  app:
+    build: .
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules   # container-owned; hides the host copy
+volumes:
+  node_modules:</code></pre></div>
+<ol start="2">
+<li><strong>Use a dev container</strong> (Part 7) and let the image own dependencies; keep only source bind-mounted.</li>
+<li><strong>Move the whole repo inside the VM</strong> for heavy builds (Colima/OrbStack both expose a Linux filesystem you can work in) — fastest, least convenient.</li>
+</ol>
+<p><strong>Measure before optimizing.</strong> A quick sanity check:</p>
+<div class="codewrap"><pre data-lang="bash"><code># On the host
+time (cd node_modules &amp;&amp; find . -type f | wc -l)
+
+# In the container against the bind mount
+docker compose exec app sh -c 'cd /app &amp;&amp; time find . -type f | wc -l'</code></pre></div>
+<p>If the container count is similar but the time is 5–10× worse, you&#39;ve confirmed mount overhead — and you know the volume trick will pay off.</p>
+<hr>
+</section><section id="part-7--vs-code-dev-containers"><h2 id="part-7--vs-code-dev-containers">Part 7 — VS Code Dev Containers</h2>
+<p>This is where your existing VS Code choice pays off. A dev container makes &quot;the environment for this repo&quot; a versioned file instead of a set of oral traditions.</p>
+<p><strong>Install:</strong> the <strong>Dev Containers</strong> extension (<code>ms-vscode-remote.remote-containers</code>). On macOS, VS Code&#39;s docs list Docker Desktop 2.0+ as the baseline requirement; alternative Docker-compatible CLIs generally work, but the smoothest path is a mainstream runtime.</p>
+<p><strong>Create <code>.devcontainer/devcontainer.json</code>:</strong></p>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;name&quot;: &quot;SaaS dev&quot;,
+  &quot;image&quot;: &quot;mcr.microsoft.com/devcontainers/typescript-node:22&quot;,
+  &quot;features&quot;: {
+    &quot;ghcr.io/devcontainers/features/python:1&quot;: {}
+  },
+  &quot;forwardPorts&quot;: [3000, 5432],
+  &quot;postCreateCommand&quot;: &quot;npm ci&quot;,
+  &quot;customizations&quot;: {
+    &quot;vscode&quot;: {
+      &quot;extensions&quot;: [
+        &quot;dbaeumer.vscode-eslint&quot;,
+        &quot;esbenp.prettier-vscode&quot;,
+        &quot;bradlc.vscode-tailwindcss&quot;
+      ],
+      &quot;settings&quot;: {
+        &quot;editor.formatOnSave&quot;: true
+      }
+    }
+  },
+  &quot;remoteUser&quot;: &quot;node&quot;
+}</code></pre></div>
+<p><strong>Open the project in it:</strong> Command Palette (<code>⌘⇧P</code>) → <strong>Dev Containers: Reopen in Container</strong>. First build takes a few minutes; afterwards it&#39;s fast.</p>
+<p><strong>What you get:</strong> a consistent toolchain, extensions installed automatically, ports forwarded to your Mac&#39;s browser at <code>localhost</code>, and a repo that says what it needs.</p>
+<p><strong>What you give up:</strong> some host integration is slower, the container must be running for you to work, and Apple <code>container</code>&#39;s devcontainer support is currently incomplete (networking/setup-script gaps). If you go with Apple <code>container</code>, expect friction here.</p>
+<h3 id="editor-alternatives-honestly">Editor alternatives, honestly</h3>
+<p>You use VS Code. Keep it. Where a different tool would genuinely matter:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>When it&#39;s the better call</th>
+<th>Tradeoff</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>VS Code</strong></td>
+<td>Default; best Dev Containers story</td>
+<td>Electron overhead</td>
+</tr>
+<tr>
+<td><strong>Cursor</strong></td>
+<td>You want agents inside the editor; it&#39;s a VS Code fork so extensions carry over</td>
+<td>Another AI toolchain and subscription to manage</td>
+</tr>
+<tr>
+<td><strong>Zed</strong></td>
+<td>You want a fast native macOS editor</td>
+<td>Smaller extension ecosystem; less mature container story</td>
+</tr>
+<tr>
+<td><strong>Neovim</strong></td>
+<td>You want everything in the terminal, including inside a container</td>
+<td>You build the environment yourself</td>
+</tr>
+</tbody></table>
+<p>For this particular paper — Dev Containers, Compose, Postgres, agent sandboxing — <strong>VS Code is the correct choice</strong>, not a compromise.</p>
+<hr>
+</section><section id="part-8--sandboxing-ai-coding-agents-the-payoff"><h2 id="part-8--sandboxing-ai-coding-agents-the-payoff">Part 8 — Sandboxing AI Coding Agents (the Payoff)</h2>
+<p>This is why containers matter to you specifically. An agent with filesystem and shell access is an agent that can <code>rm -rf</code> the wrong directory, exfiltrate a <code>.env</code>, or rewrite your SSH keys. A container turns &quot;hope&quot; into a boundary.</p>
+<p><strong>The threat model in one line:</strong> assume the agent will do exactly what the prompt says, and assume the prompt can be manipulated by content it reads (Paper 2 — indirect prompt injection).</p>
+<h3 id="the-pattern">The pattern</h3>
+<ol>
+<li><strong>Give the agent a copy, not your repo.</strong> Clone into a scratch directory.</li>
+<li><strong>Mount read-only where possible.</strong> <code>:ro</code> on anything it only needs to read.</li>
+<li><strong>Drop capabilities</strong> and don&#39;t hand it the host network.</li>
+<li><strong>Never bake secrets into the image.</strong> No <code>.env</code>, no tokens, no SSH keys.</li>
+<li><strong>Make it ephemeral.</strong> <code>--rm</code>, one container per task; delete when done.</li>
+</ol>
+<p>A concrete run — no agent-specific flags, just container flags, so this is generic and safe:</p>
+<div class="codewrap"><pre data-lang="bash"><code># Make a disposable copy of the repo
+mkdir -p ~/agent-scratch &amp;&amp; cd ~/agent-scratch
+git clone ~/code/my-saas work-1
+
+docker run --rm -it \
+  --name agent-work-1 \
+  --network none \
+  --cap-drop ALL \
+  --security-opt no-new-privileges \
+  --memory 4g --cpus 2 \
+  -v &quot;$PWD/work-1&quot;:/work \
+  -w /work \
+  node:22-alpine sh</code></pre></div>
+<p>Read that flag list as a policy: <strong>no network</strong> (<code>--network none</code>), <strong>no added capabilities</strong> (<code>--cap-drop ALL</code>), <strong>no privilege escalation</strong> (<code>no-new-privileges</code>), <strong>a hard memory and CPU ceiling</strong>, and <strong>only the scratch directory mounted</strong>. The agent can destroy <code>~/agent-scratch/work-1</code> and nothing else.</p>
+<p>If the agent needs network access, grant it deliberately and narrowly — use a user-defined network with only the services it needs, rather than the host&#39;s.</p>
+<blockquote>
+<p><strong>The honest limitation:</strong> <code>--network none</code> blocks exfiltration but also blocks legitimate package installs and API calls. Real agent sandboxes relax this incrementally — a proxy, an allow-list, a dedicated network — and each relaxation is a decision you should make on purpose. Containers reduce blast radius; they do not make a poisoned prompt harmless.</p>
+</blockquote>
+<h3 id="where-this-connects-to-everything-else">Where this connects to everything else</h3>
+<ul>
+<li><strong>Paper 2 (agent security)</strong> gives the attack model; this gives the containment.</li>
+<li><strong>Git worktrees</strong> give each agent its own branch; containers give each agent its own filesystem and network. Together they&#39;re the isolation layer.</li>
+</ul>
+<hr>
+</section><section id="part-9--resource-budgets-on-24-gb-and-disk-hygiene"><h2 id="part-9--resource-budgets-on-24-gb-and-disk-hygiene">Part 9 — Resource Budgets on 24 GB, and Disk Hygiene</h2>
+<p>Your M5 Pro has <strong>24 GB of unified memory</strong>, shared between macOS, your browser (a genuine memory hog), VS Code, and the container VM. Allocate accordingly.</p>
+<table>
+<thead>
+<tr>
+<th>Allocation</th>
+<th>Recommendation on 24 GB</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Container VM RAM</td>
+<td><strong>6–10 GB</strong></td>
+<td>Enough for Postgres + Node builds; leaves headroom</td>
+</tr>
+<tr>
+<td>VM CPUs</td>
+<td><strong>4–6</strong></td>
+<td>Half the performance cores is plenty; don&#39;t starve macOS</td>
+</tr>
+<tr>
+<td>Disk image</td>
+<td><strong>60–100 GB</strong></td>
+<td>Images accumulate quietly</td>
+</tr>
+<tr>
+<td>Swap</td>
+<td>Leave to macOS</td>
+<td>Don&#39;t fight the unified memory manager</td>
+</tr>
+</tbody></table>
+<div class="codewrap"><pre data-lang="bash"><code># Colima: set resources at creation
+colima start --cpu 6 --memory 10 --disk 80 --vm-type vz
+
+# OrbStack: allocate in the app's settings (auto-scales by default)
+# Docker Desktop: Settings → Resources</code></pre></div>
+<p><strong>Disk hygiene — targeted, not blind:</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code>docker system df                 # what's actually consuming space
+docker container prune           # stopped containers
+docker image prune               # dangling images only (safe)
+docker builder prune             # build cache
+docker system prune              # stopped containers + unused networks + dangling images
+docker system prune -a           # ⚠ ALSO deletes images not used by a running container
+docker volume prune              # ⚠ deletes volumes not used by any container — DATA LOSS
+docker volume ls                 # check before you prune</code></pre></div>
+<blockquote>
+<p><strong>Never run <code>docker system prune -a</code> or <code>docker volume prune</code> on autopilot.</strong> <code>-a</code> forces a full re-download of every image; volume prune can delete your Postgres data. Your <code>pgdata</code> volume is the thing you least want gone.</p>
+</blockquote>
+<hr>
+</section><section id="cheat-sheet"><h2 id="cheat-sheet">Cheat Sheet</h2>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>OrbStack / Docker</th>
+<th>Colima</th>
+<th>Apple <code>container</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Start runtime</td>
+<td>Launch app</td>
+<td><code>colima start</code></td>
+<td><code>container system start</code></td>
+</tr>
+<tr>
+<td>Stop runtime</td>
+<td>Quit app</td>
+<td><code>colima stop</code></td>
+<td><code>container system stop</code></td>
+</tr>
+<tr>
+<td>List containers</td>
+<td><code>docker ps -a</code></td>
+<td><code>docker ps -a</code></td>
+<td><code>container ls</code></td>
+</tr>
+<tr>
+<td>Run</td>
+<td><code>docker run</code></td>
+<td><code>docker run</code></td>
+<td><code>container run</code></td>
+</tr>
+<tr>
+<td>Compose up</td>
+<td><code>docker compose up -d</code></td>
+<td><code>docker compose up -d</code></td>
+<td><em>(no native Compose)</em></td>
+</tr>
+<tr>
+<td>Shell in</td>
+<td><code>docker exec -it x sh</code></td>
+<td><code>docker exec -it x sh</code></td>
+<td><code>container exec</code></td>
+</tr>
+<tr>
+<td>Disk usage</td>
+<td><code>docker system df</code></td>
+<td><code>docker system df</code></td>
+<td><code>container ls</code> + prune</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>Compose command</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>up -d</code></td>
+<td>Start in background</td>
+</tr>
+<tr>
+<td><code>ps</code></td>
+<td>Show services</td>
+</tr>
+<tr>
+<td><code>logs -f &lt;svc&gt;</code></td>
+<td>Follow a service&#39;s logs</td>
+</tr>
+<tr>
+<td><code>exec &lt;svc&gt; &lt;cmd&gt;</code></td>
+<td>Run a command inside a service</td>
+</tr>
+<tr>
+<td><code>down</code></td>
+<td>Stop and remove containers, <strong>keep volumes</strong></td>
+</tr>
+<tr>
+<td><code>down -v</code></td>
+<td>Stop and remove containers <strong>and volumes</strong> (destructive)</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>port is already allocated</code></td>
+<td>Something on the host already uses it (Postgres on 5432 is common)</td>
+<td><code>lsof -i :5432</code> to find it; change the host port <code>&quot;5433:5432&quot;</code></td>
+</tr>
+<tr>
+<td>Container can&#39;t reach a service on the Mac</td>
+<td>Container networking is isolated</td>
+<td>Use <code>host.docker.internal</code> instead of <code>localhost</code></td>
+</tr>
+<tr>
+<td>&quot;no matching manifest for linux/arm64&quot;</td>
+<td>Image is amd64-only</td>
+<td>Find an arm64 tag; or build your own; or enable Rosetta emulation as a last resort</td>
+</tr>
+<tr>
+<td>Builds extremely slow</td>
+<td>amd64 emulation, or bind-mount churn</td>
+<td>Confirm arm64; move <code>node_modules</code> into a volume (Part 6)</td>
+</tr>
+<tr>
+<td><code>EACCES</code>/permissions on mounted files</td>
+<td>UID mismatch between host user and container user</td>
+<td>Set <code>remoteUser</code>, or use a named volume, or fix ownership inside the container</td>
+</tr>
+<tr>
+<td>Runtime eats RAM with nothing running</td>
+<td>The VM&#39;s working set, not containers</td>
+<td>Lower VM memory; prefer OrbStack/Colima over a default Docker Desktop config</td>
+</tr>
+<tr>
+<td>Disk mysteriously full</td>
+<td>Old images + build cache</td>
+<td><code>docker system df</code>, then targeted prunes (never <code>-a</code> blindly)</td>
+</tr>
+<tr>
+<td>Postgres data vanished</td>
+<td><code>docker compose down -v</code> or <code>docker volume prune</code></td>
+<td>Restore from backup; henceforth, back up the volume</td>
+</tr>
+<tr>
+<td>Dev container won&#39;t build</td>
+<td>Missing/locked Dockerfile, or a slow first pull</td>
+<td>Reopen, read the build log, verify the runtime is running</td>
+</tr>
+<tr>
+<td>Rosetta-related crashes</td>
+<td>x86 emulation edge cases</td>
+<td>Prefer native arm64 images; disable Rosetta and fix the image instead</td>
+</tr>
+<tr>
+<td><code>uname</code> inside container says Linux</td>
+<td>That is correct and expected</td>
+<td>It&#39;s a Linux VM; the Mac has no Linux kernel to share</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<blockquote>
+<p><strong>YouTube search links</strong>, not specific videos — always valid, and you pick the current best result. No invented URLs.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Search link</th>
+<th>What to look for, and why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://www.youtube.com/results?search_query=Apple+Silicon+Docker+explained" target="_blank" rel="noopener">Apple Silicon Docker explained</a></td>
+<td>Why containers are VMs on a Mac; the core mental model</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=OrbStack+vs+Docker+Desktop" target="_blank" rel="noopener">OrbStack vs Docker Desktop</a></td>
+<td>Speed and RAM comparisons on M-series hardware</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Colima+tutorial+macOS" target="_blank" rel="noopener">Colima tutorial macOS</a></td>
+<td>Free CLI-only runtime, start to finish</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Apple+container+tool+macOS" target="_blank" rel="noopener">Apple container tool</a></td>
+<td>The new Swift CLI; one micro-VM per container</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Docker+Compose+tutorial" target="_blank" rel="noopener">Docker Compose tutorial</a></td>
+<td>Services, volumes, networking, env vars</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=multi-stage+Dockerfile+Node" target="_blank" rel="noopener">Multi-stage Dockerfile Node</a></td>
+<td>Build/ship pattern and cache efficiency</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=VS+Code+Dev+Containers+tutorial" target="_blank" rel="noopener">VS Code Dev Containers</a></td>
+<td>devcontainer.json in practice</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Postgres+Docker+pgvector" target="_blank" rel="noopener">Postgres Docker pgvector</a></td>
+<td>Running pgvector locally</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Docker+volume+performance+macOS" target="_blank" rel="noopener">Docker volume performance macOS</a></td>
+<td>Bind mount vs volume; the node_modules trick</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=sandbox+AI+coding+agent+container" target="_blank" rel="noopener">Sandbox AI coding agent container</a></td>
+<td>Isolation patterns for agents</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--docs"><h2 id="written-references--docs">Written References &amp; Docs</h2>
+<p>Official docs and repositories only. If a link moves, navigate from the vendor&#39;s own domain.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>VS Code Dev Containers docs</td>
+<td><code>https://code.visualstudio.com/docs/devcontainers/containers</code></td>
+</tr>
+<tr>
+<td>Dev Containers specification</td>
+<td><code>https://containers.dev</code></td>
+</tr>
+<tr>
+<td>Development container images</td>
+<td><code>https://github.com/devcontainers/images</code></td>
+</tr>
+<tr>
+<td>Docker docs</td>
+<td><code>https://docs.docker.com</code></td>
+</tr>
+<tr>
+<td>Docker Compose reference</td>
+<td><code>https://docs.docker.com/compose/</code></td>
+</tr>
+<tr>
+<td>Docker Desktop license</td>
+<td><code>https://www.docker.com/pricing/</code></td>
+</tr>
+<tr>
+<td>OrbStack</td>
+<td><code>https://orbstack.dev</code></td>
+</tr>
+<tr>
+<td>Colima repo</td>
+<td><code>https://github.com/abiosoft/colima</code></td>
+</tr>
+<tr>
+<td>Podman</td>
+<td><code>https://podman.io</code></td>
+</tr>
+<tr>
+<td>Apple <code>container</code> repo</td>
+<td><code>https://github.com/apple/container</code></td>
+</tr>
+<tr>
+<td>pgvector repo</td>
+<td><code>https://github.com/pgvector/pgvector</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Verification tip:</strong> for any image name, confirm the tag on the registry (<code>hub.docker.com</code>) before pinning it in a Compose file. Tags move; <code>latest</code> is not a version.</p>
+</blockquote>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English definition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Image</td>
+<td>Immutable filesystem + metadata used to create containers</td>
+</tr>
+<tr>
+<td>Container</td>
+<td>A running process with a writable layer over an image</td>
+</tr>
+<tr>
+<td>VM</td>
+<td>The lightweight Linux machine a container runs inside on macOS</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td>The software that manages the VM and containers (OrbStack, Colima, Docker Desktop, Apple <code>container</code>)</td>
+</tr>
+<tr>
+<td>Layer</td>
+<td>A cached filesystem diff; builds reuse unchanged layers</td>
+</tr>
+<tr>
+<td>Dockerfile</td>
+<td>A recipe for building an image</td>
+</tr>
+<tr>
+<td>Compose</td>
+<td>A YAML file (and CLI) describing multiple services</td>
+</tr>
+<tr>
+<td>Named volume</td>
+<td>Runtime-managed persistent storage, fast on macOS</td>
+</tr>
+<tr>
+<td>Bind mount</td>
+<td>A host directory shared into a container, slower on macOS</td>
+</tr>
+<tr>
+<td>Registry</td>
+<td>A store for images (Docker Hub, GHCR)</td>
+</tr>
+<tr>
+<td>Base image</td>
+<td>The <code>FROM</code> image you build on top of</td>
+</tr>
+<tr>
+<td>Multi-stage build</td>
+<td>Several <code>FROM</code> stages where only the last ships</td>
+</tr>
+<tr>
+<td>VirtioFS</td>
+<td>The file-sharing layer between macOS and the Linux VM</td>
+</tr>
+<tr>
+<td>Rosetta</td>
+<td>Apple&#39;s x86 translation layer; used for amd64 images</td>
+</tr>
+<tr>
+<td>Micro-VM</td>
+<td>A very small VM — Apple <code>container</code> uses one per container</td>
+</tr>
+<tr>
+<td>Build context</td>
+<td>The files sent to the builder; control it with <code>.dockerignore</code></td>
+</tr>
+<tr>
+<td><code>host.docker.internal</code></td>
+<td>Hostname containers use to reach your Mac</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Do I need Docker Desktop at all?</strong> No. On Apple Silicon, OrbStack (personal) or Colima (MIT) covers the same ground. Docker Desktop is the right answer mainly when a team standard or paid tooling requires it.</p>
+<p><strong>Is Apple <code>container</code> ready to replace Docker for me?</strong> Not yet, for your workflow — no native Compose and incomplete Dev Container support. It&#39;s worth watching.</p>
+<p><strong>How much RAM should the VM get on 24 GB?</strong> 6–10 GB. More is rarely worth it; you&#39;re competing with your browser.</p>
+<p><strong>Containers or dev containers?</strong> Containers for services (Postgres) and for sandboxing agents; a dev container for the &quot;same environment for this repo&quot; promise. They compose well.</p>
+<p><strong>Can I run Postgres without containers?</strong> Yes — <code>brew install postgresql@17</code> works and is faster. Containers win on throwaway-ability and version pinning; the host install wins on raw speed.</p>
+<p><strong>What&#39;s the one thing I should do this week?</strong> Get Postgres + pgvector running via Compose, and then run one agent inside a <code>--network none</code> container. The first is convenience; the second is safety.</p>
+<h3 id="next-steps-in-order">Next steps, in order</h3>
+<ol>
+<li><strong>Today:</strong> install OrbStack (or Colima), run <code>hello-world</code>, confirm <code>uname -a</code> says Linux.</li>
+<li><strong>Today:</strong> bring up the Postgres/pgvector Compose file and create the <code>vector</code> extension.</li>
+<li><strong>This week:</strong> add <code>.devcontainer/devcontainer.json</code> to one repo and reopen it in VS Code.</li>
+<li><strong>This week:</strong> move <code>node_modules</code> into a named volume and measure the difference.</li>
+<li><strong>Next week:</strong> run one AI agent inside a <code>--network none</code>, <code>--cap-drop ALL</code> container on a scratch clone.</li>
+<li><strong>Month 2:</strong> re-evaluate Apple <code>container</code> — by then, Compose and devcontainer support may have moved.</li>
+</ol>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p><strong>Verified against primary and vendor sources in September 2026:</strong></p>
+<ul>
+<li><strong>Apple <code>container</code> 1.0</strong> released <strong>9 June 2026</strong>; Swift, Apache-2.0, Apple Silicon only, macOS 26 as the supported target; OCI-compatible; <strong>one micro-VM per container</strong>; <strong>no native Compose</strong>; incomplete Dev Container support; config in <code>~/.config/container/config.toml</code>; conservative default resources (~1 GB/4 CPU per container, ~2 GB/2 CPU builder); install via signed package then <code>container system start</code>; releases are product versions, with a 1.4.x line by September 2026. (Source: the <code>apple/container</code> repository and contemporaneous coverage.)</li>
+<li><strong>Runtime comparison figures</strong> (idle RAM, startup, throughput, licensing) drawn from an April 2026 benchmark of Colima/Docker Desktop/OrbStack/Apple-container plus vendor pages. These are <strong>directional measurements on specific hardware</strong>, not guarantees.</li>
+<li><strong>Docker Desktop licensing threshold</strong> (250+ employees and $10M+ revenue) and resource-saver improvements; <strong>OrbStack</strong> free-for-personal with paid commercial/Teams tiers; <strong>Colima</strong> MIT with config at <code>~/.colima/default/colima.yaml</code>.</li>
+<li><strong>VS Code Dev Containers</strong> requires a Docker-compatible runtime (docs list Docker Desktop 2.0+ on macOS); <code>devcontainer.json</code> keys shown (<code>image</code>, <code>features</code>, <code>forwardPorts</code>, <code>postCreateCommand</code>, <code>customizations.vscode.extensions/settings</code>, <code>remoteUser</code>) are from the Dev Containers docs.</li>
+</ul>
+<p><strong>Changes fast — verify before relying on it:</strong> all pricing and license terms, benchmark numbers, Apple <code>container</code>&#39;s feature gaps (Compose and devcontainers are the ones most likely to change), image tags, and Docker Desktop&#39;s resource behavior.</p>
+<p><strong>Vendor claims, not independently verified:</strong> speed percentages and &quot;80% less RAM&quot; style figures quoted from vendor marketing. The benchmark table is closer to neutral, but still one source&#39;s hardware.</p>
+<p><strong>Hardware-dependent:</strong> every memory number is an estimate for a 24 GB M-series Mac. Measure your own with <code>docker stats</code>.</p>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Infra &amp; Dev Env</span> · 9 parts · ~19 min · Generated from <code>markdown_docs/07-containers-dev-environments-macos.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>

@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Local &amp; On-Device AI — Learning Center</title>
+<meta name="description" content="Run the weights on your own metal — private, offline, no per-token bill.">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="04-local-on-device-ai-stack">
+<header class="topbar">
+  <a class="homebtn" href="../index.html">⌂ Home</a>
+  <span class="brand">Local &amp; On-Device AI</span>
+  <button id="themeToggle" title="Toggle dark / light">🌙 Dark</button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--why-run-local-at-all" data-sec="part-1--why-run-local-at-all">Part 1 — Why Run Local At All</a><a href="#part-2--the-layers-precisely" data-sec="part-2--the-layers-precisely">Part 2 — The Layers, Precisely</a><a href="#21-the-gguf-file-format" data-sec="21-the-gguf-file-format" class="sub">2.1 The GGUF file format</a><a href="#22-runtimes" data-sec="22-runtimes" class="sub">2.2 Runtimes</a><a href="#23-the-openai-compatible-endpoint-pattern" data-sec="23-the-openai-compatible-endpoint-pattern" class="sub">2.3 The OpenAI-compatible endpoint pattern</a><a href="#part-3--quantization-explained-properly" data-sec="part-3--quantization-explained-properly">Part 3 — Quantization, Explained Properly</a><a href="#31-the-naming-scheme" data-sec="31-the-naming-scheme" class="sub">3.1 The naming scheme</a><a href="#32-bits-per-weight-and-quality-table" data-sec="32-bits-per-weight-and-quality-table" class="sub">3.2 Bits-per-weight and quality table</a><a href="#33-what-ollama-does-by-default" data-sec="33-what-ollama-does-by-default" class="sub">3.3 What Ollama does by default</a><a href="#part-4--memory-math-the-skill-that-matters-most" data-sec="part-4--memory-math-the-skill-that-matters-most">Part 4 — Memory Math (The Skill That Matters Most)</a><a href="#41-sizing-by-machine" data-sec="41-sizing-by-machine" class="sub">4.1 Sizing by machine</a><a href="#42-numctx--the-silent-killer" data-sec="42-numctx--the-silent-killer" class="sub">4.2 <code>num_ctx</code> — the silent killer</a><a href="#part-5--hands-on-ollama-end-to-end" data-sec="part-5--hands-on-ollama-end-to-end">Part 5 — Hands-On: Ollama End to End</a><a href="#51-install-and-run" data-sec="51-install-and-run" class="sub">5.1 Install and run</a><a href="#52-run-an-openai-compatible-server" data-sec="52-run-an-openai-compatible-server" class="sub">5.2 Run an OpenAI-compatible server</a><a href="#53-call-it-from-python-with-the-openai-sdk" data-sec="53-call-it-from-python-with-the-openai-sdk" class="sub">5.3 Call it from Python with the OpenAI SDK</a><a href="#part-6--local-embeddings-for-rag" data-sec="part-6--local-embeddings-for-rag">Part 6 — Local Embeddings for RAG</a><a href="#61-current-embedding-models-in-the-ollama-library" data-sec="61-current-embedding-models-in-the-ollama-library" class="sub">6.1 Current embedding models in the Ollama library</a><a href="#62-embed-locally" data-sec="62-embed-locally" class="sub">6.2 Embed locally</a><a href="#63-point-a-vector-pipeline-at-the-local-embedder" data-sec="63-point-a-vector-pipeline-at-the-local-embedder" class="sub">6.3 Point a vector pipeline at the local embedder</a><a href="#part-7--performance-tuning" data-sec="part-7--performance-tuning">Part 7 — Performance Tuning</a><a href="#71-knobs-that-matter" data-sec="71-knobs-that-matter" class="sub">7.1 Knobs that matter</a><a href="#72-prompt-eval-speed-vs-token-generation-speed" data-sec="72-prompt-eval-speed-vs-token-generation-speed" class="sub">7.2 Prompt-eval speed vs token-generation speed</a><a href="#73-rough-expectations-apple-silicon-community-reports" data-sec="73-rough-expectations-apple-silicon-community-reports" class="sub">7.3 Rough expectations (Apple Silicon, community reports)</a><a href="#part-8--when-local-wins-vs-loses" data-sec="part-8--when-local-wins-vs-loses">Part 8 — When Local Wins vs Loses</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheets" data-sec="cheat-sheets">Cheat Sheets</a><a href="#ollama-commands" data-sec="ollama-commands" class="sub">Ollama commands</a><a href="#llamacpp-flags-verify-with---help-on-your-build" data-sec="llamacpp-flags-verify-with---help-on-your-build" class="sub">llama.cpp flags (verify with <code>--help</code> on your build)</a><a href="#model-math" data-sec="model-math" class="sub">Model math</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--repos" data-sec="written-references--repos">Written References &amp; Repos</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#bonus--fully-local-private-second-brain" data-sec="bonus--fully-local-private-second-brain">Bonus — Fully Local Private Second Brain</a><a href="#verification-note" data-sec="verification-note">Verification Note</a></div>
+</nav>
+<main>
+<h1>Local &amp; On-Device AI</h1>
+<div class="callout lede">Run the weights on your own metal — private, offline, no per-token bill.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>You already call hosted LLM APIs every day. This paper is about owning the other half: the part that runs on the machine under your desk. Local inference is not a replacement for frontier models — it is a second tool. For embeddings, bulk classification, private documents, and offline work, it is often the <em>better</em> tool, and it costs nothing per token.</p>
+<p>The whole local stack is four layers. Most tutorials start you at layer 3 and hide layers 1 and 2. Understanding all four is what lets you debug things when a model &quot;works but is dumb.&quot;</p>
+<div class="codewrap"><pre data-lang=""><code>┌─────────────────────────────────────────────────────────────────────┐
+│  LAYER 4 — YOUR APP                                                 │
+│  Python script · RAG pipeline · editor plugin · chat UI             │
+│  Speaks HTTP. Does not care where the model physically lives.       │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │  POST /v1/chat/completions
+                                │  POST /v1/embeddings     (OpenAI shape)
+                                ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  LAYER 3 — OPENAI-COMPATIBLE SERVER                                 │
+│   ollama serve     -&gt;  http://localhost:11434/v1                    │
+│   llama-server     -&gt;  http://localhost:8080/v1                     │
+│   LM Studio        -&gt;  http://localhost:1234/v1                     │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │  load model + schedule tokens
+                                ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  LAYER 2 — RUNTIME (the inference engine)                           │
+│   llama.cpp  -&gt; GGUF files, Metal / CUDA / Vulkan / ROCm / CPU      │
+│   MLX        -&gt; Apple Silicon, unified memory, Safetensors          │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │  mmap + dequantize weights
+                                ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  LAYER 1 — THE MODEL FILE (one file on disk)                        │
+│   model-Q4_K_M.gguf                                                 │
+│   = weights (compressed) + tokenizer + chat template + metadata     │
+└─────────────────────────────────────────────────────────────────────┘</code></pre></div>
+<p>The key insight: <strong>Ollama is a friendly wrapper over llama.cpp on most platforms</strong> (and, since Ollama 0.19 shipped March 30 2026, over Apple&#39;s MLX framework for supported models on Apple Silicon). It downloads the model file into a content-addressed store, picks a sane quantization, starts the engine, and exposes an HTTP API. You get convenience; underneath it is the same llama.cpp/MLX machinery a raw build uses.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What it is</th>
+<th>Plain-English analogy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GGUF model file</td>
+<td>Weights + tokenizer + template in one container</td>
+<td>A sealed engine crate: everything the car needs, shipped as one box</td>
+</tr>
+<tr>
+<td>Runtime (llama.cpp / MLX)</td>
+<td>The code that does matrix math on your CPU/GPU</td>
+<td>The engine + transmission: turns the crate into motion</td>
+</tr>
+<tr>
+<td>Ollama / LM Studio</td>
+<td>Registry, downloader, process manager, HTTP API</td>
+<td>The dealership: orders the crate, installs it, hands you keys</td>
+</tr>
+<tr>
+<td>OpenAI-compatible endpoint</td>
+<td>A standard HTTP shape for chat/embeddings</td>
+<td>The universal fuel nozzle: fits any car</td>
+</tr>
+<tr>
+<td>Quantization</td>
+<td>Weights at lower precision</td>
+<td>Shipping the engine with lighter parts — 5% slower, half the weight</td>
+</tr>
+<tr>
+<td>KV cache</td>
+<td>Memory holding conversation state</td>
+<td>The engine&#39;s working fluid — grows with how much you&#39;ve said</td>
+</tr>
+<tr>
+<td>num_gpu / Metal</td>
+<td>How many layers go to the GPU</td>
+<td>How much horsepower you route to the wheels</td>
+</tr>
+<tr>
+<td>Chat template</td>
+<td>Prompt formatting rules baked in the file</td>
+<td>The ignition sequence unique to each car</td>
+</tr>
+</tbody></table>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>Install Ollama</strong>, run <code>ollama pull</code> a small chat model and <code>ollama pull nomic-embed-text</code>. You now have private chat and private embeddings.</li>
+<li><strong>Default quantization is Q4_K_M</strong> — roughly 4.8 bits per weight, ~95–97% of F16 quality, half the size. This is the right default for almost everyone.</li>
+<li><strong>Memory math is the whole game.</strong> Model file size + KV cache + ~1–2 GB overhead must fit in unified memory (Mac) or VRAM (GPU). Context length drives the KV cache.</li>
+<li><strong>Every serious local server speaks the OpenAI HTTP shape.</strong> Point the <code>openai</code> Python SDK at <code>http://localhost:11434/v1</code> and your existing code runs unchanged.</li>
+<li><strong>Embeddings are tiny and cheap.</strong> <code>nomic-embed-text</code> is ~274 MB and runs comfortably on any CPU. Local embeddings are the highest-value local workload there is.</li>
+<li><strong>Local wins</strong> on privacy, bulk embedding, offline/air-gapped use, and fine-tuning. <strong>Hosted frontier models still win</strong> on hard multi-step reasoning, huge context, and reliable tool calling.</li>
+</ol>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>A Mac with Apple Silicon (M1 or later). 16 GB unified memory minimum; 32 GB is the comfortable floor for anything interesting; 64 GB opens up 70B-class models.</li>
+<li>macOS with a terminal. Homebrew installed.</li>
+<li>Python 3.10+ for the SDK examples (<code>python3 --version</code>).</li>
+<li>Roughly 10–40 GB of free disk depending on model sizes. Check with <code>df -h ~</code>.</li>
+<li>No GPU required. The examples target Apple Silicon; llama.cpp builds also run on Linux/Windows with CPU or discrete GPU.</li>
+</ul>
+<blockquote>
+<p><strong>Unified memory is not just extra RAM.</strong> On Apple Silicon the CPU and GPU share one pool. A 16 GB Mac is really &quot;16 GB total for OS + apps + model weights + KV cache.&quot; The OS and browser will eat 4–8 GB before a model loads. Plan around 60–75% of nominal memory as your real ceiling.</p>
+</blockquote>
+</section><section id="part-1--why-run-local-at-all"><h2 id="part-1--why-run-local-at-all">Part 1 — Why Run Local At All</h2>
+<p><strong>Privacy and data residency.</strong> When you call a hosted API, your prompt leaves your machine and lands in someone else&#39;s logs, jurisdiction, and retention policy. For medical notes, client contracts, financial records, or unreleased code, that may be a non-starter. Local inference means the bytes never leave the loopback interface. You can prove it: pull the network cable and keep going.</p>
+<p><strong>No per-token cost.</strong> Hosted embeddings get expensive at volume. A million documents embedded through a paid API is a recurring bill; the same work locally is one download and some electricity. Bulk classification, nightly re-indexing, and &quot;just embed everything&quot; stop being budget decisions.</p>
+<p><strong>Offline and air-gapped use.</strong> A laptop on a plane, a machine on a factory floor, a demo with no wifi. Local models just work. This alone justifies the stack for field work.</p>
+<p><strong>Fine-tuning and full control.</strong> You control the quantization, the chat template, the seed, the system prompt, the sampler. You can fine-tune a small model on your own data (LoRA), and on Apple Silicon, MLX supports native LoRA fine-tuning on-device. You cannot do any of that with a hosted black box.</p>
+<p><strong>But be honest about the ceiling.</strong> A local 7B–35B model does not out-reason a hosted frontier model on hard, multi-step problems. Benchmarks and lived experience agree. Local wins on privacy, cost, and control; hosted wins on raw reasoning, very long context, and reliable structured/tool output. Use both. The rest of this paper shows you how to keep one interface so swapping is a one-line change.</p>
+</section><section id="part-2--the-layers-precisely"><h2 id="part-2--the-layers-precisely">Part 2 — The Layers, Precisely</h2>
+<h3 id="21-the-gguf-file-format">2.1 The GGUF file format</h3>
+<p><strong>GGUF</strong> is the model file format defined by the llama.cpp project (repo <code>ggml-org/llama.cpp</code>, MIT licensed). It replaced the older GGML format. A single <code>.gguf</code> file contains:</p>
+<ul>
+<li>the quantized <strong>weights</strong> (tensors),</li>
+<li>the <strong>tokenizer</strong> (vocabulary and merge rules),</li>
+<li>the <strong>chat template</strong> (how to format user/assistant turns),</li>
+<li><strong>metadata</strong> (architecture, context length, RoPE settings, parameter count).</li>
+</ul>
+<p>That &quot;everything in one file&quot; property is why you can download a single <code>.gguf</code> from Hugging Face and run it. Hugging Face hosts many model repos that publish <em>multiple</em> GGUF quantizations per model (frequently from uploaders like <code>bartowski</code>, <code>unsloth</code>, and <code>ggml-org</code>). Each quantization gets its own file.</p>
+<p>Tools in the llama.cpp toolchain:</p>
+<ul>
+<li><code>llama-quantize</code> — takes a GGUF (often F16) and produces a smaller quantized GGUF.</li>
+<li><code>convert-hf-to-gguf.py</code> — converts Hugging Face Safetensors weights into GGUF.</li>
+<li><strong>importance-matrix (imatrix) calibration</strong> — uses a sample corpus to decide which weights matter most, improving low-bit quant quality. Sometimes labelled <code>IQ</code> quants (e.g. <code>IQ4_XS</code>).</li>
+</ul>
+<h3 id="22-runtimes">2.2 Runtimes</h3>
+<table>
+<thead>
+<tr>
+<th>Runtime</th>
+<th>Format</th>
+<th>Best for</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>llama.cpp</strong></td>
+<td>GGUF</td>
+<td>Broadest model support, every platform</td>
+<td>Metal, CUDA, Vulkan, ROCm, SYCL, CPU backends. Ships <code>llama-server</code> (OpenAI-compatible) and <code>llama-cli</code>.</td>
+</tr>
+<tr>
+<td><strong>MLX</strong></td>
+<td>Safetensors</td>
+<td>Apple Silicon</td>
+<td>Apple&#39;s array framework. Unified-memory aware, native LoRA fine-tuning, Python (<code>mlx-lm</code>) and Swift bindings.</td>
+</tr>
+<tr>
+<td><strong>Ollama</strong></td>
+<td>GGUF (plus MLX path on Mac)</td>
+<td>Everyday use</td>
+<td>Wraps llama.cpp; since 0.19 (March 30 2026) uses MLX on supported Apple Silicon models. Registry + Modelfile.</td>
+</tr>
+<tr>
+<td><strong>LM Studio</strong></td>
+<td>GGUF / MLX</td>
+<td>People who want a GUI</td>
+<td>Point-and-click model browser and chat; also serves an OpenAI-compatible endpoint.</td>
+</tr>
+</tbody></table>
+<p>On a Mac in 2026 you generally have three good options: Ollama for convenience, MLX (<code>mlx-lm</code>) for maximum Apple-Silicon throughput, and raw llama.cpp when you want a flag for everything. They are not mutually exclusive.</p>
+<h3 id="23-the-openai-compatible-endpoint-pattern">2.3 The OpenAI-compatible endpoint pattern</h3>
+<p>This is the single most important architectural idea in the paper. Every major local server exposes the same HTTP shape as the OpenAI API:</p>
+<ul>
+<li><code>POST /v1/chat/completions</code></li>
+<li><code>POST /v1/embeddings</code></li>
+</ul>
+<p>So your application code is written once and pointed at a base URL. Hosted vs local becomes configuration:</p>
+<div class="codewrap"><pre data-lang="bash"><code># Hosted
+OPENAI_BASE_URL=https://api.openai.com/v1
+
+# Local (Ollama)
+OPENAI_BASE_URL=http://localhost:11434/v1</code></pre></div>
+<p><code>llama-server</code> defaults to <code>127.0.0.1:8080</code>; LM Studio defaults to <code>1234</code>; Ollama to <code>11434</code>. Build your app against the endpoint, not the vendor.</p>
+</section><section id="part-3--quantization-explained-properly"><h2 id="part-3--quantization-explained-properly">Part 3 — Quantization, Explained Properly</h2>
+<p>Quantization stores weights at lower precision. A model trained in 16-bit floats gets compressed to 4-ish bits per weight. This is lossy, but models are surprisingly robust: most of the quality survives, and the file typically shrinks to a quarter of its size. <strong>Quantization is what makes local inference fit on consumer hardware.</strong></p>
+<h3 id="31-the-naming-scheme">3.1 The naming scheme</h3>
+<p>GGUF quant names encode a scheme and bit level:</p>
+<ul>
+<li><code>Q4_K_M</code> = 4-bit, K-quant, <strong>M</strong>edium mix. <code>_S</code> = small, <code>_L</code> = large. The letter controls how much of the model stays at higher precision.</li>
+<li><code>Q8_0</code>, <code>Q6_K</code>, <code>Q5_K_M</code>, <code>Q3_K_M</code>, <code>Q2_K</code> — descending size and quality.</li>
+<li><code>IQ…</code> variants use importance-matrix calibration for better low-bit quality.</li>
+<li><code>F16</code> = 16-bit, the reference. <code>BF16</code> = 16-bit brain-float.</li>
+</ul>
+<p><strong>Why &quot;4-bit&quot; often averages ~4.8 bits per weight.</strong> K-quants don&#39;t store every weight at 4 bits. They group weights into <strong>super-blocks</strong>, and each block carries a shared scale plus higher-precision values for the most important weights. So the average bits-per-weight lands above the headline number. When someone says &quot;Q4_K_M is a 4-bit quant,&quot; they mean the <em>scheme family</em>, not an exact 4.00 bpw.</p>
+<h3 id="32-bits-per-weight-and-quality-table">3.2 Bits-per-weight and quality table</h3>
+<blockquote>
+<p><strong>These quality percentages are community rules of thumb, not benchmarks.</strong> They come from accumulated anecdote and small evaluations across many models. Your model, task, and tolerance will vary. Treat them as a rough ordering, not a spec sheet.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Quant</th>
+<th>Approx. bits/weight</th>
+<th>Rough quality vs F16</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Q2_K</td>
+<td>~2.6</td>
+<td>~80–85%</td>
+<td>Last resort for tight memory; noticeably degraded</td>
+</tr>
+<tr>
+<td>Q3_K_M</td>
+<td>~3.5</td>
+<td>~90%</td>
+<td>Squeezing a bigger model into small memory</td>
+</tr>
+<tr>
+<td><strong>Q4_K_M</strong></td>
+<td><strong>~4.8</strong></td>
+<td><strong>~95–97%</strong></td>
+<td><strong>The default. Best size/quality trade</strong></td>
+</tr>
+<tr>
+<td>Q5_K_M</td>
+<td>~5.7</td>
+<td>~97–98%</td>
+<td>When you have a little headroom</td>
+</tr>
+<tr>
+<td>Q6_K</td>
+<td>~6.56</td>
+<td>~98–99%</td>
+<td>Quality-sensitive work near the memory wall</td>
+</tr>
+<tr>
+<td>Q8_0</td>
+<td>~8.0–8.5</td>
+<td>~99%+ (near-lossless)</td>
+<td>Bigger files, near-reference quality</td>
+</tr>
+<tr>
+<td>F16</td>
+<td>16</td>
+<td>100% (reference)</td>
+<td>Not deployed; the measuring stick</td>
+</tr>
+</tbody></table>
+<p><strong>Practical rule:</strong> start at <strong>Q4_K_M</strong>. Move up to Q5_K_M or Q6_K only if you have memory to spare and a quality-sensitive task. Go below Q4 only when nothing else fits. For structured extraction where small errors matter, practitioners report Q4→Q6 as a real accuracy gap — if your task demands digit-accurate output, budget for Q6 or Q8.</p>
+<h3 id="33-what-ollama-does-by-default">3.3 What Ollama does by default</h3>
+<p>When you <code>ollama pull</code> a model from the registry, the default tag is typically a <code>Q4_K_M</code> build if the upstream repo has one. The same rule applies when Ollama imports a GGUF directly from Hugging Face: <strong>Q4_K_M is chosen when present, otherwise the closest reasonable quant.</strong> Check what you actually got:</p>
+<div class="codewrap"><pre data-lang="bash"><code>ollama list
+ollama show &lt;model&gt;</code></pre></div>
+<p><code>ollama show</code> prints the architecture, parameter count, quantization, context length, and template. Never assume — always look.</p>
+</section><section id="part-4--memory-math-the-skill-that-matters-most"><h2 id="part-4--memory-math-the-skill-that-matters-most">Part 4 — Memory Math (The Skill That Matters Most)</h2>
+<p>If you learn one thing from this paper, learn this: <strong>does the model fit, and what happens at long context?</strong></p>
+<p>Total memory needed ≈ <strong>model file size + KV cache + runtime overhead</strong>.</p>
+<ul>
+<li><strong>Model file size</strong> — the download size. Roughly <code>params × bits_per_weight / 8</code>. A 7B model at Q4_K_M (~4.8 bpw) ≈ 4.2 GB. An 8B at Q4_K_M ≈ 4.7–5 GB. A 32B at 4-bit ≈ 19–20 GB. A 70B at Q4_K_M ≈ 40–43 GB.</li>
+<li><strong>KV cache</strong> — the attention memory that holds your conversation context. It grows <strong>linearly with context length</strong>. Rough formula per token:
+<code>2 (K and V) × layers × kv_heads × head_dim × bytes_per_value</code>.
+In F16 that is 2 bytes per value; quantizing the cache to <code>q8_0</code> halves it, <code>q4_0</code> quarters it. Ollama exposes <code>OLLAMA_KV_CACHE_TYPE</code> and <code>OLLAMA_FLASH_ATTENTION</code>.</li>
+<li><strong>Overhead</strong> — the runtime, CUDA/Metal buffers, the OS, your browser. Budget 1–2 GB, more on a desktop with a GUI.</li>
+</ul>
+<h3 id="41-sizing-by-machine">4.1 Sizing by machine</h3>
+<table>
+<thead>
+<tr>
+<th>Machine memory</th>
+<th>Comfortable</th>
+<th>Stretch (slow / tight KV)</th>
+<th>Don&#39;t bother</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8 GB</td>
+<td>3B Q4</td>
+<td>7–8B Q4 at short context</td>
+<td>13B+</td>
+</tr>
+<tr>
+<td>16 GB</td>
+<td>7–8B Q4/Q5</td>
+<td>13–14B Q4 at modest context</td>
+<td>32B+</td>
+</tr>
+<tr>
+<td>32 GB</td>
+<td>13–14B Q4/Q5, 30B-class MoE</td>
+<td>32B Q4 at short context</td>
+<td>70B</td>
+</tr>
+<tr>
+<td>64 GB</td>
+<td>32B Q4/Q5, 70B Q4 with headroom</td>
+<td>70B Q5/Q6</td>
+<td>120B+ dense</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Your hardware will vary.</strong> These are community-reported rough guides, not guarantees. The only reliable test is: load the model, watch memory pressure (<code>Activity Monitor</code> on macOS), and measure tokens/sec.</p>
+</blockquote>
+<h3 id="42-numctx--the-silent-killer">4.2 <code>num_ctx</code> — the silent killer</h3>
+<p>Context window is the setting most likely to bite you twice:</p>
+<ol>
+<li><strong>Truncation.</strong> If <code>num_ctx</code> is smaller than your prompt, the runtime silently drops the oldest tokens. Your model &quot;answers the wrong question&quot; because half the context vanished. Embedding models have the same issue: <code>nomic-embed-text</code> allows 8,192 tokens, but some models (e.g. <code>mxbai-embed-large</code> as shipped, 512 tokens) truncate far earlier. Run <code>ollama show &lt;model&gt;</code> and check <code>num_ctx</code> in the params block.</li>
+<li><strong>Memory blow-up.</strong> Raising <code>num_ctx</code> raises the KV cache linearly. Setting <code>num_ctx</code> to 128K on a 32B model can add many gigabytes and push you into swap — which on a Mac means the model suddenly runs at 2 tokens/sec or the OS kills it.</li>
+</ol>
+<p>Set it deliberately:</p>
+<div class="codewrap"><pre data-lang="bash"><code># Per-run override
+ollama run qwen3.5:4b --parameter num_ctx 8192
+
+# In an API call
+curl http://localhost:11434/api/chat -d '{
+  &quot;model&quot;: &quot;qwen3.5:4b&quot;,
+  &quot;messages&quot;: [{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;Hello&quot;}],
+  &quot;options&quot;: {&quot;num_ctx&quot;: 8192}
+}'</code></pre></div>
+<blockquote>
+<p><strong>Disk usage warning.</strong> Every pulled model stays on disk. <code>ollama list</code> shows sizes; <code>ollama rm &lt;model&gt;</code> deletes one. Ten experiments can quietly consume 200 GB.</p>
+</blockquote>
+</section><section id="part-5--hands-on-ollama-end-to-end"><h2 id="part-5--hands-on-ollama-end-to-end">Part 5 — Hands-On: Ollama End to End</h2>
+<h3 id="51-install-and-run">5.1 Install and run</h3>
+<div class="codewrap"><pre data-lang="bash"><code># macOS install (Homebrew)
+brew install ollama
+
+# or download the app from ollama.com, then start the service
+ollama serve</code></pre></div>
+<p>On macOS the desktop app starts the server automatically. In another terminal:</p>
+<div class="codewrap"><pre data-lang="bash"><code># Pull a small, current chat model (verify exact tags with the search results)
+ollama pull qwen3.5:4b
+
+# Interactive chat
+ollama run qwen3.5:4b
+
+# Check what you got
+ollama show qwen3.5:4b
+ollama list</code></pre></div>
+<blockquote>
+<p><strong>Model tags change constantly.</strong> Do not trust a tag in this document. Search the Ollama library for the model family you want, then <code>ollama pull</code> and confirm with <code>ollama show</code>. If a tag 404s, the family was renamed or retired.</p>
+</blockquote>
+<h3 id="52-run-an-openai-compatible-server">5.2 Run an OpenAI-compatible server</h3>
+<p>Ollama serves it out of the box. Verify:</p>
+<div class="codewrap"><pre data-lang="bash"><code>curl http://localhost:11434/v1/models</code></pre></div>
+<p>If you prefer raw llama.cpp (e.g. Homebrew&#39;s build):</p>
+<div class="codewrap"><pre data-lang="bash"><code>brew install llama.cpp
+
+# Start a server on 127.0.0.1:8080 with a GGUF from Hugging Face
+llama-server -hf ggml-org/Qwen2.5-VL-7B-Instruct-GGUF:Q4_K_M</code></pre></div>
+<blockquote>
+<p><strong>Verify the exact repo and quant tag before running.</strong> <code>llama-server -hf &lt;repo&gt;:&lt;quant&gt;</code> is the current syntax; older builds use different flags. Run <code>llama-server --help</code> to confirm your version.</p>
+</blockquote>
+<h3 id="53-call-it-from-python-with-the-openai-sdk">5.3 Call it from Python with the OpenAI SDK</h3>
+<div class="codewrap"><pre data-lang="bash"><code>python3 -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install openai</code></pre></div>
+<p><strong>Basic chat:</strong></p>
+<div class="codewrap"><pre data-lang="python"><code>from openai import OpenAI
+
+client = OpenAI(
+    base_url=&quot;http://localhost:11434/v1&quot;,
+    api_key=&quot;ollama&quot;,  # required by the SDK, ignored by Ollama
+)
+
+resp = client.chat.completions.create(
+    model=&quot;qwen3.5:4b&quot;,          # must match `ollama list`
+    messages=[
+        {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are concise.&quot;},
+        {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Explain embeddings in two sentences.&quot;},
+    ],
+    temperature=0.2,
+)
+print(resp.choices[0].message.content)</code></pre></div>
+<p><strong>Streaming:</strong></p>
+<div class="codewrap"><pre data-lang="python"><code>stream = client.chat.completions.create(
+    model=&quot;qwen3.5:4b&quot;,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Write a haiku about local inference.&quot;}],
+    stream=True,
+)
+for chunk in stream:
+    delta = chunk.choices[0].delta.content
+    if delta:
+        print(delta, end=&quot;&quot;, flush=True)
+print()</code></pre></div>
+<p>That is the whole trick. Swap <code>base_url</code> to your hosted provider and the identical code runs against a frontier model.</p>
+</section><section id="part-6--local-embeddings-for-rag"><h2 id="part-6--local-embeddings-for-rag">Part 6 — Local Embeddings for RAG</h2>
+<p>Embedding models are <strong>encoders</strong>, not chat models. They read text and output one vector (a list of floats) per input. They are small — tens to hundreds of millions of parameters — so they run fast on a CPU and add almost nothing to memory. This makes local embeddings the single best-value local workload: no per-token bill, no data leaving the machine, and no API deprecation ever breaking your vector store.</p>
+<h3 id="61-current-embedding-models-in-the-ollama-library">6.1 Current embedding models in the Ollama library</h3>
+<blockquote>
+<p><strong>Verify names and specs with <code>ollama show</code>.</strong> These are library entries observed in September 2026; availability and defaults change.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Params</th>
+<th>Download</th>
+<th>Dims</th>
+<th>Max input (as shipped)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>all-minilm</code></td>
+<td>22–23M</td>
+<td>~46 MB</td>
+<td>384</td>
+<td>256 tokens</td>
+</tr>
+<tr>
+<td><code>nomic-embed-text</code></td>
+<td>137M</td>
+<td>~274 MB</td>
+<td>768</td>
+<td>8,192 tokens</td>
+</tr>
+<tr>
+<td><code>mxbai-embed-large</code></td>
+<td>335M</td>
+<td>~670 MB</td>
+<td>1024</td>
+<td>512 tokens</td>
+</tr>
+<tr>
+<td><code>bge-m3</code></td>
+<td>567M</td>
+<td>~1.2 GB</td>
+<td>1024</td>
+<td>8,192 tokens</td>
+</tr>
+<tr>
+<td><code>embeddinggemma</code></td>
+<td>300M</td>
+<td>~622 MB</td>
+<td>768</td>
+<td>2,048 tokens</td>
+</tr>
+<tr>
+<td><code>qwen3-embedding:0.6b</code></td>
+<td>0.6B</td>
+<td>~639 MB</td>
+<td>adjustable (32–1024)</td>
+<td>32,768 tokens</td>
+</tr>
+</tbody></table>
+<p>Practical picks: <code>nomic-embed-text</code> for general English RAG (long context, tiny, every framework has tested against it); <code>bge-m3</code> for multilingual corpora; <code>qwen3-embedding</code> when you need very long chunks or adjustable dimensions. <code>all-minilm</code> is fine for prototypes but its 256-token input truncates most real documents.</p>
+<p><strong>The prefix gotcha.</strong> Some embedding models expect task prefixes on the input (e.g. <code>search_document:</code> / <code>search_query:</code>). Omitting them silently degrades retrieval. Check the model card and the <code>ollama show</code> template before you index a corpus. This is the number-one cause of &quot;my local RAG results are bad.&quot;</p>
+<h3 id="62-embed-locally">6.2 Embed locally</h3>
+<div class="codewrap"><pre data-lang="bash"><code>ollama pull nomic-embed-text</code></pre></div>
+<div class="codewrap"><pre data-lang="bash"><code>curl http://localhost:11434/api/embed -d '{
+  &quot;model&quot;: &quot;nomic-embed-text&quot;,
+  &quot;input&quot;: &quot;The sky is blue because of Rayleigh scattering&quot;
+}'</code></pre></div>
+<p>Python via the OpenAI SDK&#39;s embeddings endpoint:</p>
+<div class="codewrap"><pre data-lang="python"><code>from openai import OpenAI
+client = OpenAI(base_url=&quot;http://localhost:11434/v1&quot;, api_key=&quot;ollama&quot;)
+
+def embed(texts: list[str]) -&gt; list[list[float]]:
+    resp = client.embeddings.create(model=&quot;nomic-embed-text&quot;, input=texts)
+    return [d.embedding for d in resp.data]
+
+vectors = embed([&quot;first document&quot;, &quot;second document&quot;])
+print(len(vectors), len(vectors[0]))  # e.g. 2 768</code></pre></div>
+<h3 id="63-point-a-vector-pipeline-at-the-local-embedder">6.3 Point a vector pipeline at the local embedder</h3>
+<p>The swap is one line in most RAG frameworks: wherever you constructed a hosted embedding client, construct a local one with the same interface. Sketch with a local store and cosine similarity:</p>
+<div class="codewrap"><pre data-lang="python"><code>import math, json, pathlib
+
+def cosine(a, b):
+    dot = sum(x * y for x, y in zip(a, b))
+    na = math.sqrt(sum(x * x for x in a))
+    nb = math.sqrt(sum(y * y for y in b))
+    return dot / (na * nb) if na and nb else 0.0
+
+docs = [pathlib.Path(p).read_text() for p in [&quot;a.txt&quot;, &quot;b.txt&quot;]]
+doc_vecs = embed(docs)
+query_vec = embed([&quot;what is the sky made of?&quot;])[0]
+ranked = sorted(
+    (cosine(query_vec, v) for v in doc_vecs), reverse=True
+)
+print(ranked[:3])</code></pre></div>
+<p>For real corpora, use a proper vector store (Chroma, FAISS, LanceDB, sqlite-vec) and pass it your local vectors. The embedder is the only thing that changed.</p>
+</section><section id="part-7--performance-tuning"><h2 id="part-7--performance-tuning">Part 7 — Performance Tuning</h2>
+<p>Tokens per second is a <strong>memory-bandwidth</strong> problem, not a FLOPs problem. Generating a token requires reading the weights, so a bigger quantized model reads more bytes per token. That is why a 70B model on a fast desktop is still slow: bandwidth, not compute, is the wall.</p>
+<h3 id="71-knobs-that-matter">7.1 Knobs that matter</h3>
+<ul>
+<li><strong>GPU layer offload (<code>num_gpu</code> in Ollama, <code>-ngl</code> / <code>--n-gpu-layers</code> in llama.cpp).</strong> How many transformer layers run on the GPU. On Apple Silicon, Metal runs the layers; the rest run on CPU. Ollama auto-selects; override when it guesses wrong.<div class="codewrap"><pre data-lang="bash"><code>ollama run &lt;model&gt; --parameter num_gpu 999</code></pre></div>
+</li>
+<li><strong>Threads (<code>num_thread</code>).</strong> CPU thread count for the layers left on CPU. More is not always faster; past the performance-core count, extra threads add contention. On Apple Silicon, target the number of performance cores.</li>
+<li><strong>Batch size (<code>num_batch</code>).</strong> Prompt-evaluation batch. Larger batches improve prompt processing (prefill) throughput at the cost of memory.</li>
+<li><strong>Flash attention + KV cache quantization.</strong> Ollama supports <code>OLLAMA_FLASH_ATTENTION=1</code> and <code>OLLAMA_KV_CACHE_TYPE=q8_0</code> (set as environment variables, or via a service override on Linux). This is the main lever for long-context memory.</li>
+<li><strong>MLX on Apple Silicon.</strong> Since Ollama 0.19 (March 30 2026), supported models run on MLX by default and are substantially faster than the older llama.cpp Metal path on the same machine, especially for MoE models. Ollama&#39;s own blog reported decode roughly doubling on a benchmark (specific numbers vary by model and chip — treat vendor benchmarks as directional).</li>
+</ul>
+<h3 id="72-prompt-eval-speed-vs-token-generation-speed">7.2 Prompt-eval speed vs token-generation speed</h3>
+<p>Two different numbers, often reported as one:</p>
+<ul>
+<li><strong>Prefill / prompt-eval (tokens/sec):</strong> processing your input before the first output token. Compute-bound. Long prompts make this the dominant cost; it is why pasting a 40,000-token file can take minutes before any output appears.</li>
+<li><strong>Decode / generation (tokens/sec):</strong> producing output. Bandwidth-bound. This is the number people quote.</li>
+</ul>
+<p>Always measure both. <code>llama-bench</code> is the standard tool:</p>
+<div class="codewrap"><pre data-lang="bash"><code>llama-bench -m /path/to/model.gguf -p 512 -n 128
+# -p 512 = prompt size, -n 128 = tokens generated</code></pre></div>
+<h3 id="73-rough-expectations-apple-silicon-community-reports">7.3 Rough expectations (Apple Silicon, community reports)</h3>
+<blockquote>
+<p>Date-stamped September 2026. Hardware-dependent estimates, not benchmarks. Re-measure on your own machine.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Model class (4-bit)</th>
+<th>M-class chip</th>
+<th>Rough decode speed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3B</td>
+<td>M-series, 16 GB+</td>
+<td>60–80 tok/s</td>
+</tr>
+<tr>
+<td>7–8B</td>
+<td>M-series, 16 GB+</td>
+<td>40–55 tok/s</td>
+</tr>
+<tr>
+<td>14B</td>
+<td>M-series Pro/Max</td>
+<td>25–40 tok/s</td>
+</tr>
+<tr>
+<td>27–32B</td>
+<td>M-series Max, 32–64 GB</td>
+<td>15–25 tok/s</td>
+</tr>
+<tr>
+<td>70B</td>
+<td>Max/Ultra, 64 GB+</td>
+<td>12–20 tok/s</td>
+</tr>
+</tbody></table>
+<p>Numbers move fast. Measure with <code>llama-bench</code> or by timing a streaming call; do not trust any table, including this one.</p>
+</section><section id="part-8--when-local-wins-vs-loses"><h2 id="part-8--when-local-wins-vs-loses">Part 8 — When Local Wins vs Loses</h2>
+<table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>Local</th>
+<th>Hosted frontier</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Private/personal documents</td>
+<td>✅</td>
+<td>❌</td>
+<td>Data must not leave the machine</td>
+</tr>
+<tr>
+<td>Bulk embeddings (millions)</td>
+<td>✅</td>
+<td>Costly</td>
+<td>$0/token forever vs a recurring bill</td>
+</tr>
+<tr>
+<td>Offline / air-gapped demos</td>
+<td>✅</td>
+<td>❌</td>
+<td>No network required</td>
+</tr>
+<tr>
+<td>Fine-tuning / LoRA</td>
+<td>✅</td>
+<td>Limited</td>
+<td>You own the weights and the run</td>
+</tr>
+<tr>
+<td>Drafting, summarizing, extraction on bounded context</td>
+<td>✅</td>
+<td>Ties</td>
+<td>A good 14B–32B is plenty</td>
+</tr>
+<tr>
+<td>Hard multi-step reasoning</td>
+<td>❌</td>
+<td>✅</td>
+<td>Frontier models still lead</td>
+</tr>
+<tr>
+<td>Very long context (100K+)</td>
+<td>❌ (memory wall)</td>
+<td>✅</td>
+<td>KV cache explodes locally</td>
+</tr>
+<tr>
+<td>Reliable tool / function calling</td>
+<td>⚠️</td>
+<td>✅</td>
+<td>Local models drop or malform tool calls more often</td>
+</tr>
+<tr>
+<td>Structured JSON at scale</td>
+<td>⚠️</td>
+<td>✅</td>
+<td>Quantization can cost you exact digits</td>
+</tr>
+</tbody></table>
+<p><strong>Decision rule:</strong> route by sensitivity and difficulty. Personal or regulated data → local. High-volume embeddings → local. Anything requiring frontier reasoning, huge context, or dependable tool use → hosted. Keep one OpenAI-compatible interface so routing is a config change, not a rewrite.</p>
+</section><section id="cheat-sheets"><h2 id="cheat-sheets">Cheat Sheets</h2>
+<h3 id="ollama-commands">Ollama commands</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ollama serve</code></td>
+<td>Start the local server (<code>:11434</code>)</td>
+</tr>
+<tr>
+<td><code>ollama pull &lt;model&gt;</code></td>
+<td>Download a model</td>
+</tr>
+<tr>
+<td><code>ollama run &lt;model&gt;</code></td>
+<td>Chat interactively</td>
+</tr>
+<tr>
+<td><code>ollama list</code></td>
+<td>Show installed models and sizes</td>
+</tr>
+<tr>
+<td><code>ollama show &lt;model&gt;</code></td>
+<td>Architecture, params, quant, context, template</td>
+</tr>
+<tr>
+<td><code>ollama rm &lt;model&gt;</code></td>
+<td>Delete a model from disk</td>
+</tr>
+<tr>
+<td><code>ollama ps</code></td>
+<td>Show loaded models and memory use</td>
+</tr>
+<tr>
+<td><code>ollama cp &lt;src&gt; &lt;dst&gt;</code></td>
+<td>Copy/rename a model</td>
+</tr>
+<tr>
+<td><code>ollama create &lt;name&gt; -f Modelfile</code></td>
+<td>Build a custom model from a Modelfile</td>
+</tr>
+</tbody></table>
+<p>Ollama environment variables: <code>OLLAMA_HOST</code> (bind address), <code>OLLAMA_MODELS</code> (storage path), <code>OLLAMA_KEEP_ALIVE</code> (how long a model stays loaded), <code>OLLAMA_FLASH_ATTENTION</code>, <code>OLLAMA_KV_CACHE_TYPE</code>.</p>
+<h3 id="llamacpp-flags-verify-with---help-on-your-build">llama.cpp flags (verify with <code>--help</code> on your build)</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-m &lt;file.gguf&gt;</code></td>
+<td>Model file path</td>
+</tr>
+<tr>
+<td><code>-hf &lt;repo&gt;:&lt;quant&gt;</code></td>
+<td>Download + run a GGUF from Hugging Face</td>
+</tr>
+<tr>
+<td><code>-ngl N</code> / <code>--n-gpu-layers N</code></td>
+<td>Layers to offload to GPU (999 = all)</td>
+</tr>
+<tr>
+<td><code>-c N</code> / <code>--ctx-size N</code></td>
+<td>Context window size</td>
+</tr>
+<tr>
+<td><code>-t N</code> / <code>--threads N</code></td>
+<td>CPU threads</td>
+</tr>
+<tr>
+<td><code>-b N</code> / <code>--batch-size N</code></td>
+<td>Prompt-processing batch</td>
+</tr>
+<tr>
+<td><code>--host 127.0.0.1 --port 8080</code></td>
+<td>Server bind address</td>
+</tr>
+<tr>
+<td><code>--jinja</code></td>
+<td>Use the model&#39;s built-in chat template</td>
+</tr>
+</tbody></table>
+<p>Tools: <code>llama-cli</code> (terminal chat), <code>llama-server</code> (OpenAI-compatible HTTP), <code>llama-bench</code> (benchmark), <code>llama-quantize</code> (produce quants), <code>convert-hf-to-gguf.py</code> (Hugging Face → GGUF).</p>
+<h3 id="model-math">Model math</h3>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Rough formula</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Model size</td>
+<td><code>params × bits_per_weight / 8</code></td>
+</tr>
+<tr>
+<td>7B @ Q4_K_M (~4.8 bpw)</td>
+<td>~4.2 GB</td>
+</tr>
+<tr>
+<td>32B @ Q4_K_M</td>
+<td>~19–20 GB</td>
+</tr>
+<tr>
+<td>70B @ Q4_K_M</td>
+<td>~40–43 GB</td>
+</tr>
+<tr>
+<td>KV cache per token</td>
+<td><code>2 × layers × kv_heads × head_dim × bytes_per_value</code></td>
+</tr>
+<tr>
+<td>F16 KV</td>
+<td>2 bytes/value</td>
+</tr>
+<tr>
+<td>q8_0 KV</td>
+<td>~1 byte/value (≈half)</td>
+</tr>
+<tr>
+<td>q4_0 KV</td>
+<td>~0.5 bytes/value (≈quarter)</td>
+</tr>
+<tr>
+<td>Total memory</td>
+<td>model + KV cache + 1–2 GB overhead</td>
+</tr>
+</tbody></table>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Out-of-memory / process killed / Mac swaps hard</td>
+<td>Model + KV cache exceed unified memory</td>
+<td>Use a smaller quant (Q4_K_M or lower), lower <code>num_ctx</code>, set <code>OLLAMA_KV_CACHE_TYPE=q8_0</code>, unload other models (<code>ollama ps</code>), close the browser</td>
+</tr>
+<tr>
+<td>Very slow tokens/sec</td>
+<td>Layers on CPU instead of GPU; model too big for VRAM; thermal throttling</td>
+<td>Raise <code>num_gpu</code>; pick a smaller model; measure with <code>llama-bench</code>; watch Activity Monitor for throttling</td>
+</tr>
+<tr>
+<td>Model won&#39;t load</td>
+<td>Corrupt download, unsupported architecture, wrong file path</td>
+<td>Re-pull; check <code>ollama show</code>; confirm the runtime build supports the architecture; verify the GGUF isn&#39;t split without its parts</td>
+</tr>
+<tr>
+<td>Garbage output / wrong chat template</td>
+<td>Template mismatch (model expects a specific format)</td>
+<td>Use the model&#39;s built-in template (<code>--jinja</code> where supported); check <code>ollama show</code> template; prefer the Modelfile shipped with the model</td>
+</tr>
+<tr>
+<td>Context overflow / model ignores early instructions</td>
+<td><code>num_ctx</code> smaller than the prompt — silent truncation</td>
+<td>Raise <code>num_ctx</code>; chunk the input; for embeddings, check the model&#39;s real max input (<code>mxbai-embed-large</code> ships at 512)</td>
+</tr>
+<tr>
+<td>Embedding search quality poor</td>
+<td>Missing task prefixes; truncation; wrong dims</td>
+<td>Add the model&#39;s required prefixes; verify <code>num_ctx</code>; confirm vector dimensions match your index</td>
+</tr>
+<tr>
+<td>First token takes minutes</td>
+<td>Long prompt prefill (compute-bound)</td>
+<td>Expect it; split work; use a model with faster prefill; avoid 40K+ prompts locally</td>
+</tr>
+<tr>
+<td>Model disappears after idle</td>
+<td><code>OLLAMA_KEEP_ALIVE</code> expired</td>
+<td>Raise <code>OLLAMA_KEEP_ALIVE</code> (e.g. <code>-1</code> to keep loaded)</td>
+</tr>
+</tbody></table>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>Search links only — no invented URLs. Browse, don&#39;t trust a single video&#39;s version numbers.</p>
+<ul>
+<li><a href="https://www.youtube.com/results?search_query=ollama+tutorial+for+beginners" target="_blank" rel="noopener">Ollama tutorial for beginners</a> — install, pull, run.</li>
+<li><a href="https://www.youtube.com/results?search_query=llama.cpp+llama-server+openai+compatible+api" target="_blank" rel="noopener">llama.cpp llama-server OpenAI compatible API</a> — raw runtime and server flags.</li>
+<li><a href="https://www.youtube.com/results?search_query=gguf+quantization+explained+q4_k_m" target="_blank" rel="noopener">GGUF quantization explained</a> — the quant naming scheme.</li>
+<li><a href="https://www.youtube.com/results?search_query=mlx+apple+silicon+local+llm" target="_blank" rel="noopener">MLX on Apple Silicon local LLM</a> — Apple&#39;s framework.</li>
+<li><a href="https://www.youtube.com/results?search_query=local+rag+ollama+embeddings" target="_blank" rel="noopener">local RAG with Ollama embeddings</a> — embeddings + vector store.</li>
+<li><a href="https://www.youtube.com/results?search_query=local+llm+memory+requirements+explained" target="_blank" rel="noopener">local LLM memory requirements explained</a> — sizing and KV cache.</li>
+<li><a href="https://www.youtube.com/results?search_query=lm+studio+tutorial" target="_blank" rel="noopener">LM Studio tutorial</a> — the GUI path.</li>
+<li><a href="https://www.youtube.com/results?search_query=llama-bench+benchmark+tokens+per+second" target="_blank" rel="noopener">llama-bench benchmark tokens per second</a> — measuring honestly.</li>
+</ul>
+</section><section id="written-references--repos"><h2 id="written-references--repos">Written References &amp; Repos</h2>
+<p>Official docs and repositories only. If a URL is uncertain, search the name.</p>
+<ul>
+<li>llama.cpp (repo <code>ggml-org/llama.cpp</code>) — the GGUF format, quantizer, and <code>llama-server</code>. Search: <code>llama.cpp github</code></li>
+<li>Ollama — CLI, Modelfile, API docs, model library. Search: <code>ollama docs</code></li>
+<li>Ollama embedding models library. Search: <code>ollama embedding models</code></li>
+<li>MLX and <code>mlx-lm</code> (Apple). Search: <code>mlx apple github</code></li>
+<li>LM Studio. Search: <code>lm studio</code></li>
+<li>Hugging Face GGUF model repos and the &quot;Use Ollama with any GGUF model&quot; guide. Search: <code>huggingface gguf ollama</code></li>
+<li>Hugging Face <code>mlx-community</code> org — pre-converted MLX models. Search: <code>huggingface mlx-community</code></li>
+<li>Nomic embedding model card (<code>nomic-ai/nomic-embed-text-v1.5</code>). Search: <code>nomic-embed-text model card</code></li>
+<li>mixedbread <code>mxbai-embed-large-v1</code> model card. Search: <code>mxbai-embed-large model card</code></li>
+</ul>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<ul>
+<li><strong>GGUF</strong> — Model file format defined by llama.cpp; weights + tokenizer + template + metadata in one file. Replaced GGML.</li>
+<li><strong>GGML</strong> — The older tensor format GGUF superseded.</li>
+<li><strong>Quantization</strong> — Storing weights at lower precision to shrink a model and speed inference.</li>
+<li><strong>Bits per weight (bpw)</strong> — Average storage cost per parameter. &quot;4-bit&quot; K-quants typically average ~4.8 bpw.</li>
+<li><strong>K-quant</strong> — Quant family using super-blocks with per-block scales; <code>_S</code>/<code>_M</code>/<code>_L</code> control the mix.</li>
+<li><strong>imatrix / IQ</strong> — Importance-matrix calibration that improves low-bit quality; produces <code>IQ…</code> quants.</li>
+<li><strong>Runtime</strong> — The engine that executes the model (llama.cpp, MLX).</li>
+<li><strong>llama-server</strong> — llama.cpp&#39;s OpenAI-compatible HTTP server (default <code>127.0.0.1:8080</code>).</li>
+<li><strong>Ollama</strong> — Convenience layer over llama.cpp (and MLX on supported Apple Silicon models); registry + server on <code>:11434</code>.</li>
+<li><strong>MLX</strong> — Apple&#39;s array framework for Apple Silicon, with unified-memory-aware inference and on-device LoRA.</li>
+<li><strong>KV cache</strong> — Memory holding attention state for the current context; grows with context length.</li>
+<li><strong>num_ctx</strong> — Configured context window; too small truncates, too large balloons memory.</li>
+<li><strong>num_gpu / n_gpu_layers</strong> — How many layers run on the GPU.</li>
+<li><strong>Prompt-eval (prefill)</strong> — Processing the input before the first output token; compute-bound.</li>
+<li><strong>Decode / generation</strong> — Producing output tokens; memory-bandwidth-bound.</li>
+<li><strong>Unified memory</strong> — Apple Silicon&#39;s shared CPU/GPU memory pool.</li>
+<li><strong>Chat template</strong> — The formatting rules for turns, baked into the model file.</li>
+<li><strong>MoE (mixture of experts)</strong> — Architecture activating only a subset of parameters per token; fast for its total size.</li>
+<li><strong>Embedding model</strong> — Encoder that turns text into vectors; small and CPU-friendly.</li>
+</ul>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Is local good enough to replace my hosted API?</strong>
+For embeddings and privacy-sensitive work, yes. For hard reasoning, very long context, and dependable tool calling, no — keep a frontier model in the loop. Route by task.</p>
+<p><strong>What should I download first?</strong>
+A small chat model (4B–8B class) at Q4_K_M and <code>nomic-embed-text</code>. That pair covers chat and RAG.</p>
+<p><strong>Why is my model slower than the table?</strong>
+Layers are probably on CPU, the model is oversized for memory, or the machine is thermally throttling. Check <code>ollama ps</code>, raise <code>num_gpu</code>, and measure with <code>llama-bench</code>.</p>
+<p><strong>Can I fine-tune locally?</strong>
+Yes — LoRA on Apple Silicon via MLX is practical for small models. Full fine-tuning of large models is not.</p>
+<p><strong>How do I keep local and hosted behind one interface?</strong>
+Write against the OpenAI shape and set the base URL from an environment variable. Swapping providers becomes a config change.</p>
+<p><strong>Next steps:</strong> (1) Get chat + embeddings running. (2) Build one RAG script over your own documents. (3) Benchmark two quantizations of the same model. (4) Build the second-brain setup below. (5) Add a routing rule: sensitive → local, hard → hosted.</p>
+</section><section id="bonus--fully-local-private-second-brain"><h2 id="bonus--fully-local-private-second-brain">Bonus — Fully Local Private Second Brain</h2>
+<p>A worked setup: Ollama embeddings + a local chat model + a small Python script that answers questions over your own notes. Nothing leaves the machine.</p>
+<div class="codewrap"><pre data-lang="bash"><code>ollama pull nomic-embed-text
+ollama pull qwen3.5:4b        # verify the current tag in the library
+pip install openai</code></pre></div>
+<div class="codewrap"><pre data-lang="python"><code># brain.py — local embeddings + local chat, no network egress
+import pathlib
+from openai import OpenAI
+
+client = OpenAI(base_url=&quot;http://localhost:11434/v1&quot;, api_key=&quot;ollama&quot;)
+EMBED_MODEL = &quot;nomic-embed-text&quot;
+CHAT_MODEL  = &quot;qwen3.5:4b&quot;
+
+NOTES = pathlib.Path(&quot;~/notes&quot;).expanduser()
+
+def chunk(text, size=800, overlap=100):
+    words, out, i = text.split(), [], 0
+    while i &lt; len(words):
+        out.append(&quot; &quot;.join(words[i:i + size]))
+        i += size - overlap
+    return out
+
+def embed(texts):
+    r = client.embeddings.create(model=EMBED_MODEL, input=texts)
+    return [d.embedding for d in r.data]
+
+# 1. Index
+chunks = []
+for p in NOTES.rglob(&quot;*.md&quot;):
+    try:
+        chunks += chunk(p.read_text(errors=&quot;ignore&quot;))
+    except Exception:
+        pass
+print(f&quot;indexing {len(chunks)} chunks...&quot;)
+vectors = embed(chunks) if chunks else []
+
+# 2. Retrieve (brute-force cosine; use a vector store for real corpora)
+def cosine(a, b):
+    return sum(x * y for x, y in zip(a, b))
+
+def top_k(query, k=4):
+    qv = embed([query])[0]
+    scored = sorted(zip(chunks, vectors), key=lambda cv: cosine(qv, cv[1]), reverse=True)
+    return [c for c, _ in scored[:k]]
+
+# 3. Answer with the local chat model
+def ask(question):
+    context = &quot;\n\n---\n\n&quot;.join(top_k(question))
+    r = client.chat.completions.create(
+        model=CHAT_MODEL,
+        messages=[
+            {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;Answer using only the context. If it's not there, say so.&quot;},
+            {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: f&quot;Context:\n{context}\n\nQuestion: {question}&quot;},
+        ],
+        temperature=0.1,
+    )
+    return r.choices[0].message.content
+
+if __name__ == &quot;__main__&quot;:
+    import sys
+    print(ask(&quot; &quot;.join(sys.argv[1:]) or &quot;Summarize my notes.&quot;))</code></pre></div>
+<p>Run it:</p>
+<div class="codewrap"><pre data-lang="bash"><code>python brain.py &quot;What did I write about embeddings?&quot;</code></pre></div>
+<p>To swap to a hosted model, change <code>base_url</code> and the two model names. The retrieval logic doesn&#39;t move.</p>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p>Facts in this paper were checked against primary sources in September 2026:</p>
+<ul>
+<li><strong>GGUF and the llama.cpp toolchain</strong> — the GGUF format, <code>llama-quantize</code>, <code>convert-hf-to-gguf.py</code>, imatrix calibration, and the <code>llama-server</code> OpenAI-compatible routes (<code>/v1/chat/completions</code>, <code>/v1/embeddings</code>, default <code>127.0.0.1:8080</code>) are from the llama.cpp project (<code>ggml-org/llama.cpp</code>).</li>
+<li><strong>Ollama</strong> — wraps llama.cpp; adopts MLX on supported Apple Silicon models as of 0.19 (March 30 2026); registry defaults to Q4_K_M when present; API on <code>:11434</code>; embedding model specs (<code>nomic-embed-text</code> 137M/768/8192; <code>mxbai-embed-large</code> 335M/1024/512; <code>bge-m3</code> 567M; <code>qwen3-embedding</code>; <code>all-minilm</code>) are from Ollama&#39;s library pages and model cards.</li>
+<li><strong>Performance figures</strong> — the Ollama 0.19 MLX numbers and the tokens/sec tables are directional, hardware-dependent, date-stamped estimates from vendor blog posts and community benchmarks, not controlled measurements.</li>
+<li><strong>Quant quality percentages</strong> — community rules of thumb compiled from anecdote and small evaluations, explicitly not benchmarks.</li>
+<li><strong>Model tags</strong> — model families and tags change frequently. Every command in this paper tells you to verify with <code>ollama list</code>, <code>ollama show</code>, or <code>--help</code>. No model tag here should be trusted blindly.</li>
+</ul>
+<p>Where a URL could not be confirmed, this paper uses a &quot;search: <code>&lt;name&gt;</code>&quot; instruction instead of inventing one.</p>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">AI &amp; Agents</span> · 8 parts · ~20 min · Generated from <code>markdown_docs/04-local-on-device-ai-stack.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>

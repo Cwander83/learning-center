@@ -1,0 +1,23 @@
+// Hand-curated metadata for the shelf. Content still lives in markdown_docs/;
+// this only adds what markdown can't reliably express (category, order) and a
+// few display overrides. Anything omitted falls back to auto-derivation.
+
+export const GUIDES = {
+  "01-ai-evals-regression-testing": { category: "AI & Agents", order: 1 },
+  "02-prompt-injection-agent-security": { category: "AI & Agents", order: 2 },
+  "03-postgres-as-the-whole-backend": { category: "Data & Backend", order: 3 },
+  "04-local-on-device-ai-stack": { category: "AI & Agents", order: 4 },
+  "05-web-platform-2026-rsc-streaming-edge-wasm": { category: "Web Platform", order: 5 },
+  "06-linear-mastered": { category: "Workflow", order: 6 },
+  "07-containers-dev-environments-macos": { category: "Infra & Dev Env", order: 7 },
+  "08-stripe-billing-for-saas": { category: "Business & Billing", order: 8 },
+  "graphify-obsidian-ai-agent-guide": { category: "AI & Agents", order: 9 },
+  "linear-opencode-workflow": {
+    category: "Workflow",
+    order: 10,
+    title: "Linear + opencode Workflow",
+  },
+};
+
+// Docs that are not reader-facing guides (meta / tooling material).
+export const IGNORE = ["AI-Agent-Handoff-Prompt-Pack.md"];

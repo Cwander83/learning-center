@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linear + opencode Workflow — Learning Center</title>
+<meta name="description" content="The optimal workflow for using Linear and opencode together.">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="linear-opencode-workflow">
+<header class="topbar">
+  <a class="homebtn" href="../index.html">⌂ Home</a>
+  <span class="brand">Linear + opencode Workflow</span>
+  <button id="themeToggle" title="Toggle dark / light">🌙 Dark</button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Reference</div><div class="navlinks"><a href="#rule-of-thumb-where-issues-get-born" data-sec="rule-of-thumb-where-issues-get-born">Rule of thumb: where issues get born</a><a href="#the-loop-per-issue" data-sec="the-loop-per-issue">The loop (per issue)</a><a href="#division-of-labor" data-sec="division-of-labor">Division of labor</a><a href="#anti-patterns" data-sec="anti-patterns">Anti-patterns</a><a href="#setup-reference" data-sec="setup-reference">Setup reference</a></div>
+</nav>
+<main>
+<h1>Linear + opencode Workflow</h1>
+<div class="callout lede">The optimal workflow for using Linear and opencode together.</div>
+<p>The optimal workflow for using Linear and opencode together.</p>
+<section id="rule-of-thumb-where-issues-get-born"><h2 id="rule-of-thumb-where-issues-get-born">Rule of thumb: where issues get born</h2>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Do this</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Stray idea, away from desk, quick capture</td>
+<td>Create in Linear UI</td>
+</tr>
+<tr>
+<td>You&#39;re in an opencode session, context is in your head</td>
+<td>Tell opencode — it drafts title/description, sets project, priority, parent, labels</td>
+</tr>
+<tr>
+<td>You just finished discussing a problem worth tracking</td>
+<td>Tell opencode to &quot;save this as an issue&quot; — session knowledge becomes Linear record</td>
+</tr>
+</tbody></table>
+<p>Don&#39;t double-track. If opencode creates it, that&#39;s the real one — don&#39;t also type it in the Linear UI.</p>
+</section><section id="the-loop-per-issue"><h2 id="the-loop-per-issue">The loop (per issue)</h2>
+<ol>
+<li><strong>Triage</strong> — &quot;show my open issues&quot; → opencode lists, summarizes, suggests priority</li>
+<li><strong>Start</strong> — &quot;start CHR-8&quot; → opencode sets status In Progress, pulls full description, checks comments</li>
+<li><strong>Work</strong> — opencode implements in code, runs tests</li>
+<li><strong>Record</strong> — opencode comments findings/decisions on the issue. This matters: comments survive session death, delegates (Cursor etc.) and future-you see them</li>
+<li><strong>Ship</strong> — opencode uses the Linear-generated branch name (<code>chriswandermail/chr-8-...</code>), commits, PR; flips issue Done only after verified</li>
+<li><strong>Decompose</strong> — big issue? opencode creates sub-issues under a parent, or milestones on a project</li>
+</ol>
+</section><section id="division-of-labor"><h2 id="division-of-labor">Division of labor</h2>
+<ul>
+<li><strong>Linear UI</strong> = human judgment: triage board, estimates, cycles, dragging</li>
+<li><strong>opencode</strong> = mechanical: status changes, comments, sub-issue creation, bulk queries, keeping issue descriptions synced with reality</li>
+</ul>
+</section><section id="anti-patterns"><h2 id="anti-patterns">Anti-patterns</h2>
+<ul>
+<li>Never let the session be the only record — anything learned goes in an issue comment</li>
+<li>Don&#39;t create an issue per tiny thing; Linear is the plan, the session is the work</li>
+<li>Don&#39;t keep a local TODO file that shadows Linear</li>
+</ul>
+</section><section id="setup-reference"><h2 id="setup-reference">Setup reference</h2>
+<p>Linear MCP is configured in <code>~/.config/opencode/opencode.jsonc</code>:</p>
+<div class="codewrap"><pre data-lang="json"><code>&quot;linear&quot;: {
+  &quot;type&quot;: &quot;remote&quot;,
+  &quot;url&quot;: &quot;https://mcp.linear.app/mcp&quot;,
+  &quot;enabled&quot;: true
+}</code></pre></div>
+<ul>
+<li>Read-write endpoint: <code>https://mcp.linear.app/mcp</code></li>
+<li>Read-only alternative: <code>https://mcp.linear.app/mcp/readonly</code></li>
+<li>Auth: OAuth via browser on first use (or <code>opencode mcp auth linear</code>)</li>
+<li>Verify: run <code>opencode mcp list</code>, then ask opencode to show your Linear issues</li>
+</ul>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Workflow</span> · ~1 min · Generated from <code>markdown_docs/linear-opencode-workflow.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>

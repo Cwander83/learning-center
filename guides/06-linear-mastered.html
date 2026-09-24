@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linear, Mastered — Learning Center</title>
+<meta name="description" content="Linear is not a task list — it's an opinionated model of how work flows. Learn the model and the tool disappears into muscle memory.">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="06-linear-mastered">
+<header class="topbar">
+  <a class="homebtn" href="../index.html">⌂ Home</a>
+  <span class="brand">Linear, Mastered</span>
+  <button id="themeToggle" title="Toggle dark / light">🌙 Dark</button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--the-data-model-precisely" data-sec="part-1--the-data-model-precisely">Part 1 — The Data Model, Precisely</a><a href="#step-11--audit-what-you-actually-have" data-sec="step-11--audit-what-you-actually-have" class="sub">Step 1.1 — Audit what you actually have</a><a href="#step-12--decide-the-team-boundary-now" data-sec="step-12--decide-the-team-boundary-now" class="sub">Step 1.2 — Decide the team boundary now</a><a href="#part-2--the-linear-method-working-the-way-linear-intends" data-sec="part-2--the-linear-method-working-the-way-linear-intends">Part 2 — The Linear Method: Working the Way Linear Intends</a><a href="#step-21--set-up-a-two-week-cycle" data-sec="step-21--set-up-a-two-week-cycle" class="sub">Step 2.1 — Set up a two-week cycle</a><a href="#step-22--adopt-a-definition-of-done" data-sec="step-22--adopt-a-definition-of-done" class="sub">Step 2.2 — Adopt a definition of done</a><a href="#part-3--views-and-filters-asking-better-questions" data-sec="part-3--views-and-filters-asking-better-questions">Part 3 — Views and Filters: Asking Better Questions</a><a href="#build-these-three-views-today" data-sec="build-these-three-views-today" class="sub">Build these three views today</a><a href="#step-31--group-and-sort-deliberately" data-sec="step-31--group-and-sort-deliberately" class="sub">Step 3.1 — Group and sort deliberately</a><a href="#part-4--keyboard-first-operation" data-sec="part-4--keyboard-first-operation">Part 4 — Keyboard-First Operation</a><a href="#step-41--a-10-minute-speed-drill" data-sec="step-41--a-10-minute-speed-drill" class="sub">Step 4.1 — A 10-minute speed drill</a><a href="#part-5--projects-milestones-initiatives-and-releases" data-sec="part-5--projects-milestones-initiatives-and-releases">Part 5 — Projects, Milestones, Initiatives, and Releases</a><a href="#projects" data-sec="projects" class="sub">Projects</a><a href="#milestones" data-sec="milestones" class="sub">Milestones</a><a href="#initiatives" data-sec="initiatives" class="sub">Initiatives</a><a href="#releases-and-release-pipelines" data-sec="releases-and-release-pipelines" class="sub">Releases and release pipelines</a><a href="#step-51--give-your-active-project-a-spine" data-sec="step-51--give-your-active-project-a-spine" class="sub">Step 5.1 — Give your active project a spine</a><a href="#part-6--docs-issue-writing-and-templates" data-sec="part-6--docs-issue-writing-and-templates">Part 6 — Docs, Issue Writing, and Templates</a><a href="#documents" data-sec="documents" class="sub">Documents</a><a href="#writing-an-issue-an-agent-can-execute" data-sec="writing-an-issue-an-agent-can-execute" class="sub">Writing an issue an agent can execute</a><a href="#templates" data-sec="templates" class="sub">Templates</a><a href="#step-61--move-your-best-issue-into-a-template" data-sec="step-61--move-your-best-issue-into-a-template" class="sub">Step 6.1 — Move your best issue into a template</a><a href="#part-7--github-integration-and-the-branch-workflow" data-sec="part-7--github-integration-and-the-branch-workflow">Part 7 — GitHub Integration and the Branch Workflow</a><a href="#step-71--the-loop-per-issue" data-sec="step-71--the-loop-per-issue" class="sub">Step 7.1 — The loop, per issue</a><a href="#part-8--automation-rules-slas-delegation" data-sec="part-8--automation-rules-slas-delegation">Part 8 — Automation: Rules, SLAs, Delegation</a><a href="#step-81--one-rule-one-delegate" data-sec="step-81--one-rule-one-delegate" class="sub">Step 8.1 — One rule, one delegate</a><a href="#part-9--linear-for-ai-agents-mcp-api-webhooks" data-sec="part-9--linear-for-ai-agents-mcp-api-webhooks">Part 9 — Linear for AI Agents: MCP, API, Webhooks</a><a href="#the-mcp-server" data-sec="the-mcp-server" class="sub">The MCP server</a><a href="#what-the-mcp-surface-actually-exposes" data-sec="what-the-mcp-surface-actually-exposes" class="sub">What the MCP surface actually exposes</a><a href="#the-division-of-labor" data-sec="the-division-of-labor" class="sub">The division of labor</a><a href="#the-anti-patterns" data-sec="the-anti-patterns" class="sub">The anti-patterns</a><a href="#graphql-api-and-webhooks" data-sec="graphql-api-and-webhooks" class="sub">GraphQL API and webhooks</a><a href="#part-10--plans-limits-and-when-not-to-use-linear" data-sec="part-10--plans-limits-and-when-not-to-use-linear">Part 10 — Plans, Limits, and When Not to Use Linear</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#keyboard--command-cheat-sheet" data-sec="keyboard--command-cheat-sheet">Keyboard &amp; Command Cheat Sheet</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--docs" data-sec="written-references--docs">Written References &amp; Docs</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#next-steps-in-order" data-sec="next-steps-in-order" class="sub">Next steps, in order</a><a href="#verification-note" data-sec="verification-note">Verification Note</a></div>
+</nav>
+<main>
+<h1>Linear, Mastered</h1>
+<div class="callout lede"><strong>Linear is not a task list — it&#39;s an opinionated model of how work flows.</strong> Learn the model and the tool disappears into muscle memory.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>Most people use Linear like a faster Jira: create issue, move issue, close issue. That works, and it wastes the product. Linear&#39;s real value is that it has <em>opinions</em> — about what an issue is, what a cycle is for, and where a human&#39;s judgment belongs — and the tool is designed so that following those opinions is faster than fighting them.</p>
+<p>The trick to learning Linear is realizing it is a small <strong>object graph</strong>, not a set of pages. Every screen is a view onto the same few objects.</p>
+<div class="codewrap"><pre data-lang="text"><code>WORKSPACE (chriswander)
+│
+├── TEAM ────────────── Chriswander (key: CHR)      ← statuses, cycles, estimates live here
+│   ├── CYCLE ───────── timeboxed iteration (2 weeks by default)
+│   ├── ISSUE ──────── CHR-7 &quot;audit fix&quot;            ← the atom of work
+│   │   ├── sub-issue  (Issue with a parent)
+│   │   ├── relations  (blocks / blockedBy / relatedTo / duplicateOf)
+│   │   ├── labels, assignee, delegate, estimate, priority
+│   │   └── attachments, comments, documents
+│   └── VIEWS ───────── saved filters (yours + the team's)
+│
+├── PROJECT ─────────── P-CHR-4 &quot;Agent Command Center&quot;
+│   ├── MILESTONE ───── dated checkpoint inside a project
+│   ├── DOCUMENT ────── brief, spec, notes
+│   └── issues from one or more teams
+│
+└── INITIATIVE ───────── I-123: a group of projects (the company-level layer)
+    └── projects</code></pre></div>
+<p>Three things follow from that picture, and they are the whole game:</p>
+<ol>
+<li><strong>Statuses, cycles, and estimates are team-scoped.</strong> Your team&#39;s workflow is defined once, in the team, not per project.</li>
+<li><strong>Projects group issues; initiatives group projects.</strong> If everything is an issue, you have no roadmap. If everything is a project, you have no work.</li>
+<li><strong>Views are queries, not folders.</strong> An issue can appear in many views; that&#39;s correct, not duplication.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Linear concept</th>
+<th>Plain-English analogy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Workspace</td>
+<td>The building</td>
+</tr>
+<tr>
+<td>Team</td>
+<td>The department — and the department&#39;s rulebook (statuses)</td>
+</tr>
+<tr>
+<td>Issue</td>
+<td>A single work order</td>
+</tr>
+<tr>
+<td>Sub-issue</td>
+<td>A checklist line inside the work order</td>
+</tr>
+<tr>
+<td>Project</td>
+<td>A job with a finish line</td>
+</tr>
+<tr>
+<td>Milestone</td>
+<td>A dated checkpoint on that job</td>
+</tr>
+<tr>
+<td>Initiative</td>
+<td>A company goal spanning several jobs</td>
+</tr>
+<tr>
+<td>Cycle</td>
+<td>A two-week sprint window the whole department shares</td>
+</tr>
+<tr>
+<td>View</td>
+<td>A saved question you keep asking (&quot;what&#39;s mine and not done?&quot;)</td>
+</tr>
+<tr>
+<td>Document</td>
+<td>The brief stapled to the job</td>
+</tr>
+<tr>
+<td>Label</td>
+<td>A sticky tag — cheap, reusable, easy to overuse</td>
+</tr>
+<tr>
+<td>Delegate</td>
+<td>An agent you&#39;ve handed the work order to</td>
+</tr>
+<tr>
+<td>Relation</td>
+<td>A wire between two work orders (blocks, related, duplicate)</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Why this beats Jira for a solo dev:</strong> Jira is configured <em>by</em> you, so it costs you a week before it helps. Linear is already configured, so it costs you an hour of learning its opinions. For one person, that trade is almost always correct.</p>
+</blockquote>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>One team</strong> is enough until you have two genuinely different workflows. Yours is <code>Chriswander</code> (key <code>CHR</code>).</li>
+<li><strong>Write small issues</strong> in the imperative (&quot;Add nav links to all pages&quot;), with acceptance criteria in the description.</li>
+<li><strong>Put multi-step efforts in a Project</strong>, not in an issue with a long description.</li>
+<li><strong>Turn on cycles</strong> and pull only what you&#39;ll finish into the current one.</li>
+<li><strong>Use Triage</strong> for anything that arrives from outside your own head.</li>
+<li><strong>Learn five shortcuts</strong> and stop using the mouse: create, command menu, search, assign-to-me, close.</li>
+<li><strong>Wire GitHub</strong> so branch and PR state update issues automatically.</li>
+<li><strong>Let an MCP-connected agent do the mechanical work</strong> — status changes, comments, sub-issue creation — and keep triage and roadmap decisions in the UI, where human judgment lives.</li>
+</ol>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Why</th>
+<th>How to check / get</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A Linear account</td>
+<td>Everything here is Linear-specific</td>
+<td><code>https://linear.app</code></td>
+</tr>
+<tr>
+<td>A team with a key</td>
+<td>Statuses and cycles are team-scoped</td>
+<td>Linear → Settings → Teams</td>
+</tr>
+<tr>
+<td>GitHub connected</td>
+<td>Auto-links branches and PRs to issues</td>
+<td>Linear → Settings → Integrations → GitHub</td>
+</tr>
+<tr>
+<td>macOS terminal comfort</td>
+<td>For the API, webhooks, and the CLI-style workflows in Parts 9–10</td>
+<td>Terminal.app or Ghostty</td>
+</tr>
+<tr>
+<td><code>brew</code> (optional)</td>
+<td>Some helper tooling installs cleanly</td>
+<td><code>brew --version</code></td>
+</tr>
+<tr>
+<td>An MCP-capable agent (optional)</td>
+<td>Part 9 automates Linear from an agent</td>
+<td>Your agent&#39;s MCP config, e.g. <code>https://mcp.linear.app/mcp</code></td>
+</tr>
+<tr>
+<td>A browser where you&#39;re already logged in</td>
+<td>The API key page is behind auth</td>
+<td><code>https://linear.app/settings/account/security</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>macOS note:</strong> Linear is a web app; there is no native Mac client to install. Everything in this paper is keyboard and browser. On macOS the modifier key in every shortcut is <code>⌘</code> (Command); the command menu is the single most valuable thing you will learn.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--the-data-model-precisely"><h2 id="part-1--the-data-model-precisely">Part 1 — The Data Model, Precisely</h2>
+<p>Getting this right in week one prevents a year of messy data.</p>
+<p><strong>Workspace</strong> — the top-level tenant. Yours is <code>chriswander</code> (<code>https://linear.app/chriswander</code>). It holds users, teams, projects, initiatives, and workspace-level labels.</p>
+<p><strong>Team</strong> — where work actually lives. A team owns its <strong>statuses</strong>, its <strong>cycle cadence</strong>, its <strong>estimate scale</strong>, and its <strong>issue identifier prefix</strong>. You have one team: <code>Chriswander</code>, key <code>CHR</code>, so issues are <code>CHR-1</code>, <code>CHR-2</code>, and so on. Teams are the unit of permission and of workflow, not of org chart.</p>
+<p><strong>Issue</strong> — the atom. An issue has: identifier, title, description (Markdown), status, assignee, delegate, priority, estimate, labels, project, cycle, parent (for sub-issues), relations, due date, attachments, comments, and a generated git branch name.</p>
+<p><strong>Sub-issue</strong> — an issue with a <code>parentId</code>. Not a separate object type. Use them for genuine decomposition, not for formatting a description.</p>
+<p><strong>Project</strong> — a container with a start and target date, a lead, a status, and its own description. Projects group issues <strong>across teams</strong>, which is why they can represent work bigger than one team.</p>
+<p><strong>Milestone</strong> — a dated checkpoint <em>inside</em> a project. Milestones are how you turn a project into a sequence rather than a bag.</p>
+<p><strong>Initiative</strong> — a group of projects representing a company-level goal. This is the layer above projects; skip it until you have more than one project worth grouping.</p>
+<p><strong>Cycle</strong> — a timeboxed iteration for a team. You currently have <strong>none configured</strong>. Cycles are Linear&#39;s most opinionated feature and the one most likely to change your behavior for the better.</p>
+<p><strong>Statuses</strong> — per-team, customizable, and typed. Linear groups them into status <em>types</em> (<code>backlog</code>, <code>unstarted</code>, <code>started</code>, <code>completed</code>, <code>canceled</code>, <code>duplicate</code>), and the type is what powers automation. Your team defines exactly these:</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Type</th>
+<th>What it means</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Backlog</td>
+<td><code>backlog</code></td>
+<td>Not committed. The idea parking lot.</td>
+</tr>
+<tr>
+<td>Todo</td>
+<td><code>unstarted</code></td>
+<td>Committed, not begun.</td>
+</tr>
+<tr>
+<td>In Progress</td>
+<td><code>started</code></td>
+<td>Actively being worked.</td>
+</tr>
+<tr>
+<td>In Review</td>
+<td><code>started</code></td>
+<td>Work done, awaiting verification.</td>
+</tr>
+<tr>
+<td>Done</td>
+<td><code>completed</code></td>
+<td>Verified and closed.</td>
+</tr>
+<tr>
+<td>Canceled</td>
+<td><code>canceled</code></td>
+<td>Deliberately not doing it.</td>
+</tr>
+<tr>
+<td>Duplicate</td>
+<td><code>duplicate</code></td>
+<td>Merged into another issue.</td>
+</tr>
+</tbody></table>
+<p>Linear ships this default set, and it is a good set. The classic mistake is adding statuses (&quot;QA&quot;, &quot;Blocked&quot;, &quot;Deployed&quot;). <strong>Blocked is a relation, not a status</strong> — use <code>blockedBy</code>. That way the block is visible on both issues and clears itself when the blocker closes.</p>
+<p><strong>Labels</strong> — cheap, workspace- or team-scoped tags. Yours are <code>Bug</code>, <code>Feature</code>, <code>Improvement</code>. Three labels is a healthy number. Labels are for <em>kind of work</em>, never for status, priority, or project — those have first-class fields.</p>
+<h3 id="step-11--audit-what-you-actually-have">Step 1.1 — Audit what you actually have</h3>
+<p>You can ask any MCP-connected agent, or use the UI, to enumerate your objects. As of September 2026 your workspace contains:</p>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Current state</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Teams</td>
+<td>1 — <code>Chriswander</code> (<code>CHR</code>)</td>
+</tr>
+<tr>
+<td>Projects</td>
+<td>3 — Agent Command Center, vite-portfolio, Workout Tracker</td>
+</tr>
+<tr>
+<td>Statuses</td>
+<td>7 — the Linear defaults, unmodified</td>
+</tr>
+<tr>
+<td>Labels</td>
+<td>3 — Bug, Feature, Improvement</td>
+</tr>
+<tr>
+<td>Cycles</td>
+<td>none configured</td>
+</tr>
+<tr>
+<td>Milestones</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Documents</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Templates</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Initiatives</td>
+<td>none</td>
+</tr>
+</tbody></table>
+<p>That is a clean, uncluttered workspace — which is good — but it is also missing the scaffolding (cycles, templates, documents) that makes Linear worth using over a text file. Parts 2, 5, and 6 fix that.</p>
+<h3 id="step-12--decide-the-team-boundary-now">Step 1.2 — Decide the team boundary now</h3>
+<p>One team is correct for you. Add a second team only when the two would have <strong>different statuses or a different cycle cadence</strong> — for example, a client-services team whose work is billed hourly, separate from product work. Do not create a team per project. Projects already do that job.</p>
+<hr>
+</section><section id="part-2--the-linear-method-working-the-way-linear-intends"><h2 id="part-2--the-linear-method-working-the-way-linear-intends">Part 2 — The Linear Method: Working the Way Linear Intends</h2>
+<p>Linear has published a philosophy, and its UI is built to reward it. The load-bearing ideas:</p>
+<p><strong>Small issues beat big ones.</strong> If an issue needs a meeting to estimate, it&#39;s a project. Your <code>CHR-7 &quot;audit fix&quot;</code> is a <em>good</em> issue: it has a code-review table with severities, a plan-gap status table, and three recommended next steps. It is scoped, verifiable, and it was completed in about an hour of state churn.</p>
+<p><strong>Write issues as outcomes, not activities.</strong> &quot;Improve performance&quot; is an activity. &quot;Homepage LCP under 2.5s on mobile&quot; is an outcome an agent can verify. This matters enormously once agents execute your issues (Part 9).</p>
+<p><strong>Triage is a place, not a vibe.</strong> Anything you didn&#39;t decide to do — a bug you noticed, a request, an agent&#39;s finding — lands in Triage first, and you consciously accept or decline it. Without triage, your backlog becomes an anxiety list.</p>
+<p><strong>Cycles create pressure; projects create direction.</strong> Cycles are timeboxes. They answer &quot;what am I doing <em>this</em> fortnight?&quot; Projects answer &quot;where is this going?&quot; You need both, and you currently have neither cycles nor milestones.</p>
+<p><strong>The backlog is not a to-do list.</strong> It is an inventory of uncommitted possibilities. If something has been in Backlog for six months and nobody has pulled it, that is information: delete it.</p>
+<h3 id="step-21--set-up-a-two-week-cycle">Step 2.1 — Set up a two-week cycle</h3>
+<p>Linear → Team settings → Cycles → enable with a 2-week cadence. Then adopt one rule:</p>
+<blockquote>
+<p><strong>The pull rule:</strong> at the start of a cycle, move into it only the issues you genuinely intend to finish, and set their status to <code>Todo</code>. Everything else stays in Backlog. Unfinished work at cycle end does not silently roll forward — you look at it and decide.</p>
+</blockquote>
+<h3 id="step-22--adopt-a-definition-of-done">Step 2.2 — Adopt a definition of done</h3>
+<p>Pick a small, literal checklist and put it in a team template (Part 6). For your code work, a reasonable one:</p>
+<ol>
+<li>Acceptance criteria in the description are met.</li>
+<li>Tests pass locally.</li>
+<li>A PR exists and is linked to the issue.</li>
+<li>A human read the diff.</li>
+</ol>
+<p>Then <code>Done</code> means <em>verified</em>, not <em>typed</em>. This is the single highest-value habit in Linear, because it is what makes the status field trustworthy enough to automate against.</p>
+<hr>
+</section><section id="part-3--views-and-filters-asking-better-questions"><h2 id="part-3--views-and-filters-asking-better-questions">Part 3 — Views and Filters: Asking Better Questions</h2>
+<p>A view is a saved query. Linear gives you built-ins and lets you save your own. The mental model:</p>
+<ul>
+<li><strong>My Issues</strong> — everything assigned to you, across teams. Your default landing spot.</li>
+<li><strong>Team views</strong> — shared, scoped to a team. The team&#39;s shared reality.</li>
+<li><strong>Custom views</strong> — a saved filter, optionally shared. Your personal cockpit.</li>
+<li><strong>Board vs list vs timeline</strong> — three renderings of the same query. Switch freely; the query is the thing.</li>
+</ul>
+<p><strong>Filters</strong> support <code>and</code> / <code>or</code> / <code>not</code> groups. The four filters that do 90% of the work:</p>
+<table>
+<thead>
+<tr>
+<th>Filter</th>
+<th>Useful values</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Status</td>
+<td><code>Todo</code>, <code>In Progress</code>, <code>In Review</code></td>
+<td>Hides Backlog noise and finished work</td>
+</tr>
+<tr>
+<td>Cycle</td>
+<td>current</td>
+<td>Scopes you to the timebox</td>
+</tr>
+<tr>
+<td>Priority</td>
+<td><code>Urgent</code>, <code>High</code></td>
+<td>The emergency lane</td>
+</tr>
+<tr>
+<td>Label</td>
+<td><code>Bug</code></td>
+<td>Bug triage, separate from feature flow</td>
+</tr>
+</tbody></table>
+<h3 id="build-these-three-views-today">Build these three views today</h3>
+<ol>
+<li><strong>&quot;Now&quot;</strong> — assignee is me, status in (Todo, In Progress, In Review), cycle is current. This is the only view you need open most days.</li>
+<li><strong>&quot;Waiting on me&quot;</strong> — status is In Review, assignee is me. Reviews are the work that hides.</li>
+<li><strong>&quot;Bugs&quot;</strong> — label is Bug, status is not (Done, Canceled). Your defect inventory.</li>
+</ol>
+<h3 id="step-31--group-and-sort-deliberately">Step 3.1 — Group and sort deliberately</h3>
+<p>Group by <strong>Status</strong> for a board, by <strong>Project</strong> for a planning session, by <strong>Assignee</strong> to see load. Sort by <strong>Priority</strong> when triaging, by <strong>Updated</strong> when hunting for stale work. Change grouping per session; the saved view keeps your default.</p>
+<blockquote>
+<p><strong>Anti-pattern:</strong> one giant view called &quot;All issues&quot; that you scroll. It trains you to browse instead of decide. Keep <code>Backlog</code> as a <em>separate</em> view you open on purpose.</p>
+</blockquote>
+<hr>
+</section><section id="part-4--keyboard-first-operation"><h2 id="part-4--keyboard-first-operation">Part 4 — Keyboard-First Operation</h2>
+<p>Linear is one of the few web apps where the mouse is genuinely optional. This is not trivia: speed makes the difference between capturing a thought and losing it.</p>
+<p><strong>The one that matters most is the command menu.</strong> Open it with <code>⌘K</code> and you can create an issue, jump to any issue/project/view, change status, and search everything — from one box, without knowing where anything lives.</p>
+<p><strong>Press <code>?</code> inside Linear</strong> to bring up the authoritative, always-current shortcut list. That is the honest answer to &quot;what are all the shortcuts&quot; — this paper will not enumerate keys that may change. Learn these four behaviors instead:</p>
+<ol>
+<li><strong>Open the command menu before reaching for the sidebar.</strong> <code>⌘K</code>, type, Enter.</li>
+<li><strong>Create in place.</strong> There is a create-issue shortcut that works from any screen; find it via <code>?</code> and use it the moment a thought arrives.</li>
+<li><strong>Navigate by chord.</strong> Linear has multi-key navigation sequences (press a key, then another) rather than dozens of modifiers. <code>?</code> lists them; pick the three destinations you actually visit (My Issues, current cycle, Backlog).</li>
+<li><strong>Close and change status without a dialog.</strong> Bulk-select issues in a list and change status in one action; this is where a keyboard workflow compounds.</li>
+</ol>
+<h3 id="step-41--a-10-minute-speed-drill">Step 4.1 — A 10-minute speed drill</h3>
+<ol>
+<li>Open the command menu. Jump to <code>CHR-7</code> by typing &quot;audit&quot;. Close it. Repeat until it&#39;s reflex.</li>
+<li>Create a throwaway issue without touching the sidebar. Delete it.</li>
+<li>Open the shortcut sheet with <code>?</code>. Pick two navigation chords and memorize them today.</li>
+<li>Filter My Issues to <code>In Progress</code>. Change one issue&#39;s status by keyboard only.</li>
+</ol>
+<p>Do that drill once and you will be faster than most Linear users within a day.</p>
+<hr>
+</section><section id="part-5--projects-milestones-initiatives-and-releases"><h2 id="part-5--projects-milestones-initiatives-and-releases">Part 5 — Projects, Milestones, Initiatives, and Releases</h2>
+<h3 id="projects">Projects</h3>
+<p>A project has a name, a lead, a status, optional start/target dates with a resolution (day, month, quarter), teams, members, labels, and — importantly — its <strong>own description</strong>. Your existing projects illustrate two different uses:</p>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>State</th>
+<th>Reading</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent Command Center</td>
+<td>In Progress, started 2026-09-04</td>
+<td>A real, active effort with issues and PRs</td>
+</tr>
+<tr>
+<td>vite-portfolio</td>
+<td>In Progress, started 2026-08-23</td>
+<td>Active; two issues already Done</td>
+</tr>
+<tr>
+<td>Workout Tracker</td>
+<td>Backlog, has a real summary</td>
+<td>Idea, captured well, not committed</td>
+</tr>
+</tbody></table>
+<p>That is exactly right: a project can sit in Backlog. The summary on Workout Tracker (&quot;add sessions and each exercise per day… history log… sets and reps&quot;) is a model capture. Copy that habit.</p>
+<p><strong>When something is a project vs an issue vs a milestone:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>One verifiable change</td>
+<td>Issue</td>
+</tr>
+<tr>
+<td>Several issues toward one outcome</td>
+<td>Project</td>
+</tr>
+<tr>
+<td>A dated checkpoint on the way</td>
+<td>Milestone</td>
+</tr>
+<tr>
+<td>Two or more projects serving one goal</td>
+<td>Initiative</td>
+</tr>
+</tbody></table>
+<h3 id="milestones">Milestones</h3>
+<p>A project with no milestones is a bag. Add two or three: <code>Schema landed</code>, <code>Preflight working</code>, <code>Phase 1 accepted</code>. Now the project has a shape and a date on each segment.</p>
+<h3 id="initiatives">Initiatives</h3>
+<p>The layer above projects. For a solo developer, an initiative is useful mainly as a <em>narrative</em>: &quot;Get to first paying customer&quot; containing the audit-SaaS project and the landing-page project. Add one when you have two or more projects that share a finish line.</p>
+<h3 id="releases-and-release-pipelines">Releases and release pipelines</h3>
+<p>Linear has grown into release management: pipelines, stages, releases, versions, and release notes, with a &quot;production&quot; pipeline concept. This is genuinely useful once you ship software to real users — you can attach issues to a release and generate notes from what landed. It is overkill before your first release. Note that it exists, and revisit it when you ship v1.</p>
+<h3 id="step-51--give-your-active-project-a-spine">Step 5.1 — Give your active project a spine</h3>
+<p>For <code>Agent Command Center</code>, which is your most active project:</p>
+<ol>
+<li>Add two milestones with target dates.</li>
+<li>Move its open issues under the right milestone.</li>
+<li>Write a project description with the <em>outcome</em> in one sentence and a link to the spec document.</li>
+</ol>
+<hr>
+</section><section id="part-6--docs-issue-writing-and-templates"><h2 id="part-6--docs-issue-writing-and-templates">Part 6 — Docs, Issue Writing, and Templates</h2>
+<h3 id="documents">Documents</h3>
+<p>Linear has native documents, attachable to a project, an initiative, a cycle, or a team. You have <strong>none</strong>. That is the gap that hurts most, because right now the reasoning behind a project lives in your head or in a chat session that will die.</p>
+<p>Create one document per active project: <code>Agent Command Center — Design Notes</code>. Put the <em>why</em>, the constraints, and the decisions in it. Issues then only need to say <em>what</em>, because the <em>why</em> has a home.</p>
+<blockquote>
+<p><strong>This is the antidote to session death.</strong> An agent session is not a record. An issue comment and a project document are. If a decision was made in a chat, it must be written back or it did not happen.</p>
+</blockquote>
+<h3 id="writing-an-issue-an-agent-can-execute">Writing an issue an agent can execute</h3>
+<p>Because you delegate to agents, your issue format matters more than it does for a human-only team. A template that works:</p>
+<div class="codewrap"><pre data-lang="markdown"><code>## Outcome
+One sentence. What is true when this is done?
+
+## Acceptance criteria
+- [ ] Specific, checkable statement
+- [ ] Another one
+- [ ] Tests pass; `npm run typecheck` clean
+
+## Constraints
+- Do not change public API surface.
+- Stay within `app/api/agents/**`.
+
+## Definition of done
+PR linked to this issue, reviewed by a human, merged.</code></pre></div>
+<p>Every line above is verifiable by a machine or a person. That is the test.</p>
+<h3 id="templates">Templates</h3>
+<p>You have <strong>none defined</strong>. Templates are how you enforce the format without thinking about it. Create two:</p>
+<table>
+<thead>
+<tr>
+<th>Template</th>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Engineering task</td>
+<td>Issue</td>
+<td>The format above, with the DoD checklist pre-filled</td>
+</tr>
+<tr>
+<td>Bug report</td>
+<td>Issue</td>
+<td>Repro steps, expected, actual, environment, severity</td>
+</tr>
+</tbody></table>
+<p>Then <code>Bug</code> label plus bug template means every defect arrives with a reproduction.</p>
+<h3 id="step-61--move-your-best-issue-into-a-template">Step 6.1 — Move your best issue into a template</h3>
+<p>Your <code>CHR-7</code> description is already excellent: a severity table, a plan-gap table, and numbered next steps. That structure <em>is</em> a template. Turn it into the <code>Code review findings</code> issue template so the next audit produces the same clarity without you re-inventing the format.</p>
+<hr>
+</section><section id="part-7--github-integration-and-the-branch-workflow"><h2 id="part-7--github-integration-and-the-branch-workflow">Part 7 — GitHub Integration and the Branch Workflow</h2>
+<p>Linear generates a canonical branch name for every issue. Yours look like this:</p>
+<div class="codewrap"><pre data-lang="text"><code>CHR-7  →  chriswandermail/chr-7-audit-fix
+CHR-5  →  chriswandermail/chr-5-navigation
+CHR-6  →  chriswandermail/chr-6-mobile-design-and-build-of-work-section</code></pre></div>
+<p>Use the generated name verbatim. Once GitHub is connected, Linear reads the issue ID in the branch or PR title and links them automatically; magic words in the PR description move the issue&#39;s status for you. That is the whole trick: <strong>you never update the issue by hand after opening a PR.</strong></p>
+<h3 id="step-71--the-loop-per-issue">Step 7.1 — The loop, per issue</h3>
+<ol>
+<li><strong>Triage</strong> — accept the issue out of Triage into Todo.</li>
+<li><strong>Start</strong> — move to In Progress. Note the generated branch name.</li>
+<li><strong>Branch</strong> — <code>git checkout -b chriswandermail/chr-&lt;n&gt;-&lt;slug&gt;</code>.</li>
+<li><strong>Work</strong> — commit normally.</li>
+<li><strong>PR</strong> — open the PR with the issue ID in the title; include a closing keyword in the body if the PR fully resolves it.</li>
+<li><strong>Review</strong> — Linear moves it to In Review. This is a real state: your <code>CHR-7</code> history shows In Progress → In Review → Done, twice, which is exactly the disciplined pattern.</li>
+<li><strong>Ship</strong> — merge; the issue closes. Only then does the status say Done, and it <em>means</em> it.</li>
+</ol>
+<p>Your <code>CHR-7</code> issue already carries three PR attachments (PR #2, #3, #4 in <code>Cwander83/agent-command-center</code>). That linkage is Linear working as designed — and it is why the issue, not the chat log, is the source of truth.</p>
+<blockquote>
+<p><strong>Branch tip on macOS:</strong> the name is long. Double-click the branch name in Linear to copy, then <code>git checkout -b &quot;$(pbpaste)&quot;</code>. Faster than retyping and it guarantees an exact match for auto-linking.</p>
+</blockquote>
+<hr>
+</section><section id="part-8--automation-rules-slas-delegation"><h2 id="part-8--automation-rules-slas-delegation">Part 8 — Automation: Rules, SLAs, Delegation</h2>
+<p>Three automation layers exist, in increasing order of power:</p>
+<p><strong>1. Triage rules and workflow automation (no code).</strong> In team settings you can define rules: auto-assign to a user or a delegate, auto-close stale issues, set labels by keyword, and so on. This is where you remove recurring decisions. Start with exactly one rule: anything labeled <code>Bug</code> with priority Urgent gets assigned to you.</p>
+<p><strong>2. SLAs and due dates.</strong> Issues carry due dates, and Linear has SLA fields (<code>slaStartedAt</code>, medium/high-risk, breach timestamps) with day-counting modes (<code>all</code> or <code>onlyBusinessDays</code>). For a solo dev, SLAs are mainly a forcing function for client work. Skip until you have a client who cares.</p>
+<p><strong>3. Delegation to agents.</strong> Issues have both an <code>assignee</code> (a human) and a <code>delegate</code> (an agent). Your workspace already uses this: <code>CHR-5</code>, <code>CHR-6</code>, and <code>CHR-7</code> are all <strong>delegated to Cursor</strong> while assigned to you. This is Linear&#39;s own agent concept, and it is the bridge to Part 9.</p>
+<h3 id="step-81--one-rule-one-delegate">Step 8.1 — One rule, one delegate</h3>
+<ol>
+<li>Add a triage rule that routes <code>Bug</code> + Urgent to you.</li>
+<li>Decide the delegation policy: work you want an agent to <em>attempt</em> gets a delegate; accountability stays with the assignee. Never leave an issue with neither.</li>
+</ol>
+<blockquote>
+<p><strong>Blunt warning:</strong> a delegate is a queue, not a guarantee. In your own history, <code>CHR-7</code> bounced In Progress → In Review → In Progress → In Review before Done, and it accumulated two &quot;fix the audit findings&quot; PRs plus a follow-up gap PR. That is normal — and it is exactly why the human merge gate and the definition of done in Part 2 are load-bearing.</p>
+</blockquote>
+<hr>
+</section><section id="part-9--linear-for-ai-agents-mcp-api-webhooks"><h2 id="part-9--linear-for-ai-agents-mcp-api-webhooks">Part 9 — Linear for AI Agents: MCP, API, Webhooks</h2>
+<p>This is where Linear goes from tracker to <strong>control plane</strong>.</p>
+<h3 id="the-mcp-server">The MCP server</h3>
+<p>Linear ships a Model Context Protocol server, so an agent can read and write your workspace directly. Your setup points at the remote endpoint:</p>
+<div class="codewrap"><pre data-lang="json"><code>&quot;linear&quot;: {
+  &quot;type&quot;: &quot;remote&quot;,
+  &quot;url&quot;: &quot;https://mcp.linear.app/mcp&quot;,
+  &quot;enabled&quot;: true
+}</code></pre></div>
+<ul>
+<li>Read-write endpoint: <code>https://mcp.linear.app/mcp</code></li>
+<li>Read-only alternative: <code>https://mcp.linear.app/mcp/readonly</code></li>
+<li>Auth: OAuth in the browser on first use (or <code>opencode mcp auth linear</code>)</li>
+<li>Verify: <code>opencode mcp list</code>, then ask the agent to show your Linear issues</li>
+</ul>
+<p><strong>Use the read-only endpoint for research agents and the read-write endpoint only for agents you trust to mutate.</strong> That is least privilege applied to a SaaS integration, and it costs nothing to adopt.</p>
+<h3 id="what-the-mcp-surface-actually-exposes">What the MCP surface actually exposes</h3>
+<p>This matters because it tells you what to delegate. The server covers, among others:</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Tools (representative)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Read issues/projects/teams</td>
+<td><code>list_issues</code>, <code>get_issue</code>, <code>list_projects</code>, <code>get_project</code>, <code>list_teams</code></td>
+</tr>
+<tr>
+<td>Create/update issues</td>
+<td><code>save_issue</code> — status, assignee, delegate, cycle, milestone, labels, priority, relations</td>
+</tr>
+<tr>
+<td>Relations</td>
+<td><code>blocks</code>, <code>blockedBy</code>, <code>relatedTo</code>, <code>duplicateOf</code> (and their removal counterparts)</td>
+</tr>
+<tr>
+<td>Partial edits</td>
+<td><code>patch</code> operations (<code>replace</code>, <code>insert_before</code>, <code>insert_after</code>, <code>append</code>, <code>replace_range</code>) so an agent edits a description without resending it</td>
+</tr>
+<tr>
+<td>Documents</td>
+<td><code>save_document</code>, <code>list_documents</code> — attach to project, issue, initiative, cycle, or team</td>
+</tr>
+<tr>
+<td>Comments</td>
+<td><code>save_comment</code>, <code>list_comments</code> — including inline comments anchored to description text</td>
+</tr>
+<tr>
+<td>Planning objects</td>
+<td><code>save_project</code>, <code>list_milestones</code>, <code>list_cycles</code>, templates</td>
+</tr>
+<tr>
+<td>Releases</td>
+<td><code>list_releases</code>, <code>list_release_pipelines</code>, <code>list_release_notes</code></td>
+</tr>
+<tr>
+<td>Attachments</td>
+<td><code>prepare_attachment_upload</code> → PUT → <code>create_attachment_from_upload</code></td>
+</tr>
+<tr>
+<td>Agent metadata</td>
+<td><code>list_agent_skills</code>, <code>list_diffs</code> (linked PRs and review state)</td>
+</tr>
+</tbody></table>
+<p>Two details worth internalizing:</p>
+<ul>
+<li><strong><code>save_issue</code> replaces labels, not merges them.</strong> Pass <code>addLabels</code>/<code>removeLabels</code> for incremental changes; omit the field to leave labels untouched. An agent that sends the wrong one will silently strip your labels.</li>
+<li><strong><code>patch</code> is the safe edit path.</strong> It applies operations atomically and fails the whole save if any anchor doesn&#39;t match exactly once — which is precisely the property you want when an agent edits a description a human also edits.</li>
+</ul>
+<h3 id="the-division-of-labor">The division of labor</h3>
+<p>This is the rule that keeps the system honest:</p>
+<table>
+<thead>
+<tr>
+<th>Human (Linear UI)</th>
+<th>Agent (MCP / API)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Triage: accept or decline</td>
+<td>Status changes</td>
+</tr>
+<tr>
+<td>Estimates and priorities</td>
+<td>Writing comments with findings</td>
+</tr>
+<tr>
+<td>Roadmap and milestones</td>
+<td>Creating sub-issues from a plan</td>
+</tr>
+<tr>
+<td>Merging PRs</td>
+<td>Bulk queries across issues</td>
+</tr>
+<tr>
+<td>Judging &quot;is this done?&quot;</td>
+<td>Drafting issue descriptions</td>
+</tr>
+</tbody></table>
+<p>The mechanical work is cheap to automate and expensive to do by hand. The judgment is the opposite. Keep the boundary there.</p>
+<h3 id="the-anti-patterns">The anti-patterns</h3>
+<ul>
+<li><strong>Never let a session be the only record.</strong> Anything learned goes in an issue comment.</li>
+<li><strong>Don&#39;t create an issue per tiny thing.</strong> Linear is the plan; the session is the work.</li>
+<li><strong>Don&#39;t shadow Linear with a local TODO file.</strong> Two sources of truth means zero.</li>
+</ul>
+<h3 id="graphql-api-and-webhooks">GraphQL API and webhooks</h3>
+<p>Beyond MCP, Linear exposes a GraphQL API and webhooks. Reach for these when you need something MCP doesn&#39;t cover:</p>
+<ul>
+<li><strong>GraphQL</strong> — custom queries and mutations from your own code (a dashboard, a script, a bot).</li>
+<li><strong>Webhooks</strong> — Linear calls your endpoint on events, so your own system can react (e.g., when an issue moves to In Review, run your eval suite from Paper 1).</li>
+</ul>
+<p>Keep a personal API key in an environment variable, never in a repo:</p>
+<div class="codewrap"><pre data-lang="bash"><code># ~/.zshrc  — macOS
+export LINEAR_API_KEY=&quot;lin_api_...&quot;</code></pre></div>
+<p>Then a query is a plain HTTPS call:</p>
+<div class="codewrap"><pre data-lang="bash"><code>curl -s https://api.linear.app/graphql \
+  -H &quot;Authorization: $LINEAR_API_KEY&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;query&quot;:&quot;{ viewer { name } }&quot;}'</code></pre></div>
+<blockquote>
+<p><strong>Verify every field name against the current schema before trusting it.</strong> Linear&#39;s API evolves; the schema in the developer docs is the source of truth, and any field name in this paper should be re-checked there. Never paste an API key into a chat or commit it.</p>
+</blockquote>
+<hr>
+</section><section id="part-10--plans-limits-and-when-not-to-use-linear"><h2 id="part-10--plans-limits-and-when-not-to-use-linear">Part 10 — Plans, Limits, and When Not to Use Linear</h2>
+<p><strong>Plans (verify on the pricing page — these change):</strong> Linear has a free tier and paid per-user tiers, with the paid tiers gating things like certain admin controls, integrations, and team features. For a single developer the free tier is generous enough to run everything in this paper. Do not pay until a limit actually bites you.</p>
+<p><strong>Limits that matter more than price:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Limit</th>
+<th>Practical impact</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>API complexity/rate limits</td>
+<td>A chatty agent loop can hit them; batch your queries</td>
+</tr>
+<tr>
+<td>Attachment size</td>
+<td>Large files are not the point; link to them instead</td>
+</tr>
+<tr>
+<td>Team scoping of statuses</td>
+<td>You cannot mix workflows in one team</td>
+</tr>
+<tr>
+<td>Free-tier history/analytics</td>
+<td>Reporting depth may be gated</td>
+</tr>
+</tbody></table>
+<p><strong>When Linear is the wrong tool:</strong></p>
+<ul>
+<li><strong>Personal errands and chores.</strong> A notes app or reminders is better; don&#39;t pollute your engineering workspace.</li>
+<li><strong>Heavy non-engineering workflows</strong> (legal, HR) that need custom fields and forms — Linear is opinionated toward software.</li>
+<li><strong>Spreadsheet-shaped work.</strong> If you want a grid of numbers, use a spreadsheet.</li>
+<li><strong>A team that refuses to keep statuses honest.</strong> Linear&#39;s value is derived from the status field; if nobody updates it, you have paid for a worse text file.</li>
+</ul>
+<hr>
+</section><section id="keyboard--command-cheat-sheet"><h2 id="keyboard--command-cheat-sheet">Keyboard &amp; Command Cheat Sheet</h2>
+<blockquote>
+<p><strong>Authoritative key:</strong> press <code>?</code> inside Linear. The list below is behavior, not a keybinding table, precisely because keybindings change.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>I want to…</th>
+<th>Do this</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Find or do anything</td>
+<td>Open the <strong>command menu</strong> (<code>⌘K</code>) and type</td>
+</tr>
+<tr>
+<td>See all shortcuts</td>
+<td>Press <code>?</code></td>
+</tr>
+<tr>
+<td>Create an issue from anywhere</td>
+<td>Create-issue action (confirm current key via <code>?</code>)</td>
+</tr>
+<tr>
+<td>Capture a thought fast</td>
+<td>Command menu → create issue; refine later in Triage</td>
+</tr>
+<tr>
+<td>See my work</td>
+<td><strong>My Issues</strong> view</td>
+</tr>
+<tr>
+<td>Change status without a dialog</td>
+<td>Select in a list → change status as a bulk action</td>
+</tr>
+<tr>
+<td>See only the committed work</td>
+<td>Filter: cycle = current, status in Todo/In Progress/In Review</td>
+</tr>
+<tr>
+<td>Find stale work</td>
+<td>Sort by Updated, oldest first</td>
+</tr>
+<tr>
+<td>Open an issue&#39;s branch</td>
+<td>Copy the generated branch name from the issue</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Create from</th>
+<th>Key fields</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Issue</td>
+<td>Anywhere, team required</td>
+<td>title, team, status, priority, assignee/delegate</td>
+</tr>
+<tr>
+<td>Sub-issue</td>
+<td>Parent issue</td>
+<td><code>parentId</code></td>
+</tr>
+<tr>
+<td>Project</td>
+<td>Team or workspace</td>
+<td>name, lead, teams, start/target date</td>
+</tr>
+<tr>
+<td>Milestone</td>
+<td>Inside a project</td>
+<td>name, target date</td>
+</tr>
+<tr>
+<td>Initiative</td>
+<td>Workspace</td>
+<td>name, projects</td>
+</tr>
+<tr>
+<td>Document</td>
+<td>Project/team/cycle</td>
+<td>title, content</td>
+</tr>
+<tr>
+<td>View</td>
+<td>Any issue list</td>
+<td>filters, grouping, sharing</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&quot;My issue didn&#39;t close when I merged&quot;</td>
+<td>No issue ID in branch/PR title, or GitHub not connected</td>
+<td>Use the generated branch name; check the GitHub integration</td>
+</tr>
+<tr>
+<td>Issue shows Done but work isn&#39;t shipped</td>
+<td>Status treated as &quot;typed&quot; not &quot;verified&quot;</td>
+<td>Enforce the definition of done; use In Review as a real gate</td>
+</tr>
+<tr>
+<td>Backlog is a graveyard</td>
+<td>No triage discipline; everything accepted</td>
+<td>Triage first; delete anything untouched for months</td>
+</tr>
+<tr>
+<td>Can&#39;t find anything</td>
+<td>Relying on folders/browsing</td>
+<td>Use <code>⌘K</code> and save views instead</td>
+</tr>
+<tr>
+<td>Agent stripped all labels</td>
+<td><code>save_issue</code> replaces labels by default</td>
+<td>Use <code>addLabels</code>/<code>removeLabels</code> for incremental edits</td>
+</tr>
+<tr>
+<td>Agent edit failed mid-way</td>
+<td>A <code>patch</code> anchor didn&#39;t match exactly once</td>
+<td>Re-read the description and retry with fresh anchors; patches are atomic by design</td>
+</tr>
+<tr>
+<td>MCP write refused</td>
+<td>Using the read-only endpoint</td>
+<td>Switch the server URL to <code>https://mcp.linear.app/mcp</code> for the mutating agent</td>
+</tr>
+<tr>
+<td>Two systems disagree</td>
+<td>A local TODO file shadows Linear</td>
+<td>Delete the local file; Linear is the record</td>
+</tr>
+<tr>
+<td>Statuses feel wrong</td>
+<td>Workflow doesn&#39;t match the default set</td>
+<td>Resist adding statuses — model &quot;blocked&quot; as a relation, not a status</td>
+</tr>
+<tr>
+<td>Cycle plan collapses</td>
+<td>Pulling too much into the cycle</td>
+<td>Pull less; treat unfinished items as a signal, not a failure</td>
+</tr>
+<tr>
+<td>Same label everywhere</td>
+<td>Labels used for status/priority</td>
+<td>Move those to first-class fields; keep labels for kind of work</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<blockquote>
+<p>These are <strong>YouTube search links</strong>, not specific videos — always valid, and you pick the current best result. No invented URLs.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Search link</th>
+<th>What to look for, and why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://www.youtube.com/results?search_query=Linear+app+full+tutorial" target="_blank" rel="noopener">Linear app full tutorial</a></td>
+<td>A complete walkthrough of the UI; watch for the object model appearing in every screen</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Linear+method+explained" target="_blank" rel="noopener">Linear method explained</a></td>
+<td>The philosophy behind cycles, triage, and small issues</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Linear+keyboard+shortcuts" target="_blank" rel="noopener">Linear keyboard shortcuts</a></td>
+<td>Speed drills; compare their chords to your <code>?</code> sheet</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Linear+cycles+tutorial" target="_blank" rel="noopener">Linear cycles tutorial</a></td>
+<td>How cycles actually change behavior week to week</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Linear+projects+and+milestones" target="_blank" rel="noopener">Linear projects and milestones</a></td>
+<td>Turning a bag of issues into a plan with checkpoints</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Linear+GitHub+integration" target="_blank" rel="noopener">Linear GitHub integration</a></td>
+<td>Branch and PR auto-linking in practice</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Linear+MCP+server" target="_blank" rel="noopener">Linear MCP server</a></td>
+<td>Connecting an agent to Linear; watch what it can and can&#39;t do</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Linear+vs+Jira+2026" target="_blank" rel="noopener">Linear vs Jira</a></td>
+<td>Honest tradeoffs if you&#39;re deciding for a team</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Linear+for+solo+developers" target="_blank" rel="noopener">Linear for solo developers</a></td>
+<td>One-person workflows that don&#39;t over-configure</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Linear+API+GraphQL+tutorial" target="_blank" rel="noopener">Linear API GraphQL tutorial</a></td>
+<td>Calling the API from your own code</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--docs"><h2 id="written-references--docs">Written References &amp; Docs</h2>
+<p>Official Linear sources only. If a link moves, navigate from <code>linear.app</code> itself — never trust a mirror.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Linear docs</td>
+<td><code>https://linear.app/docs</code></td>
+</tr>
+<tr>
+<td>The Linear Method</td>
+<td><code>https://linear.app/method</code></td>
+</tr>
+<tr>
+<td>Linear developers (API)</td>
+<td><code>https://linear.app/developers</code></td>
+</tr>
+<tr>
+<td>Linear GraphQL reference</td>
+<td><code>https://linear.app/developers/graphql</code></td>
+</tr>
+<tr>
+<td>Linear changelog</td>
+<td><code>https://linear.app/changelog</code></td>
+</tr>
+<tr>
+<td>Linear pricing</td>
+<td><code>https://linear.app/pricing</code></td>
+</tr>
+<tr>
+<td>Linear MCP endpoint</td>
+<td><code>https://mcp.linear.app/mcp</code> (read-only: <code>https://mcp.linear.app/mcp/readonly</code>)</td>
+</tr>
+<tr>
+<td>Linear security / API keys</td>
+<td><code>https://linear.app/settings/account/security</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Verification tip:</strong> Linear ships fast — releases, agent delegation, and triage intelligence are all recent. If this paper and the changelog disagree, the changelog wins.</p>
+</blockquote>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English definition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Workspace</td>
+<td>The top-level Linear account holding all teams and projects</td>
+</tr>
+<tr>
+<td>Team</td>
+<td>The unit that owns statuses, cycles, and issue identifiers</td>
+</tr>
+<tr>
+<td>Issue</td>
+<td>A single unit of work</td>
+</tr>
+<tr>
+<td>Sub-issue</td>
+<td>An issue nested under a parent issue</td>
+</tr>
+<tr>
+<td>Project</td>
+<td>A container of issues with a start, target, and status</td>
+</tr>
+<tr>
+<td>Milestone</td>
+<td>A dated checkpoint inside a project</td>
+</tr>
+<tr>
+<td>Initiative</td>
+<td>A group of projects serving one goal</td>
+</tr>
+<tr>
+<td>Cycle</td>
+<td>A timeboxed iteration for a team</td>
+</tr>
+<tr>
+<td>Triage</td>
+<td>The inbox for work you have not yet accepted</td>
+</tr>
+<tr>
+<td>Status type</td>
+<td>The category behind a status (backlog/unstarted/started/completed/canceled/duplicate) that powers automation</td>
+</tr>
+<tr>
+<td>Relation</td>
+<td>A typed link between issues: blocks, blockedBy, relatedTo, duplicateOf</td>
+</tr>
+<tr>
+<td>Delegate</td>
+<td>An agent assigned to attempt an issue, distinct from the human assignee</td>
+</tr>
+<tr>
+<td>View</td>
+<td>A saved query over issues</td>
+</tr>
+<tr>
+<td>Document</td>
+<td>A native Linear doc attachable to a project, team, cycle, or initiative</td>
+</tr>
+<tr>
+<td>Template</td>
+<td>A pre-filled issue/project/document shape applied on create</td>
+</tr>
+<tr>
+<td>Release pipeline</td>
+<td>A configured path (stages/versions) that releases flow through</td>
+</tr>
+<tr>
+<td>Magic word</td>
+<td>Text like a closing keyword in a PR that moves an issue&#39;s status</td>
+</tr>
+<tr>
+<td><code>gitBranchName</code></td>
+<td>The branch name Linear generates for an issue</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Do I need more than one team?</strong> Almost certainly not. Add a team only when the workflow (statuses or cadence) genuinely differs.</p>
+<p><strong>Cycles for a solo dev — worth it?</strong> Yes, with discipline. Two weeks, a small pull list, and an honest review at the end. It converts &quot;I have a lot to do&quot; into &quot;I committed to four things.&quot;</p>
+<p><strong>Should I put everything in Linear?</strong> No. Engineering work yes; groceries no. A tool that contains everything loses its signal.</p>
+<p><strong>Should I let agents write to Linear?</strong> Read-only for research agents; read-write for agents whose work you review. Keep the audit trail.</p>
+<p><strong>Is the free tier enough?</strong> For one developer, usually yes. Check the pricing page rather than trusting a summary.</p>
+<p><strong>What&#39;s the highest-leverage thing I&#39;m missing?</strong> Two things: <strong>documents</strong> (your reasoning has no home) and <strong>cycles</strong> (you have no timebox). Both are ten-minute setups.</p>
+<h3 id="next-steps-in-order">Next steps, in order</h3>
+<ol>
+<li><strong>Today:</strong> turn on cycles (2 weeks) and create the three views from Part 3.</li>
+<li><strong>This week:</strong> create one project document per active project; write the <em>why</em> down.</li>
+<li><strong>This week:</strong> add two templates (engineering task, bug report) with your definition of done.</li>
+<li><strong>Next week:</strong> give <code>Agent Command Center</code> two milestones with target dates.</li>
+<li><strong>Next week:</strong> add one triage rule and settle the delegate policy.</li>
+<li><strong>Month 2:</strong> revisit releases when you ship v1, and wire one webhook (In Review → run your evals).</li>
+</ol>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p><strong>Verified against primary sources in September 2026:</strong></p>
+<ul>
+<li>Workspace, team, project, status, label, and issue data read directly from the live <code>chriswander</code> workspace via the Linear MCP server (see Part 1.1 and the Setup Notes table).</li>
+<li>MCP tool surface enumerated from the live server: <code>save_issue</code> label-replacement semantics and <code>patch</code> atomicity are documented behaviors of the tool schema, not guesses.</li>
+<li>Linear documents, release pipelines/releases, agent delegation, triage intelligence, and SLA fields all exist as first-class objects in the current API/MCP surface.</li>
+<li><code>gitBranchName</code> values (<code>chriswandermail/chr-&lt;n&gt;-&lt;slug&gt;</code>) are the actual generated names from your workspace.</li>
+</ul>
+<p><strong>Changes fast — verify before relying on it:</strong> pricing, the exact MCP tool list, release-management features, keyboard shortcuts (always check <code>?</code>), GraphQL field names, and rate limits. This paper deliberately avoids enumerating keybindings for that reason.</p>
+<p><strong>Deliberately generic:</strong> the Linear Method&#39;s specifics are described in behavior terms; read <code>linear.app/method</code> for the canonical text rather than trusting a summary.</p>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Workflow</span> · 10 parts · ~23 min · Generated from <code>markdown_docs/06-linear-mastered.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>

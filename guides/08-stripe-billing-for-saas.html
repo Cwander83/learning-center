@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stripe Billing for a Solo SaaS — Learning Center</title>
+<meta name="description" content="Take money correctly the first time: hosted Checkout, verified webhooks, and a credits ledger you control — the three things that separate a working SaaS from one that leaks cash and double-grants value.">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="08-stripe-billing-for-saas">
+<header class="topbar">
+  <a class="homebtn" href="../index.html">⌂ Home</a>
+  <span class="brand">Stripe Billing for a Solo SaaS</span>
+  <button id="themeToggle" title="Toggle dark / light">🌙 Dark</button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#analogy-table" data-sec="analogy-table" class="sub">Analogy table</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--the-mental-model-stripe-as-a-ledger-you-dont-own" data-sec="part-1--the-mental-model-stripe-as-a-ledger-you-dont-own">Part 1 — The Mental Model: Stripe as a Ledger You Don&#39;t Own</a><a href="#step-1-separate-the-two-ledgers" data-sec="step-1-separate-the-two-ledgers" class="sub">Step 1: Separate the two ledgers</a><a href="#step-2-understand-the-two-flows" data-sec="step-2-understand-the-two-flows" class="sub">Step 2: Understand the two flows</a><a href="#step-3-know-what-your-server-is-actually-responsible-for" data-sec="step-3-know-what-your-server-is-actually-responsible-for" class="sub">Step 3: Know what your server is actually responsible for</a><a href="#step-4-learn-the-core-objects" data-sec="step-4-learn-the-core-objects" class="sub">Step 4: Learn the core objects</a><a href="#part-2--choosing-the-integration-shape" data-sec="part-2--choosing-the-integration-shape">Part 2 — Choosing the Integration Shape</a><a href="#step-1-consider-payment-links-seriously-for-phase-0" data-sec="step-1-consider-payment-links-seriously-for-phase-0" class="sub">Step 1: Consider Payment Links seriously for Phase 0</a><a href="#step-2-graduate-to-hosted-checkout-when-manual-stops-scaling" data-sec="step-2-graduate-to-hosted-checkout-when-manual-stops-scaling" class="sub">Step 2: Graduate to hosted Checkout when manual stops scaling</a><a href="#step-3-skip-elements-unless-you-have-a-specific-reason" data-sec="step-3-skip-elements-unless-you-have-a-specific-reason" class="sub">Step 3: Skip Elements unless you have a specific reason</a><a href="#part-3--one-time-payments-end-to-end" data-sec="part-3--one-time-payments-end-to-end">Part 3 — One-Time Payments, End to End</a><a href="#step-1-create-the-price-in-the-dashboard-or-api" data-sec="step-1-create-the-price-in-the-dashboard-or-api" class="sub">Step 1: Create the Price in the dashboard (or API)</a><a href="#step-2-create-a-route-handler-that-makes-the-session" data-sec="step-2-create-a-route-handler-that-makes-the-session" class="sub">Step 2: Create a Route Handler that makes the Session</a><a href="#step-3-kick-off-checkout-from-the-client" data-sec="step-3-kick-off-checkout-from-the-client" class="sub">Step 3: Kick off checkout from the client</a><a href="#step-4-handle-the-return-without-trusting-it" data-sec="step-4-handle-the-return-without-trusting-it" class="sub">Step 4: Handle the return without trusting it</a><a href="#step-5-grant-entitlement-in-the-webhook-part-4" data-sec="step-5-grant-entitlement-in-the-webhook-part-4" class="sub">Step 5: Grant entitlement in the webhook (Part 4)</a><a href="#part-4--webhooks-done-right-the-most-important-part" data-sec="part-4--webhooks-done-right-the-most-important-part">Part 4 — Webhooks Done Right (the most important Part)</a><a href="#step-1-understand-what-stripe-guarantees" data-sec="step-1-understand-what-stripe-guarantees" class="sub">Step 1: Understand what Stripe guarantees</a><a href="#step-2-get-the-raw-body-in-nextjs-app-router" data-sec="step-2-get-the-raw-body-in-nextjs-app-router" class="sub">Step 2: Get the raw body in Next.js App Router</a><a href="#step-3-dedupe-with-a-stripeevents-table" data-sec="step-3-dedupe-with-a-stripeevents-table" class="sub">Step 3: Dedupe with a <code>stripe_events</code> table</a><a href="#step-4-dispatch-only-the-events-you-need" data-sec="step-4-dispatch-only-the-events-you-need" class="sub">Step 4: Dispatch only the events you need</a><a href="#step-5-a-complete-handler" data-sec="step-5-a-complete-handler" class="sub">Step 5: A complete handler</a><a href="#step-6-wire-it-into-the-route" data-sec="step-6-wire-it-into-the-route" class="sub">Step 6: Wire it into the route</a><a href="#part-5--prepaid-credits-your-exact-model" data-sec="part-5--prepaid-credits-your-exact-model">Part 5 — Prepaid Credits (Your Exact Model)</a><a href="#step-1-model-credits-as-an-append-only-ledger" data-sec="step-1-model-credits-as-an-append-only-ledger" class="sub">Step 1: Model credits as an append-only ledger</a><a href="#step-2-grant-only-on-a-verified-webhook" data-sec="step-2-grant-only-on-a-verified-webhook" class="sub">Step 2: Grant only on a verified webhook</a><a href="#step-3-use-idempotencykey-when-creating-payment-objects" data-sec="step-3-use-idempotencykey-when-creating-payment-objects" class="sub">Step 3: Use <code>idempotencyKey</code> when creating payment objects</a><a href="#step-4-deduct-then-refund-on-failure" data-sec="step-4-deduct-then-refund-on-failure" class="sub">Step 4: Deduct-then-refund on failure</a><a href="#step-5-why-credits-beat-metered-billing-for-you" data-sec="step-5-why-credits-beat-metered-billing-for-you" class="sub">Step 5: Why credits beat metered billing for you</a><a href="#part-6--subscriptions-for-the-agency-tier" data-sec="part-6--subscriptions-for-the-agency-tier">Part 6 — Subscriptions for the Agency Tier</a><a href="#step-1-create-a-recurring-price" data-sec="step-1-create-a-recurring-price" class="sub">Step 1: Create a recurring Price</a><a href="#step-2-create-the-session-in-subscription-mode" data-sec="step-2-create-the-session-in-subscription-mode" class="sub">Step 2: Create the Session in subscription mode</a><a href="#step-3-let-the-customer-portal-handle-lifecycle" data-sec="step-3-let-the-customer-portal-handle-lifecycle" class="sub">Step 3: Let the customer portal handle lifecycle</a><a href="#step-4-understand-proration-and-trials" data-sec="step-4-understand-proration-and-trials" class="sub">Step 4: Understand proration and trials</a><a href="#step-5-mirror-plan-state-without-trusting-the-dashboard" data-sec="step-5-mirror-plan-state-without-trusting-the-dashboard" class="sub">Step 5: Mirror plan state without trusting the dashboard</a><a href="#part-7--failed-payments-dunning-and-refunds" data-sec="part-7--failed-payments-dunning-and-refunds">Part 7 — Failed Payments, Dunning, and Refunds</a><a href="#step-1-let-stripe-retry-then-act" data-sec="step-1-let-stripe-retry-then-act" class="sub">Step 1: Let Stripe retry, then act</a><a href="#step-2-downgrade-gracefully-not-instantly" data-sec="step-2-downgrade-gracefully-not-instantly" class="sub">Step 2: Downgrade gracefully, not instantly</a><a href="#step-3-refunds-and-credits-already-spent" data-sec="step-3-refunds-and-credits-already-spent" class="sub">Step 3: Refunds and credits already spent</a><a href="#part-8--local-development-and-testing" data-sec="part-8--local-development-and-testing">Part 8 — Local Development and Testing</a><a href="#step-1-log-in-and-forward-webhooks" data-sec="step-1-log-in-and-forward-webhooks" class="sub">Step 1: Log in and forward webhooks</a><a href="#step-2-trigger-events-without-clicking-through-checkout" data-sec="step-2-trigger-events-without-clicking-through-checkout" class="sub">Step 2: Trigger events without clicking through checkout</a><a href="#step-3-test-cards" data-sec="step-3-test-cards" class="sub">Step 3: Test cards</a><a href="#step-4-time-travel-subscriptions-with-test-clocks" data-sec="step-4-time-travel-subscriptions-with-test-clocks" class="sub">Step 4: Time-travel subscriptions with test clocks</a><a href="#step-5-watch-your-api-traffic" data-sec="step-5-watch-your-api-traffic" class="sub">Step 5: Watch your API traffic</a><a href="#part-9--money-tax-and-compliance-honestly" data-sec="part-9--money-tax-and-compliance-honestly">Part 9 — Money, Tax, and Compliance, Honestly</a><a href="#step-1-know-your-fee-math" data-sec="step-1-know-your-fee-math" class="sub">Step 1: Know your fee math</a><a href="#step-2-tax--where-responsibility-actually-sits" data-sec="step-2-tax--where-responsibility-actually-sits" class="sub">Step 2: Tax — where responsibility actually sits</a><a href="#step-3-receipts-and-invoices" data-sec="step-3-receipts-and-invoices" class="sub">Step 3: Receipts and invoices</a><a href="#part-10--security-and-hardening" data-sec="part-10--security-and-hardening">Part 10 — Security and Hardening</a><a href="#step-1-keys" data-sec="step-1-keys" class="sub">Step 1: Keys</a><a href="#step-2-environment-handling-on-vercel" data-sec="step-2-environment-handling-on-vercel" class="sub">Step 2: Environment handling on Vercel</a><a href="#step-3-restrict-key-permissions" data-sec="step-3-restrict-key-permissions" class="sub">Step 3: Restrict key permissions</a><a href="#step-4-rate-limit-your-own-endpoints" data-sec="step-4-rate-limit-your-own-endpoints" class="sub">Step 4: Rate-limit your own endpoints</a><a href="#step-5-you-never-touch-card-data" data-sec="step-5-you-never-touch-card-data" class="sub">Step 5: You never touch card data</a><a href="#part-11--a-worked-scenario-end-to-end" data-sec="part-11--a-worked-scenario-end-to-end">Part 11 — A Worked Scenario, End to End</a><a href="#step-1-free-scan-captures-the-email" data-sec="step-1-free-scan-captures-the-email" class="sub">Step 1: Free scan captures the email</a><a href="#step-2-the-29-pack-is-a-stripe-price-not-a-number-in-your-code" data-sec="step-2-the-29-pack-is-a-stripe-price-not-a-number-in-your-code" class="sub">Step 2: The $29 pack is a Stripe Price, not a number in your code</a><a href="#step-3-session-creation--one-route-server-resolved" data-sec="step-3-session-creation--one-route-server-resolved" class="sub">Step 3: Session creation — one route, server-resolved</a><a href="#step-4-the-webhook-grants-exactly-one-credit" data-sec="step-4-the-webhook-grants-exactly-one-credit" class="sub">Step 4: The webhook grants exactly one credit</a><a href="#step-5-the-report-run-reserves-then-refunds-on-failure" data-sec="step-5-the-report-run-reserves-then-refunds-on-failure" class="sub">Step 5: The report run reserves, then refunds on failure</a><a href="#step-6-prove-it" data-sec="step-6-prove-it" class="sub">Step 6: Prove it</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheet" data-sec="cheat-sheet">Cheat Sheet</a><a href="#stripe-cli-commands-macos" data-sec="stripe-cli-commands-macos" class="sub">Stripe CLI commands (macOS)</a><a href="#webhook-events-that-matter" data-sec="webhook-events-that-matter" class="sub">Webhook events that matter</a><a href="#test-cards" data-sec="test-cards" class="sub">Test cards</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--docs" data-sec="written-references--docs">Written References &amp; Docs</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#verification-note" data-sec="verification-note">Verification Note</a></div>
+</nav>
+<main>
+<h1>Stripe Billing for a Solo SaaS</h1>
+<div class="callout lede">Take money correctly the first time: hosted Checkout, verified webhooks, and a credits ledger you control — the three things that separate a working SaaS from one that leaks cash and double-grants value.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>You are building a competitive-audit report generator. Free instant scan as a lead magnet. A paid one-off full report. Prepaid credit packs — 3 for $79, 10 for $199 — because every run costs you real money (LLM tokens plus third-party APIs). And an agency subscription tier with white-label branding.</p>
+<p>That is three payment shapes in one product: a one-time payment, a prepaid balance, and a recurring subscription. Most tutorials cover one of them badly. This paper covers all three, plus the part nobody teaches you: <strong>the money flow between your browser, your server, and Stripe&#39;s ledger</strong> — and exactly where each step can lie to you.</p>
+<p>The single most important idea: <strong>Stripe is a ledger you don&#39;t own.</strong> It tracks what happened on its side. Your database tracks what happened on <em>your</em> side — who has credits, who has access, who generated what. Those two ledgers must be reconciled by trustworthy messages, and the only trustworthy message channel is the webhook.</p>
+<div class="codewrap"><pre data-lang=""><code> ┌─────────────┐
+ │   BROWSER   │  user clicks &quot;Buy 3 credits — $79&quot;
+ └──────┬──────┘
+        │ POST /api/checkout   (your session, your auth)
+        ▼
+ ┌──────────────────────────┐
+ │  YOUR SERVER (Next.js)   │  creates a Checkout Session with
+ │  Route Handler / Action  │  metadata: { userId, packId }
+ └──────┬───────────────────┘
+        │ stripe.checkout.sessions.create(...)
+        │ (Idempotency-Key header)
+        ▼
+ ┌──────────────────────────┐
+ │  STRIPE CHECKOUT (hosted)│  card details live here — never on your box
+ │  checkout.stripe.com/... │  PCI handled by Stripe
+ └──────┬───────────────────┘
+        │ user pays
+        ▼
+ ┌──────────────────────────┐
+ │     STRIPE LEDGER        │  PaymentIntent → succeeded
+ │  (the source of truth)   │  Invoice / Charge recorded
+ └──────┬───────────────────┘
+        │
+        │  ┌─────────────────────────────┐
+        └─▶│  TWO PATHS, ONE IS A LIE     │
+           └──────────────┬──────────────┘
+                          │
+        (a) redirect back to success_url    (b) webhook POST to your endpoint
+            ── CAN BE FAKED ──                  ── signed by Stripe ──
+                          │                              │
+                          ▼                              ▼
+                   show &quot;thanks!&quot;           verify signature → dedupe event id
+                   DO NOT GRANT VALUE       → write ledger row → grant credits
+                          │                              │
+                          └──────────────┬───────────────┘
+                                         ▼
+                              ┌────────────────────┐
+                              │  YOUR POSTGRES DB  │
+                              │  credits_ledger    │  balance = SUM(delta)
+                              │  stripe_events     │  processed event ids
+                              │  subscriptions     │  plan state mirror
+                              └─────────┬──────────┘
+                                        ▼
+                              ┌────────────────────┐
+                              │   ENTITLEMENT      │  can this user run a report?
+                              │  check + deduct    │  deduct → run → refund on failure
+                              └────────────────────┘</code></pre></div>
+<h3 id="analogy-table">Analogy table</h3>
+<table>
+<thead>
+<tr>
+<th>Stripe concept</th>
+<th>Plain-English analogy</th>
+<th>Why it matters to you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>PaymentIntent</strong></td>
+<td>A request to move money. &quot;Please charge this card $79.&quot;</td>
+<td>It can be <code>requires_action</code>, <code>processing</code>, or <code>succeeded</code>. Do not treat it as money until <code>succeeded</code>.</td>
+</tr>
+<tr>
+<td><strong>Webhook</strong></td>
+<td>The receipt that actually counts.</td>
+<td>The redirect back to your site is a note the customer can scribble themselves. The webhook is notarized. Grant value only from the webhook.</td>
+</tr>
+<tr>
+<td><strong>Idempotency key</strong></td>
+<td>A &quot;don&#39;t do this twice&quot; ticket at a coat check.</td>
+<td>Send the same ticket twice and you get the same coat — not a second coat. Prevents double-charges on network retries.</td>
+</tr>
+<tr>
+<td><strong>Checkout Session</strong></td>
+<td>The shopping cart + receipt template.</td>
+<td>It carries your <code>metadata</code> (userId, packId) across the boundary. This is how the webhook knows <em>who</em> to credit.</td>
+</tr>
+<tr>
+<td><strong>Customer</strong></td>
+<td>A filing cabinet drawer in Stripe&#39;s office.</td>
+<td>Holds saved cards, invoices, subscription state. Reuse it so subscriptions can renew.</td>
+</tr>
+<tr>
+<td><strong>Price</strong></td>
+<td>The price tag on a shelf.</td>
+<td>Immutable. Change a price by creating a <em>new</em> Price, not editing the old one.</td>
+</tr>
+<tr>
+<td><strong>Subscription</strong></td>
+<td>A standing order at the bank.</td>
+<td>Renews itself. Your DB mirrors its state; Stripe owns the truth.</td>
+</tr>
+<tr>
+<td><strong>Invoice</strong></td>
+<td>A bill + payment record for a period.</td>
+<td><code>invoice.paid</code> is your subscription renewal signal.</td>
+</tr>
+<tr>
+<td><strong>Coupon</strong></td>
+<td>A discount stamped on the bill.</td>
+<td>Applies at the amount level; useful for win-back offers.</td>
+</tr>
+<tr>
+<td><strong>Your credits ledger</strong></td>
+<td>Your own bank passbook.</td>
+<td>Stripe has never heard of &quot;credits.&quot; You invent this table and you guard it.</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Security / money-loss callout:</strong> Any feature that grants value — credits, report access, plan upgrade — must have exactly one entry point: a signature-verified webhook. If you can also grant value from a URL parameter, a query string, or a client-side callback, you have a bug that a teenager can exploit with <code>curl</code>.</p>
+</blockquote>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>Use hosted Checkout.</strong> Redirect the user to <code>checkout.stripe.com</code>. Do not build a card form. You get PCI compliance, wallets, 3DS, and localization for free.</li>
+<li><strong>Create the Session server-side</strong> from a Next.js Route Handler or Server Action, with <code>metadata: { userId, packId }</code>.</li>
+<li><strong>Never grant value on the success redirect.</strong> Render &quot;thanks, credits arriving&quot; and poll your own DB. The redirect is a hint, not proof.</li>
+<li><strong>Verify every webhook</strong> with <code>stripe.webhooks.constructEvent(rawBody, sig, secret)</code> using the <strong>raw</strong> request body.</li>
+<li><strong>Dedupe on <code>event.id</code>.</strong> Store processed event IDs in Postgres. Webhooks are delivered at-least-once and out of order.</li>
+<li><strong>Return <code>200</code> in under a few seconds.</strong> Do the minimum synchronous work; queue the rest if needed.</li>
+<li><strong>Credits live in your ledger table</strong>, not in a Stripe field. <code>balance = SUM(delta)</code>. Grant on webhook, deduct-then-refund on failure.</li>
+<li><strong>Subscriptions use <code>mode: &#39;subscription&#39;</code></strong> plus the Stripe customer portal for cancellation and card updates. Mirror state via <code>customer.subscription.*</code> and <code>invoice.*</code> webhooks.</li>
+<li><strong>Test locally with the Stripe CLI:</strong> <code>stripe listen --forward-to localhost:3000/api/stripe/webhook</code>.</li>
+<li><strong>Assume every key can leak.</strong> Secret keys server-only, verify signature, rate-limit your own endpoints, and know that Stripe fees mean a $5 product can barely survive.</li>
+</ol>
+<p>If you read nothing else, read <strong>Part 4 (webhooks)</strong> and <strong>Part 5 (credits)</strong>. Those two parts are where the money is won or lost.</p>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>A Next.js (App Router) project on Vercel, with at least one deployed route.</li>
+<li>A Postgres database (Neon, Supabase, Vercel Postgres, or self-hosted). You need tables; this paper assumes SQL migrations you run yourself.</li>
+<li>Node.js 18+ (the Stripe CLI npm install requires it; your MacBook Pro M5 Pro is fine).</li>
+<li>A Stripe account (test mode is free and instant).</li>
+<li>The Stripe CLI. On macOS via Homebrew:</li>
+</ul>
+<div class="codewrap"><pre data-lang="bash"><code>brew install stripe
+stripe login</code></pre></div>
+<p>Alternatively, if you already have Node 18+ and prefer npm: <code>npm install -g @stripe/cli</code> — then <code>stripe login</code>. Homebrew is the cleaner macOS path because it self-updates with <code>brew upgrade stripe</code>.</p>
+<ul>
+<li>The Node SDK in your app:</li>
+</ul>
+<div class="codewrap"><pre data-lang="bash"><code>npm install stripe</code></pre></div>
+<ul>
+<li>Basic TypeScript comfort. You will write ~200 lines of server code total.</li>
+</ul>
+<blockquote>
+<p><strong>This changes fast:</strong> Stripe ships API versions, new event types, and dashboard reshuffles constantly. Every claim about endpoints, parameters, and fees in this paper is dated September 2026. When something looks different, check <code>search: Stripe API changelog</code> and the linked docs.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--the-mental-model-stripe-as-a-ledger-you-dont-own"><h2 id="part-1--the-mental-model-stripe-as-a-ledger-you-dont-own">Part 1 — The Mental Model: Stripe as a Ledger You Don&#39;t Own</h2>
+<h3 id="step-1-separate-the-two-ledgers">Step 1: Separate the two ledgers</h3>
+<p>Think of Stripe as a bank and your app as a shop. The bank knows money moved. The shop knows what was bought and delivered. Your job is to make the shop react to the bank — reliably.</p>
+<ul>
+<li><strong>Stripe&#39;s ledger:</strong> Products, Prices, Customers, PaymentIntents, Invoices, Subscriptions, Charges, Refunds, Disputes.</li>
+<li><strong>Your ledger:</strong> <code>users</code>, <code>credits_ledger</code>, <code>reports</code>, <code>stripe_events</code>, <code>subscriptions</code>.</li>
+</ul>
+<p>Every dollar question resolves to: <em>what did Stripe say, and did my ledger record it exactly once?</em></p>
+<h3 id="step-2-understand-the-two-flows">Step 2: Understand the two flows</h3>
+<table>
+<thead>
+<tr>
+<th>Flow</th>
+<th>How it works</th>
+<th>When to use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Hosted Checkout (redirect)</strong></td>
+<td>Your server creates a Session; you <code>redirect()</code> the browser to the returned <code>url</code>; Stripe handles payment on its domain.</td>
+<td><strong>Your default.</strong> 95% of solo SaaS needs.</td>
+</tr>
+<tr>
+<td><strong>Embedded Checkout</strong></td>
+<td>Session rendered inside your page via Stripe&#39;s embedded page or Elements.</td>
+<td>When brand continuity matters more than speed to ship. More moving parts.</td>
+</tr>
+</tbody></table>
+<p>Both produce the same webhook events. The fulfillment code is identical. Only the front-end differs.</p>
+<h3 id="step-3-know-what-your-server-is-actually-responsible-for">Step 3: Know what your server is actually responsible for</h3>
+<p>Your server does five jobs and nothing more:</p>
+<ol>
+<li>Authenticate the user (so <code>userId</code> in metadata is trustworthy).</li>
+<li>Create the Session with the <em>server-derived</em> price/quantity (never trust a price sent by the browser).</li>
+<li>Receive and verify webhooks.</li>
+<li>Write to your ledger and grant/revoke entitlement.</li>
+<li>Enforce entitlement at run time (does this user have credit to run a report?).</li>
+</ol>
+<p>Your server never sees, stores, or transmits a card number. That is the entire point of Checkout.</p>
+<h3 id="step-4-learn-the-core-objects">Step 4: Learn the core objects</h3>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>What it represents</th>
+<th>Key fields you&#39;ll use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Product</strong></td>
+<td>What you sell (&quot;Full Audit Report&quot;, &quot;Agency Plan&quot;)</td>
+<td><code>id</code>, <code>name</code>, <code>metadata</code></td>
+</tr>
+<tr>
+<td><strong>Price</strong></td>
+<td>The amount + currency + interval for a Product</td>
+<td><code>id</code>, <code>unit_amount</code>, <code>currency</code>, <code>recurring</code></td>
+</tr>
+<tr>
+<td><strong>Customer</strong></td>
+<td>A buyer record in Stripe</td>
+<td><code>id</code>, <code>email</code>, <code>metadata.userId</code></td>
+</tr>
+<tr>
+<td><strong>Checkout Session</strong></td>
+<td>One checkout attempt</td>
+<td><code>id</code>, <code>url</code>, <code>mode</code>, <code>payment_status</code>, <code>metadata</code>, <code>customer</code></td>
+</tr>
+<tr>
+<td><strong>PaymentIntent</strong></td>
+<td>The actual charge attempt</td>
+<td><code>id</code>, <code>status</code>, <code>amount</code>, <code>metadata</code></td>
+</tr>
+<tr>
+<td><strong>Subscription</strong></td>
+<td>A recurring agreement</td>
+<td><code>id</code>, <code>status</code>, <code>items</code>, <code>current_period_end</code></td>
+</tr>
+<tr>
+<td><strong>Invoice</strong></td>
+<td>A bill for a period</td>
+<td><code>id</code>, <code>status</code>, <code>amount_paid</code>, <code>subscription</code></td>
+</tr>
+<tr>
+<td><strong>Coupon</strong></td>
+<td>A discount definition</td>
+<td><code>id</code>, <code>percent_off</code> / <code>amount_off</code></td>
+</tr>
+<tr>
+<td><strong>Credits ledger</strong></td>
+<td><em>(yours)</em> prepaid balance</td>
+<td><code>id</code>, <code>user_id</code>, <code>delta</code>, <code>reason</code>, <code>stripe_ref</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Honesty note:</strong> <code>unit_amount</code> is in the smallest currency unit. $79.00 USD must be <code>7900</code>. Getting this wrong by a factor of 100 is the most common &quot;I lost money&quot; bug in Stripe integrations, and it cuts both ways: you can accidentally charge $7,900 or give away a $7.90 product.</p>
+</blockquote>
+<hr>
+</section><section id="part-2--choosing-the-integration-shape"><h2 id="part-2--choosing-the-integration-shape">Part 2 — Choosing the Integration Shape</h2>
+<p>There are three rungs on the ladder. Start at the bottom; climb only when forced.</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Code required</th>
+<th>Control</th>
+<th>Best for</th>
+<th>Trade-off</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Payment Links</strong></td>
+<td>None</td>
+<td>Low — price fixed in dashboard</td>
+<td>Phase 0 validation, one-off report, manual fulfillment</td>
+<td>Fulfillment is manual; no user binding unless you pass <code>client_reference_id</code></td>
+</tr>
+<tr>
+<td><strong>Hosted Checkout</strong></td>
+<td>~40 lines server + webhook</td>
+<td>Medium-high</td>
+<td><strong>Your default</strong> for packs, reports, and the agency plan</td>
+<td>Redirect leaves your domain briefly</td>
+</tr>
+<tr>
+<td><strong>Payment Element / Elements</strong></td>
+<td>200+ lines, client + server</td>
+<td>Maximum</td>
+<td>Embedded card form inside your UI</td>
+<td>You now own more of the payment UX and its edge cases</td>
+</tr>
+</tbody></table>
+<h3 id="step-1-consider-payment-links-seriously-for-phase-0">Step 1: Consider Payment Links seriously for Phase 0</h3>
+<p>Your Phase 0 plan is literally &quot;Payment Link + manual fulfillment.&quot; That is a legitimate way to start, not a hack. Create a Product + Price and a Payment Link in the dashboard, put it on your pricing page, and when an order arrives, you manually grant the credit by hand.</p>
+<p>The reason this is fine: <strong>you cannot automate a business you have not validated.</strong> Manual fulfillment for the first ten customers teaches you what the automated version must do. It also costs zero engineering.</p>
+<p>A Payment Link can pass <code>client_reference_id</code> in the URL, which appears on the resulting Checkout Session and its webhook. That is your hook to bind a payment to a user even before you write Session-creation code.</p>
+<h3 id="step-2-graduate-to-hosted-checkout-when-manual-stops-scaling">Step 2: Graduate to hosted Checkout when manual stops scaling</h3>
+<p>You&#39;ll know it&#39;s time when you&#39;re granting credits at 2 a.m. or when you want the credits to land instantly. At that point, move to Part 3.</p>
+<h3 id="step-3-skip-elements-unless-you-have-a-specific-reason">Step 3: Skip Elements unless you have a specific reason</h3>
+<blockquote>
+<p><strong>Honesty note:</strong> Elements is often overkill for a solo dev. It buys you a fully in-page experience and lets you compose payment methods precisely — at the cost of owning more states, more errors, and more PCI scope. Unless a design requirement forces it, hosted Checkout plus a branded success page gets you the same revenue with a fraction of the surface area.</p>
+</blockquote>
+<p><strong>Decision rule:</strong> Payment Link → Hosted Checkout → Elements. Move right only when a concrete limitation blocks you, never &quot;just in case.&quot;</p>
+<hr>
+</section><section id="part-3--one-time-payments-end-to-end"><h2 id="part-3--one-time-payments-end-to-end">Part 3 — One-Time Payments, End to End</h2>
+<p>This is the exact flow for your $29 one-off full report. The credits flow in Part 5 is a variation.</p>
+<h3 id="step-1-create-the-price-in-the-dashboard-or-api">Step 1: Create the Price in the dashboard (or API)</h3>
+<p>In the Stripe dashboard, create a Product (&quot;Full Audit Report&quot;) and a one-time Price of $29.00 USD (<code>2900</code>). Copy the Price ID (<code>price_...</code>). Store it in an environment variable so code and dashboard don&#39;t drift:</p>
+<div class="codewrap"><pre data-lang="bash"><code># .env.local
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+STRIPE_PRICE_FULL_REPORT=price_...</code></pre></div>
+<h3 id="step-2-create-a-route-handler-that-makes-the-session">Step 2: Create a Route Handler that makes the Session</h3>
+<div class="codewrap"><pre data-lang="ts"><code>// app/api/checkout/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { auth } from '@/lib/auth'; // your session helper
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2026-08-26', // pin an explicit version; check current in Stripe docs
+});
+
+export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const origin = process.env.NEXT_PUBLIC_APP_URL!;
+
+  const checkout = await stripe.checkout.sessions.create(
+    {
+      mode: 'payment',
+      line_items: [{ price: process.env.STRIPE_PRICE_FULL_REPORT!, quantity: 1 }],
+      // Bind the payment to YOUR user. This is the thread the webhook pulls.
+      metadata: { userId: session.user.id, kind: 'one_off_report' },
+      // Prefill email if you have it.
+      customer_email: session.user.email ?? undefined,
+      success_url: `${origin}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/pricing?canceled=1`,
+      allow_promotion_codes: true,
+    },
+    {
+      // Idempotency: a retried request returns the same Session,
+      // it does not create a second charge opportunity.
+      idempotencyKey: `checkout:${session.user.id}:${Date.now()}`,
+    }
+  );
+
+  return NextResponse.json({ url: checkout.url });
+}</code></pre></div>
+<p>Two things to notice:</p>
+<ul>
+<li><strong>The price is resolved server-side</strong> from an env var. The browser never sends an amount. If your client could send <code>amount: 1</code>, you&#39;d sell $29 reports for a penny.</li>
+<li><strong><code>metadata.userId</code></strong> is the join key. Without it, the webhook cannot know who to credit, and you&#39;ll be matching payments to users by email — which breaks the moment someone pays with a different email.</li>
+</ul>
+<blockquote>
+<p><strong>Note on the Idempotency-Key value:</strong> the SDK option is <code>idempotencyKey</code>. In raw HTTP it&#39;s the <code>Idempotency-Key</code> header. Keys should be unique per logical operation. Using a fresh timestamped key per click is fine for Session creation (each click <em>is</em> a new cart). Where idempotency really saves you is retrying a create you already sent — see Part 5, Step 3.</p>
+</blockquote>
+<h3 id="step-3-kick-off-checkout-from-the-client">Step 3: Kick off checkout from the client</h3>
+<div class="codewrap"><pre data-lang="ts"><code>// components/BuyReportButton.tsx
+'use client';
+
+export function BuyReportButton() {
+  async function go() {
+    const res = await fetch('/api/checkout', { method: 'POST' });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url; // to Stripe-hosted page
+  }
+  return &lt;button onClick={go}&gt;Get the full report — $29&lt;/button&gt;;
+}</code></pre></div>
+<h3 id="step-4-handle-the-return-without-trusting-it">Step 4: Handle the return without trusting it</h3>
+<p><code>success_url</code> should render a page that says &quot;Payment received — your report is being prepared,&quot; then polls your own API for entitlement. Do <strong>not</strong> flip a database flag based on the presence of <code>?session_id=</code>.</p>
+<p>Why: <code>session_id</code> is visible in the URL. Anyone can visit <code>/billing/success?session_id=cs_test_whatever</code>. If that page grants the report, you just shipped free product. The redirect is a UX affordance. The webhook is the source of truth.</p>
+<h3 id="step-5-grant-entitlement-in-the-webhook-part-4">Step 5: Grant entitlement in the webhook (Part 4)</h3>
+<p>The route handler&#39;s job ends at &quot;the user is on Stripe&#39;s page.&quot; Everything financial happens in the webhook.</p>
+<hr>
+</section><section id="part-4--webhooks-done-right-the-most-important-part"><h2 id="part-4--webhooks-done-right-the-most-important-part">Part 4 — Webhooks Done Right (the most important Part)</h2>
+<blockquote>
+<p><strong>Money-loss callout:</strong> Roughly every &quot;Stripe charged the customer but they didn&#39;t get access&quot; and &quot;customer got access without paying&quot; story traces to webhook handling. Signature verification, raw body, fast 200, and idempotency are not optional polish. They are the load-bearing walls.</p>
+</blockquote>
+<h3 id="step-1-understand-what-stripe-guarantees">Step 1: Understand what Stripe guarantees</h3>
+<p>From Stripe&#39;s own docs: delivery is <strong>at-least-once</strong>, retried with exponential backoff for up to <strong>three days in live mode</strong> (roughly three attempts over a few hours in sandbox), and <strong>ordering is not guaranteed</strong>. Distinct events can share a <code>created</code> timestamp. Therefore:</p>
+<ul>
+<li>You WILL see duplicates. Dedupe on <code>event.id</code>.</li>
+<li>You MUST NOT depend on order. Fetch current state from the API when it matters.</li>
+<li>You MUST return <code>2xx</code> quickly, or Stripe retries — which is just more duplicates.</li>
+</ul>
+<h3 id="step-2-get-the-raw-body-in-nextjs-app-router">Step 2: Get the raw body in Next.js App Router</h3>
+<p>Signature verification hashes the <em>exact bytes</em> Stripe sent. If any middleware parses and re-serializes the JSON, the hash changes and verification fails with <code>No signatures found matching the expected signature for payload</code>. In App Router, read the raw text — do not use <code>req.json()</code> before verifying.</p>
+<div class="codewrap"><pre data-lang="ts"><code>// app/api/stripe/webhook/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2026-08-26',
+});
+
+export async function POST(req: NextRequest) {
+  const rawBody = await req.text(); // RAW. Do not JSON.parse before verifying.
+  const sig = req.headers.get('stripe-signature');
+
+  if (!sig) {
+    return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
+  }
+
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      rawBody,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    );
+  } catch (err) {
+    // Invalid signature: 400. Stripe will retry — that is fine and correct.
+    console.error('Webhook signature verification failed:', err);
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+  }
+
+  // Dedupe + handle. Return 200 fast; keep heavy work minimal.
+  try {
+    await handleStripeEvent(event);
+  } catch (err) {
+    // Returning 500 tells Stripe to retry. Only do this for errors you
+    // genuinely want retried (e.g. DB down). Logic errors should be logged
+    // and swallowed with a 200, or you'll hammer yourself for 3 days.
+    console.error('Webhook handler error:', err);
+    return NextResponse.json({ error: 'Handler failed' }, { status: 500 });
+  }
+
+  return NextResponse.json({ received: true });
+}</code></pre></div>
+<blockquote>
+<p><strong>This changes fast:</strong> Next.js and the Stripe Node examples evolve. The canonical working example lives in Stripe&#39;s <code>stripe-node</code> repo under <code>examples/webhook-signing/nextjs/app/api/webhooks/route.ts</code>. If you hit a body-parsing issue, compare against that file, and check <code>search: stripe-node Next.js App Router webhook signature</code>.</p>
+</blockquote>
+<h3 id="step-3-dedupe-with-a-stripeevents-table">Step 3: Dedupe with a <code>stripe_events</code> table</h3>
+<div class="codewrap"><pre data-lang="sql"><code>CREATE TABLE stripe_events (
+  id            TEXT PRIMARY KEY,        -- event.id, e.g. evt_...
+  type          TEXT NOT NULL,
+  received_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  processed_at  TIMESTAMPTZ
+);</code></pre></div>
+<p>Claim the event atomically, then process. If the insert conflicts, you&#39;ve already seen it — return 200 immediately.</p>
+<div class="codewrap"><pre data-lang="ts"><code>async function claimEvent(eventId: string, type: string): Promise&lt;boolean&gt; {
+  const res = await db.query(
+    `INSERT INTO stripe_events (id, type)
+     VALUES ($1, $2)
+     ON CONFLICT (id) DO NOTHING
+     RETURNING id`,
+    [eventId, type]
+  );
+  return res.rowCount === 1; // true = first time we've seen it
+}</code></pre></div>
+<h3 id="step-4-dispatch-only-the-events-you-need">Step 4: Dispatch only the events you need</h3>
+<p>Subscribe narrowly. Listening to every event is documented as a strain on your endpoint and generates noise you&#39;ll never handle.</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Fires when</th>
+<th>What you do</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>checkout.session.completed</code></td>
+<td>A Checkout Session completes successfully</td>
+<td>Grant credits / mark order paid. <strong>Your primary fulfillment trigger.</strong></td>
+</tr>
+<tr>
+<td><code>payment_intent.succeeded</code></td>
+<td>A payment attempt succeeds</td>
+<td>Optional secondary confirmation; useful when you create PaymentIntents directly</td>
+</tr>
+<tr>
+<td><code>invoice.paid</code></td>
+<td>A subscription invoice is paid (incl. renewals)</td>
+<td>Extend subscription entitlement for the new period</td>
+</tr>
+<tr>
+<td><code>invoice.payment_failed</code></td>
+<td>A renewal charge fails</td>
+<td>Start dunning: notify user, warn about downgrade</td>
+</tr>
+<tr>
+<td><code>customer.subscription.updated</code></td>
+<td>Plan change, trial→active, status change</td>
+<td>Mirror plan and status into your DB</td>
+</tr>
+<tr>
+<td><code>customer.subscription.deleted</code></td>
+<td>Subscription ends</td>
+<td>Revoke agency entitlement</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Careful with <code>checkout.session.completed</code>:</strong> for payment methods with delayed settlement (bank debits and similar), the Session can complete while payment is still pending. Check <code>session.payment_status</code> (<code>paid</code> vs <code>unpaid</code>) before granting. For card payments via Checkout it is normally <code>paid</code> at completion, but the defensive check costs one line.</p>
+</blockquote>
+<h3 id="step-5-a-complete-handler">Step 5: A complete handler</h3>
+<div class="codewrap"><pre data-lang="ts"><code>// lib/stripe/handlers.ts
+import Stripe from 'stripe';
+import { db } from '@/lib/db';
+import { grantCredits, upsertSubscription } from '@/lib/ledger';
+
+export async function handleStripeEvent(event: Stripe.Event) {
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object as Stripe.Checkout.Session;
+      if (session.payment_status !== 'paid') return; // delayed methods
+
+      const userId = session.metadata?.userId;
+      const kind = session.metadata?.kind;
+      if (!userId) {
+        console.error('Session missing userId metadata', session.id);
+        return;
+      }
+
+      if (kind === 'credit_pack') {
+        const credits = Number(session.metadata?.credits ?? '0');
+        await grantCredits({
+          userId,
+          credits,
+          reason: 'purchase',
+          stripeRef: session.id,
+        });
+      }
+      if (kind === 'one_off_report') {
+        await grantCredits({
+          userId,
+          credits: 1,
+          reason: 'purchase_one_off',
+          stripeRef: session.id,
+        });
+      }
+      return;
+    }
+
+    case 'invoice.paid': {
+      const invoice = event.data.object as Stripe.Invoice;
+      await upsertSubscription(invoice);
+      return;
+    }
+
+    case 'invoice.payment_failed': {
+      const invoice = event.data.object as Stripe.Invoice;
+      await markPastDue(invoice);
+      return;
+    }
+
+    case 'customer.subscription.updated':
+    case 'customer.subscription.deleted': {
+      const sub = event.data.object as Stripe.Subscription;
+      await syncSubscriptionState(sub);
+      return;
+    }
+
+    default:
+      return; // ignore everything else
+  }
+}</code></pre></div>
+<h3 id="step-6-wire-it-into-the-route">Step 6: Wire it into the route</h3>
+<div class="codewrap"><pre data-lang="ts"><code>// inside app/api/stripe/webhook/route.ts, after verification:
+const isNew = await claimEvent(event.id, event.type);
+if (!isNew) return NextResponse.json({ received: true, duplicate: true });
+
+await handleStripeEvent(event);
+return NextResponse.json({ received: true });</code></pre></div>
+<p><code>grantCredits</code> should itself be idempotent on <code>stripeRef</code> — see Part 5.</p>
+<blockquote>
+<p><strong>Security callout:</strong> Without signature verification, anyone who learns your webhook URL can POST a fake <code>checkout.session.completed</code> and mint themselves credits. The URL is guessable (<code>/api/stripe/webhook</code>). Verify. Always. Even in dev.</p>
+</blockquote>
+<hr>
+</section><section id="part-5--prepaid-credits-your-exact-model"><h2 id="part-5--prepaid-credits-your-exact-model">Part 5 — Prepaid Credits (Your Exact Model)</h2>
+<h3 id="step-1-model-credits-as-an-append-only-ledger">Step 1: Model credits as an append-only ledger</h3>
+<p>Never store a mutable integer balance that you increment and decrement. Store <em>movements</em> and derive the balance. You get an audit trail, natural idempotency, and no lost updates.</p>
+<div class="codewrap"><pre data-lang="sql"><code>CREATE TABLE credits_ledger (
+  id          BIGSERIAL PRIMARY KEY,
+  user_id     UUID NOT NULL REFERENCES users(id),
+  delta       INTEGER NOT NULL,          -- +3 purchase, -1 run, +1 refund
+  reason      TEXT NOT NULL,             -- 'purchase' | 'run' | 'refund' | 'grant'
+  stripe_ref  TEXT,                      -- session/payment id, for idempotency
+  run_id      UUID,                      -- links a run to its deduct+refund pair
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- One credit movement per Stripe object, ever.
+CREATE UNIQUE INDEX credits_ledger_stripe_ref_uniq
+  ON credits_ledger (stripe_ref)
+  WHERE stripe_ref IS NOT NULL;
+
+CREATE INDEX credits_ledger_user_idx ON credits_ledger (user_id);</code></pre></div>
+<p>Balance is a query:</p>
+<div class="codewrap"><pre data-lang="sql"><code>SELECT COALESCE(SUM(delta), 0) AS balance
+FROM credits_ledger
+WHERE user_id = $1;</code></pre></div>
+<h3 id="step-2-grant-only-on-a-verified-webhook">Step 2: Grant only on a verified webhook</h3>
+<div class="codewrap"><pre data-lang="ts"><code>// lib/ledger.ts
+export async function grantCredits(opts: {
+  userId: string;
+  credits: number;
+  reason: string;
+  stripeRef: string;
+}) {
+  await db.query(
+    `INSERT INTO credits_ledger (user_id, delta, reason, stripe_ref)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (stripe_ref) DO NOTHING`, // second delivery = no-op
+    [opts.userId, opts.credits, opts.reason, opts.stripeRef]
+  );
+}</code></pre></div>
+<p>The partial unique index plus <code>ON CONFLICT DO NOTHING</code> means that even if Part 4&#39;s event dedupe somehow missed, the same <code>session.id</code> can never grant credits twice.</p>
+<h3 id="step-3-use-idempotencykey-when-creating-payment-objects">Step 3: Use <code>idempotencyKey</code> when creating payment objects</h3>
+<p>If you ever create PaymentIntents or Customers programmatically (not just Checkout Sessions), pass an idempotency key so a network timeout doesn&#39;t create a second object when you retry. Stripe caches the first response for at least 24 hours and replays it. Do not use emails or personal identifiers as keys; use a UUID or a stable internal reference.</p>
+<h3 id="step-4-deduct-then-refund-on-failure">Step 4: Deduct-then-refund on failure</h3>
+<p>This is the pattern that protects you from burning money on failed runs.</p>
+<ol>
+<li><strong>Reserve (deduct) before the work starts.</strong> Check balance ≥ 1, then insert <code>delta = -1, reason = &#39;run&#39;, run_id = X</code>.</li>
+<li><strong>Run the report.</strong></li>
+<li><strong>On success,</strong> do nothing.</li>
+<li><strong>On failure,</strong> insert <code>delta = +1, reason = &#39;refund&#39;, run_id = X</code>.</li>
+</ol>
+<div class="codewrap"><pre data-lang="ts"><code>export async function reserveCredit(userId: string, runId: string): Promise&lt;boolean&gt; {
+  // Atomic: only inserts if the current balance is at least 1.
+  const res = await db.query(
+    `INSERT INTO credits_ledger (user_id, delta, reason, run_id)
+     SELECT $1, -1, 'run', $2
+     WHERE (SELECT COALESCE(SUM(delta),0) FROM credits_ledger WHERE user_id = $1) &gt;= 1
+     RETURNING id`,
+    [userId, runId]
+  );
+  return res.rowCount === 1;
+}
+
+export async function refundCredit(userId: string, runId: string) {
+  await db.query(
+    `INSERT INTO credits_ledger (user_id, delta, reason, run_id)
+     VALUES ($1, +1, 'refund', $2)
+     ON CONFLICT DO NOTHING`,
+    [userId, runId]
+  );
+}</code></pre></div>
+<p>The <code>WHERE (SELECT SUM...) &gt;= 1</code> clause is what prevents negative balances under concurrency. Two simultaneous requests each see the balance inside the same statement; only one insert succeeds when the balance is exactly 1. Add a unique partial index on <code>(run_id, reason)</code> if you want to guarantee one refund per run.</p>
+<blockquote>
+<p><strong>Money-loss callout:</strong> Never take the user&#39;s word for their balance from the client. Always re-derive server-side inside the transaction that reserves the credit. A client that says &quot;I have 5 credits&quot; is a client that can say anything.</p>
+</blockquote>
+<h3 id="step-5-why-credits-beat-metered-billing-for-you">Step 5: Why credits beat metered billing for you</h3>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Prepaid credits</th>
+<th>Metered billing</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Cash flow</strong></td>
+<td>Money lands before you spend on LLM/API calls</td>
+<td>You front the cost, bill later, hope they pay</td>
+</tr>
+<tr>
+<td><strong>Disputes</strong></td>
+<td>&quot;You bought 3 credits and used 1&quot; is trivially explainable</td>
+<td>Usage disputes require logs both sides trust</td>
+</tr>
+<tr>
+<td><strong>Complexity</strong></td>
+<td>One integer ledger, one deduct/refund pair</td>
+<td>Metering, aggregation, thresholds, proration</td>
+</tr>
+<tr>
+<td><strong>Fraud exposure</strong></td>
+<td>Bounded to the pack size</td>
+<td>Unbounded until you notice</td>
+</tr>
+<tr>
+<td><strong>User psychology</strong></td>
+<td>Prepaid = &quot;I&#39;ve committed&quot;; lowers friction on price</td>
+<td>Usage anxiety can suppress adoption</td>
+</tr>
+</tbody></table>
+<p>For a solo dev whose marginal cost per run is real money, prepaid credits are the risk-managed choice. Metered billing is a later-stage optimization, not a starting point.</p>
+<hr>
+</section><section id="part-6--subscriptions-for-the-agency-tier"><h2 id="part-6--subscriptions-for-the-agency-tier">Part 6 — Subscriptions for the Agency Tier</h2>
+<h3 id="step-1-create-a-recurring-price">Step 1: Create a recurring Price</h3>
+<p>In the dashboard, create a Product (&quot;Agency — White Label&quot;) and a <strong>recurring</strong> Price (e.g. monthly). Recurring prices carry a <code>recurring: { interval: &#39;month&#39; }</code>. Copy the Price ID.</p>
+<div class="codewrap"><pre data-lang="bash"><code>STRIPE_PRICE_AGENCY_MONTHLY=price_...</code></pre></div>
+<h3 id="step-2-create-the-session-in-subscription-mode">Step 2: Create the Session in subscription mode</h3>
+<div class="codewrap"><pre data-lang="ts"><code>const checkout = await stripe.checkout.sessions.create({
+  mode: 'subscription', // required for recurring line items
+  line_items: [{ price: process.env.STRIPE_PRICE_AGENCY_MONTHLY!, quantity: 1 }],
+  metadata: { userId: session.user.id, kind: 'agency' },
+  customer_email: session.user.email ?? undefined,
+  subscription_data: {
+    metadata: { userId: session.user.id }, // so subscription webhooks can join too
+  },
+  success_url: `${origin}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+  cancel_url: `${origin}/pricing?canceled=1`,
+  allow_promotion_codes: true,
+});</code></pre></div>
+<p>Note the second <code>metadata</code> on <code>subscription_data</code>. Subscription and invoice webhooks carry <em>the subscription&#39;s</em> metadata, not the Checkout Session&#39;s. Set it in both places or your renewal handler won&#39;t know the user.</p>
+<h3 id="step-3-let-the-customer-portal-handle-lifecycle">Step 3: Let the customer portal handle lifecycle</h3>
+<p>Do not build your own cancel/update-card screens. Activate the Stripe customer portal in the dashboard and create a portal Session from your server:</p>
+<div class="codewrap"><pre data-lang="ts"><code>const portal = await stripe.billingPortal.sessions.create({
+  customer: stripeCustomerId,
+  return_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing`,
+});
+return NextResponse.json({ url: portal.url });</code></pre></div>
+<p>The portal covers card updates, invoice history, cancellation (immediate or period-end), and plan switching where configured. This is one of the highest-leverage &quot;don&#39;t build it&quot; decisions available to a solo dev.</p>
+<h3 id="step-4-understand-proration-and-trials">Step 4: Understand proration and trials</h3>
+<ul>
+<li><strong>Proration:</strong> when a plan changes mid-cycle, Stripe by default credits unused time and charges for the new plan, netting on the next invoice. This is configurable; understand the setting before you flip it, because it affects what customers see on their bill.</li>
+<li><strong>Trials:</strong> set <code>subscription_data.trial_period_days</code> on the Session to start a free trial. For a zero-dollar initial invoice, Checkout may not collect a payment method unless configured otherwise — see <code>search: Stripe Checkout free trials</code> before you promise &quot;no card required.&quot;</li>
+</ul>
+<h3 id="step-5-mirror-plan-state-without-trusting-the-dashboard">Step 5: Mirror plan state without trusting the dashboard</h3>
+<p>Your app should answer &quot;is this user an agency member?&quot; from your own table, kept in sync by webhooks — not by querying Stripe on every request and not by a manual toggle you might forget to flip.</p>
+<div class="codewrap"><pre data-lang="sql"><code>CREATE TABLE subscriptions (
+  stripe_subscription_id TEXT PRIMARY KEY,
+  user_id        UUID NOT NULL REFERENCES users(id),
+  status         TEXT NOT NULL,           -- active, trialing, past_due, canceled...
+  price_id       TEXT NOT NULL,
+  current_period_end TIMESTAMPTZ,
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);</code></pre></div>
+<div class="codewrap"><pre data-lang="ts"><code>export async function syncSubscriptionState(sub: Stripe.Subscription) {
+  const userId = sub.metadata?.userId;
+  if (!userId) return;
+  await db.query(
+    `INSERT INTO subscriptions
+       (stripe_subscription_id, user_id, status, price_id, current_period_end, updated_at)
+     VALUES ($1, $2, $3, $4, to_timestamp($5), now())
+     ON CONFLICT (stripe_subscription_id) DO UPDATE
+       SET status = EXCLUDED.status,
+           price_id = EXCLUDED.price_id,
+           current_period_end = EXCLUDED.current_period_end,
+           updated_at = now()`,
+    [
+      sub.id,
+      userId,
+      sub.status,
+      sub.items.data[0]?.price.id ?? '',
+      sub.items.data[0]?.current_period_end ?? 0,
+    ]
+  );
+}</code></pre></div>
+<p>Entitlement check becomes a local query: <code>status IN (&#39;active&#39;,&#39;trialing&#39;) AND current_period_end &gt; now()</code>.</p>
+<blockquote>
+<p><strong>This changes fast:</strong> field locations on Subscription/Invoice objects shift between API versions (e.g. where <code>current_period_end</code> lives). Pin your <code>apiVersion</code>, and when you upgrade, re-read the migration guide. Never silently run unversioned API calls in production.</p>
+</blockquote>
+<hr>
+</section><section id="part-7--failed-payments-dunning-and-refunds"><h2 id="part-7--failed-payments-dunning-and-refunds">Part 7 — Failed Payments, Dunning, and Refunds</h2>
+<h3 id="step-1-let-stripe-retry-then-act">Step 1: Let Stripe retry, then act</h3>
+<p>Stripe Billing performs smart retries on failed renewals. You do not write retry logic. You react:</p>
+<ul>
+<li><code>invoice.payment_failed</code> fires. Mark the subscription <code>past_due</code> in your DB and email the user. Give them a one-click link to the customer portal to fix their card.</li>
+<li>If retries succeed, <code>invoice.paid</code> fires and you restore <code>active</code>.</li>
+</ul>
+<h3 id="step-2-downgrade-gracefully-not-instantly">Step 2: Downgrade gracefully, not instantly</h3>
+<blockquote>
+<p><strong>Honesty note:</strong> Immediately revoking access on the first failed charge is a churn machine. Cards expire, banks hiccup, travelers get flagged. A short grace period — access retained while <code>past_due</code>, revoked after Stripe gives up and marks the subscription <code>canceled</code>/<code>unpaid</code> — recovers far more revenue than it costs.</p>
+</blockquote>
+<p>Practical shape:</p>
+<table>
+<thead>
+<tr>
+<th>Subscription status</th>
+<th>Your app&#39;s behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>active</code>, <code>trialing</code></td>
+<td>Full access</td>
+</tr>
+<tr>
+<td><code>past_due</code></td>
+<td>Full access + banner + email (&quot;update your card&quot;)</td>
+</tr>
+<tr>
+<td><code>canceled</code>, <code>unpaid</code>, <code>incomplete_expired</code></td>
+<td>Revoke agency features; keep data intact</td>
+</tr>
+</tbody></table>
+<p><code>customer.subscription.deleted</code> is your revocation trigger. Handle it, or canceled agencies keep white-label access forever.</p>
+<h3 id="step-3-refunds-and-credits-already-spent">Step 3: Refunds and credits already spent</h3>
+<p>Refunds are a money question and an accounting question, and they interact with your ledger:</p>
+<ul>
+<li>A refund reverses <em>cash</em>. It does <strong>not</strong> automatically reverse <em>credits</em>. If a user bought 3 credits, spent 2, and gets refunded, you now have a business decision, not a technical one.</li>
+<li>Sensible default: refund only for unspent credits, or refund the full amount while revoking the balance (set remaining balance to zero via a <code>delta</code> adjustment, never by deleting ledger rows).</li>
+<li>Never delete ledger history. Record a <code>refund_reversal</code> movement so the audit trail stays intact.</li>
+</ul>
+<div class="codewrap"><pre data-lang="ts"><code>// Revoke remaining credits as an explicit movement, not a deletion.
+await db.query(
+  `INSERT INTO credits_ledger (user_id, delta, reason, stripe_ref)
+   VALUES ($1, -$2, 'refund_reversal', $3)`,
+  [userId, remainingBalance, refundId]
+);</code></pre></div>
+<blockquote>
+<p><strong>Money-loss callout:</strong> Chargebacks (disputes) cost a fee per dispute on top of the reversed amount — Stripe&#39;s published US pricing as of September 2026 lists a $15.00 dispute fee, with a $15.00 countered fee for manually contested disputes (returned if you win, not if you lose). A single disputed $29 credit pack can cost you more than the sale was worth. This is precisely why prepaid credits and a clear, non-refundable-consumed-usage policy matter.</p>
+</blockquote>
+<hr>
+</section><section id="part-8--local-development-and-testing"><h2 id="part-8--local-development-and-testing">Part 8 — Local Development and Testing</h2>
+<h3 id="step-1-log-in-and-forward-webhooks">Step 1: Log in and forward webhooks</h3>
+<div class="codewrap"><pre data-lang="bash"><code>brew install stripe
+stripe login
+stripe listen --forward-to localhost:3000/api/stripe/webhook</code></pre></div>
+<p>The command prints a webhook signing secret beginning with <code>whsec_</code>. Put <strong>that</strong> value in <code>.env.local</code> for local dev — it is different from any dashboard endpoint&#39;s secret. Mixing them up is the #1 cause of local signature failures (see Troubleshooting).</p>
+<h3 id="step-2-trigger-events-without-clicking-through-checkout">Step 2: Trigger events without clicking through checkout</h3>
+<div class="codewrap"><pre data-lang="bash"><code>stripe trigger checkout.session.completed
+stripe trigger invoice.paid
+stripe trigger invoice.payment_failed
+stripe trigger customer.subscription.updated
+stripe trigger customer.subscription.deleted</code></pre></div>
+<p><code>stripe trigger</code> creates real test objects as side effects — expect extra Products, Customers, and Invoices in your sandbox. Use <code>--override</code> and <code>--add</code> to inject your own metadata when you need the handler to find a real <code>userId</code>:</p>
+<div class="codewrap"><pre data-lang="bash"><code>stripe trigger checkout.session.completed \
+  --add checkout_session:metadata.userId=&lt;your-uuid&gt; \
+  --add checkout_session:metadata.kind=credit_pack</code></pre></div>
+<h3 id="step-3-test-cards">Step 3: Test cards</h3>
+<table>
+<thead>
+<tr>
+<th>Card</th>
+<th>Purpose</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>4242 4242 4242 4242</code></td>
+<td>Success</td>
+<td>Any future expiry, any CVC</td>
+</tr>
+<tr>
+<td><code>4000 0000 0000 0002</code></td>
+<td>Generic decline</td>
+<td><code>card_declined</code> / <code>generic_decline</code></td>
+</tr>
+<tr>
+<td><code>4000 0000 0000 9995</code></td>
+<td>Insufficient funds</td>
+<td><code>insufficient_funds</code></td>
+</tr>
+<tr>
+<td><code>4000 0000 0000 3220</code></td>
+<td>3DS required, succeeds</td>
+<td>Forces an authentication challenge</td>
+</tr>
+<tr>
+<td><code>4000 0000 0000 0341</code></td>
+<td>Decline after attaching</td>
+<td>Card attaches to Customer, later charge fails</td>
+</tr>
+</tbody></table>
+<p>Use test API keys with test cards, always. Prefer <code>pm_card_visa</code> over raw numbers when writing code — Stripe explicitly notes that raw card numbers in server-side code can jeopardize PCI compliance later.</p>
+<h3 id="step-4-time-travel-subscriptions-with-test-clocks">Step 4: Time-travel subscriptions with test clocks</h3>
+<p>To test renewal, dunning, and cancellation without waiting a month, use Stripe&#39;s test clocks (Simulations). These let you advance a subscription&#39;s clock and observe how your webhook handling behaves at each stage. Exact commands vary by version; start with <code>search: Stripe test clocks simulate subscriptions</code> and the CLI reference for the current resource subcommands.</p>
+<blockquote>
+<p><strong>This changes fast:</strong> the Billing testing surfaces (Simulations / test clocks) were reorganized recently. Follow the docs rather than memorized commands.</p>
+</blockquote>
+<h3 id="step-5-watch-your-api-traffic">Step 5: Watch your API traffic</h3>
+<div class="codewrap"><pre data-lang="bash"><code>stripe logs tail</code></pre></div>
+<p>When an object isn&#39;t what you expect, this shows the actual request and response. It is the fastest debugger you own.</p>
+<hr>
+</section><section id="part-9--money-tax-and-compliance-honestly"><h2 id="part-9--money-tax-and-compliance-honestly">Part 9 — Money, Tax, and Compliance, Honestly</h2>
+<h3 id="step-1-know-your-fee-math">Step 1: Know your fee math</h3>
+<p>The following figures come from Stripe&#39;s public US pricing page as fetched in <strong>September 2026</strong>. Label them as such and <strong>verify on <a href="https://stripe.com/pricing" target="_blank" rel="noopener">stripe.com/pricing</a></strong> before you model anything.</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Published rate (US, dated September 2026)</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cards / wallets (domestic)</td>
+<td>2.9% + 30¢ per successful transaction</td>
+<td>Standard pricing</td>
+</tr>
+<tr>
+<td>International cards</td>
+<td>+1.5%</td>
+<td>On top of base</td>
+</tr>
+<tr>
+<td>Currency conversion</td>
+<td>+1%</td>
+<td>When conversion required</td>
+</tr>
+<tr>
+<td>Checkout</td>
+<td>Included with Payments</td>
+<td>No separate charge</td>
+</tr>
+<tr>
+<td>Payment Links</td>
+<td>Included with Payments</td>
+<td>Custom domain $10/mo if used</td>
+</tr>
+<tr>
+<td>Billing (subscriptions)</td>
+<td>0.7% of Billing volume (pay-as-you-go)</td>
+<td>Or from $620/mo on an annual contract</td>
+</tr>
+<tr>
+<td>Stripe Tax (Basic, no-code)</td>
+<td>0.5% per transaction where registered</td>
+<td>API integration: $0.50/transaction</td>
+</tr>
+<tr>
+<td>Disputes</td>
+<td>$15.00 received fee; $15.00 countered fee</td>
+<td>Returned if you win</td>
+</tr>
+<tr>
+<td>Managed Payments (merchant of record)</td>
+<td>3.5% per successful transaction in addition to Payments fees</td>
+<td>Stripe handles tax remittance</td>
+</tr>
+<tr>
+<td>Instant payouts</td>
+<td>1.5% of volume, 50¢ minimum</td>
+<td>Standard payouts are free</td>
+</tr>
+</tbody></table>
+<p><strong>The $5-product problem.</strong> On a $5.00 charge: 2.9% + 30¢ = $0.145 + $0.30 = <strong>$0.445</strong>, or <strong>8.9%</strong> of revenue. On a $79 charge: 2.9% + 30¢ = $2.291 + $0.30 = <strong>$2.591</strong>, or <strong>3.3%</strong>. Fixed fees punish small tickets. Your packs at $79 and $199 have healthy margin; a hypothetical $5 product would bleed. This is a pricing argument for packs over micro-purchases, not just a payments note.</p>
+<h3 id="step-2-tax--where-responsibility-actually-sits">Step 2: Tax — where responsibility actually sits</h3>
+<blockquote>
+<p><strong>Not legal, tax, or financial advice.</strong> Everything below is a technical summary. Tax obligations depend on your business location, your customers&#39; locations, what you sell, and thresholds you cross over time. Talk to an accountant.</p>
+</blockquote>
+<p>Key truths:</p>
+<ul>
+<li>Selling software services across borders can create sales-tax/VAT/GST registration obligations in multiple jurisdictions once you pass thresholds.</li>
+<li>Stripe Tax can <strong>calculate</strong> and collect tax based on customer location and product tax codes — but <strong>calculation is not compliance</strong>. You are still responsible for registering where required and filing.</li>
+<li>Stripe Tax offers threshold monitoring to alert you when you approach registration obligations. Use it as an early-warning system.</li>
+<li>If tax compliance is a burden you want fully offloaded, a <strong>Merchant of Record</strong> (Stripe&#39;s Managed Payments, Paddle, Lemon Squeezy) sells <em>to</em> the customer and remits tax on your behalf. That convenience costs more per transaction (Stripe&#39;s published Managed Payments rate is 3.5% on top of Payments fees as of September 2026 — verify).</li>
+<li>Because your product is a business tool sold B2B, some customers will want a <strong>VAT ID</strong> on their invoice and reverse-charge handling. Stripe Checkout can collect tax IDs; use it.</li>
+</ul>
+<h3 id="step-3-receipts-and-invoices">Step 3: Receipts and invoices</h3>
+<p>Stripe can email receipts automatically (toggle in dashboard settings). For post-payment invoices on one-time Checkout purchases, there is a published fee (0.4% on transaction total, $2.00 cap, as of September 2026 — verify). Confirm what your B2B customers need before enabling, because &quot;no invoice&quot; is a real purchasing blocker.</p>
+<hr>
+</section><section id="part-10--security-and-hardening"><h2 id="part-10--security-and-hardening">Part 10 — Security and Hardening</h2>
+<h3 id="step-1-keys">Step 1: Keys</h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Prefix</th>
+<th>Where it lives</th>
+<th>Exposure</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Publishable</td>
+<td><code>pk_</code></td>
+<td>Client code, fine to expose</td>
+<td>Low risk</td>
+</tr>
+<tr>
+<td>Secret</td>
+<td><code>sk_</code></td>
+<td>Server only, env vars</td>
+<td>Full API access — never expose</td>
+</tr>
+<tr>
+<td>Webhook signing secret</td>
+<td><code>whsec_</code></td>
+<td>Server only</td>
+<td>Lets you verify authenticity</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Security callout:</strong> Never commit keys. Never <code>NEXT_PUBLIC_</code> a secret key — that prefix ships it to every browser. Never paste a secret key into a screenshot, a Discord message, or an error report.</p>
+</blockquote>
+<h3 id="step-2-environment-handling-on-vercel">Step 2: Environment handling on Vercel</h3>
+<p>Set <code>STRIPE_SECRET_KEY</code> and <code>STRIPE_WEBHOOK_SECRET</code> as environment variables in the Vercel dashboard, scoped separately for Production and Preview. Use <code>.env.local</code> for local dev and keep it gitignored. Never put live keys in a Preview deployment that&#39;s publicly reachable.</p>
+<h3 id="step-3-restrict-key-permissions">Step 3: Restrict key permissions</h3>
+<p>Stripe supports restricted API keys. Create one that can do only what your app needs (e.g. Checkout Sessions, Customers, read Billing) instead of using the full secret key. If it leaks, the blast radius is bounded. See <code>search: Stripe restricted API keys</code>.</p>
+<h3 id="step-4-rate-limit-your-own-endpoints">Step 4: Rate-limit your own endpoints</h3>
+<p><code>/api/checkout</code> creates Stripe objects on every call. An attacker (or a retry loop) can spam it. Add per-user rate limiting, and require authentication. Your webhook endpoint should NOT be rate-limited in a way that makes Stripe&#39;s legitimate retries fail — protect it with signature verification instead.</p>
+<h3 id="step-5-you-never-touch-card-data">Step 5: You never touch card data</h3>
+<p>Checkout means card numbers go from the customer&#39;s browser to Stripe. They never transit your server, so they never land in your logs. If you ever <em>do</em> find a card number in a log line, treat it as an incident: rotate keys, purge the log, and figure out how it got there. This is the whole reason to use hosted Checkout rather than a homemade form.</p>
+<hr>
+</section><section id="part-11--a-worked-scenario-end-to-end"><h2 id="part-11--a-worked-scenario-end-to-end">Part 11 — A Worked Scenario, End to End</h2>
+<p>Everything so far, assembled. The path: <strong>free scan → email capture → $29 credit pack → webhook grants 1 credit → user generates a report → failure refunds the credit.</strong></p>
+<h3 id="step-1-free-scan-captures-the-email">Step 1: Free scan captures the email</h3>
+<p>The free instant scan runs, then asks for an email to send the results. That write creates (or finds) a user row. Nothing payment-related happens yet. The purpose is to have a <code>userId</code> before money enters the picture — because <code>metadata.userId</code> must point at a real row.</p>
+<h3 id="step-2-the-29-pack-is-a-stripe-price-not-a-number-in-your-code">Step 2: The $29 pack is a Stripe Price, not a number in your code</h3>
+<p>Create the Product and Price in the dashboard and store the Price ID in an env var. The pack&#39;s <em>content</em> (how many credits) lives in your code, keyed by the same server-resolved identity:</p>
+<div class="codewrap"><pre data-lang="ts"><code>// lib/packs.ts — the single source of truth for pack contents.
+export const PACKS = {
+  full_report: { credits: 1, kind: 'one_off_report' },
+  // extend later: pack_3: { credits: 3, kind: 'credit_pack' }
+} as const;</code></pre></div>
+<h3 id="step-3-session-creation--one-route-server-resolved">Step 3: Session creation — one route, server-resolved</h3>
+<div class="codewrap"><pre data-lang="ts"><code>// app/api/checkout/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { auth } from '@/lib/auth';
+import { PACKS } from '@/lib/packs';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-08-26' });
+
+export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const packKey = 'full_report' as const; // server decides; client cannot pass this
+  const { credits, kind } = PACKS[packKey];
+  const origin = process.env.NEXT_PUBLIC_APP_URL!;
+
+  const checkout = await stripe.checkout.sessions.create(
+    {
+      mode: 'payment',
+      line_items: [{ price: process.env.STRIPE_PRICE_FULL_REPORT!, quantity: 1 }],
+      metadata: {
+        userId: session.user.id,
+        kind,               // 'one_off_report'
+        credits: String(credits), // '1'
+      },
+      customer_email: session.user.email ?? undefined,
+      success_url: `${origin}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/scan?canceled=1`,
+    },
+    { idempotencyKey: `checkout:${session.user.id}:${packKey}:${Date.now()}` }
+  );
+
+  return NextResponse.json({ url: checkout.url });
+}</code></pre></div>
+<h3 id="step-4-the-webhook-grants-exactly-one-credit">Step 4: The webhook grants exactly one credit</h3>
+<div class="codewrap"><pre data-lang="ts"><code>// app/api/stripe/webhook/route.ts (excerpt — full route in Part 4)
+const isNew = await claimEvent(event.id, event.type);
+if (!isNew) return NextResponse.json({ received: true, duplicate: true });
+
+if (event.type === 'checkout.session.completed') {
+  const s = event.data.object as Stripe.Checkout.Session;
+  if (s.payment_status === 'paid' &amp;&amp; s.metadata?.userId) {
+    await grantCredits({
+      userId: s.metadata.userId,
+      credits: Number(s.metadata.credits ?? '1'),
+      reason: 'purchase',
+      stripeRef: s.id, // unique index prevents a second grant
+    });
+  }
+}
+return NextResponse.json({ received: true });</code></pre></div>
+<p>At this point the user&#39;s balance query returns <code>1</code>.</p>
+<h3 id="step-5-the-report-run-reserves-then-refunds-on-failure">Step 5: The report run reserves, then refunds on failure</h3>
+<div class="codewrap"><pre data-lang="ts"><code>// app/api/reports/route.ts (excerpt)
+const runId = crypto.randomUUID();
+
+const reserved = await reserveCredit(session.user.id, runId);
+if (!reserved) {
+  return NextResponse.json({ error: 'No credits remaining' }, { status: 402 });
+}
+
+try {
+  const report = await generateReport(/* ...LLM + APIs... */);
+  return NextResponse.json({ report, runId });
+} catch (err) {
+  await refundCredit(session.user.id, runId); // failure costs the user nothing
+  console.error('Report run failed, credit refunded', runId, err);
+  return NextResponse.json({ error: 'Generation failed' }, { status: 500 });
+}</code></pre></div>
+<h3 id="step-6-prove-it">Step 6: Prove it</h3>
+<div class="codewrap"><pre data-lang="sql"><code>-- Balance should be 0 after one consumed run
+SELECT COALESCE(SUM(delta), 0) FROM credits_ledger WHERE user_id = '...';</code></pre></div>
+<p>Re-deliver the same webhook (<code>stripe events resend &lt;event_id&gt; --webhook-endpoint=&lt;ep_id&gt;</code>) and confirm the balance does <strong>not</strong> change. That is the proof that idempotency holds. Run a report whose generator throws, and confirm the balance returns to <code>1</code>.</p>
+<hr>
+</section><section id="cheat-sheet"><h2 id="cheat-sheet">Cheat Sheet</h2>
+<h3 id="stripe-cli-commands-macos">Stripe CLI commands (macOS)</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>brew install stripe</code></td>
+<td>Install the CLI (Homebrew)</td>
+</tr>
+<tr>
+<td><code>brew upgrade stripe</code></td>
+<td>Update it</td>
+</tr>
+<tr>
+<td><code>stripe login</code></td>
+<td>Authenticate the CLI with your account</td>
+</tr>
+<tr>
+<td><code>stripe listen --forward-to localhost:3000/api/stripe/webhook</code></td>
+<td>Forward webhooks locally; prints your dev <code>whsec_</code></td>
+</tr>
+<tr>
+<td><code>stripe listen --events=checkout.session.completed</code></td>
+<td>Only forward specific events</td>
+</tr>
+<tr>
+<td><code>stripe trigger checkout.session.completed</code></td>
+<td>Fire a test event (creates test objects)</td>
+</tr>
+<tr>
+<td><code>stripe trigger invoice.payment_failed</code></td>
+<td>Simulate a failed renewal</td>
+</tr>
+<tr>
+<td><code>stripe logs tail</code></td>
+<td>Stream API request logs</td>
+</tr>
+<tr>
+<td><code>stripe events resend &lt;event_id&gt; --webhook-endpoint=&lt;ep_id&gt;</code></td>
+<td>Manually redeliver an event</td>
+</tr>
+</tbody></table>
+<h3 id="webhook-events-that-matter">Webhook events that matter</h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Use it for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>checkout.session.completed</code></td>
+<td>Grant credits / mark order fulfilled</td>
+</tr>
+<tr>
+<td><code>payment_intent.succeeded</code></td>
+<td>Secondary confirmation for direct PaymentIntents</td>
+</tr>
+<tr>
+<td><code>invoice.paid</code></td>
+<td>Subscription renewal succeeded</td>
+</tr>
+<tr>
+<td><code>invoice.payment_failed</code></td>
+<td>Start dunning / mark <code>past_due</code></td>
+</tr>
+<tr>
+<td><code>customer.subscription.updated</code></td>
+<td>Mirror plan/status changes</td>
+</tr>
+<tr>
+<td><code>customer.subscription.deleted</code></td>
+<td>Revoke agency entitlement</td>
+</tr>
+</tbody></table>
+<h3 id="test-cards">Test cards</h3>
+<table>
+<thead>
+<tr>
+<th>Card</th>
+<th>Scenario</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>4242 4242 4242 4242</code></td>
+<td>Success</td>
+</tr>
+<tr>
+<td><code>4000 0000 0000 0002</code></td>
+<td>Generic decline</td>
+</tr>
+<tr>
+<td><code>4000 0000 0000 9995</code></td>
+<td>Insufficient funds</td>
+</tr>
+<tr>
+<td><code>4000 0000 0000 3220</code></td>
+<td>3DS challenge, then success</td>
+</tr>
+<tr>
+<td><code>4000 0000 0000 0341</code></td>
+<td>Decline after customer attach</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Webhook returns <code>400</code>, log says <code>No signatures found matching the expected signature for payload</code></td>
+<td>Wrong endpoint secret, or the raw body was parsed/mutated</td>
+<td>Use <code>await req.text()</code> before <code>constructEvent</code>; confirm the <code>whsec_</code> matches the endpoint. For CLI-forwarded events, use the secret <code>stripe listen</code> printed, not the dashboard endpoint&#39;s.</td>
+</tr>
+<tr>
+<td>Duplicate credits for one purchase</td>
+<td>Processing the same <code>event.id</code> twice, or no idempotency on the grant</td>
+<td>Insert <code>event.id</code> into <code>stripe_events</code> with <code>ON CONFLICT DO NOTHING</code>; give <code>credits_ledger.stripe_ref</code> a unique index and use <code>ON CONFLICT DO NOTHING</code>.</td>
+</tr>
+<tr>
+<td>Local webhooks never arrive</td>
+<td><code>stripe listen</code> not running, wrong port, or route path typo</td>
+<td>Confirm the forward URL matches your route exactly (<code>/api/stripe/webhook</code>), keep <code>stripe listen</code> open in a VS Code terminal, and check for a 404 in its output.</td>
+</tr>
+<tr>
+<td>Test vs live key mix-up</td>
+<td><code>sk_test_</code> key with live <code>whsec_</code>, or live deployment using test keys</td>
+<td>Audit env vars per Vercel environment. Test key + test secret together; live with live. A live endpoint receiving test events will fail signature checks.</td>
+</tr>
+<tr>
+<td>Charge succeeds in Stripe but no entitlement in app</td>
+<td>Webhook endpoint failing (5xx) or not subscribed to the event</td>
+<td>Open Workbench → Webhooks → Event deliveries, check the status code, and confirm the endpoint subscribes to <code>checkout.session.completed</code>.</td>
+</tr>
+<tr>
+<td>Price / amount mismatch — charged the wrong amount</td>
+<td><code>unit_amount</code> wrong by 100×, or price edited in code without creating a new Price</td>
+<td>Prices are immutable; create a new Price and update the env var. Always store amounts in the smallest currency unit ($79.00 → <code>7900</code>).</td>
+</tr>
+<tr>
+<td>User got access without paying</td>
+<td>Value granted from <code>success_url</code> / client callback</td>
+<td>Move all granting into the verified webhook. The redirect must only render UI.</td>
+</tr>
+<tr>
+<td><code>customer.subscription.updated</code> handler can&#39;t find the user</td>
+<td>Metadata only set on the Checkout Session, not on <code>subscription_data</code></td>
+<td>Set <code>metadata.userId</code> on <code>subscription_data</code> as well, and on <code>payment_intent_data</code> if you create PaymentIntents directly.</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>No invented links — these are YouTube search pages. Pick the freshest result; Stripe&#39;s surface changes.</p>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Link</th>
+<th>Why watch</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Stripe Checkout with Next.js App Router</td>
+<td><a href="https://www.youtube.com/results?search_query=stripe+checkout+nextjs+app+router" target="_blank" rel="noopener">https://www.youtube.com/results?search_query=stripe+checkout+nextjs+app+router</a></td>
+<td>See the redirect + Route Handler pattern end to end</td>
+</tr>
+<tr>
+<td>Stripe webhooks with Next.js and signature verification</td>
+<td><a href="https://www.youtube.com/results?search_query=stripe+webhooks+nextjs+signature+verification" target="_blank" rel="noopener">https://www.youtube.com/results?search_query=stripe+webhooks+nextjs+signature+verification</a></td>
+<td>Raw-body handling, the exact bug that breaks verification</td>
+</tr>
+<tr>
+<td>Stripe CLI local webhook testing</td>
+<td><a href="https://www.youtube.com/results?search_query=stripe+cli+listen+local+webhooks" target="_blank" rel="noopener">https://www.youtube.com/results?search_query=stripe+cli+listen+local+webhooks</a></td>
+<td><code>stripe listen</code> workflow in a real terminal</td>
+</tr>
+<tr>
+<td>Stripe subscriptions and the customer portal</td>
+<td><a href="https://www.youtube.com/results?search_query=stripe+subscriptions+customer+portal+nextjs" target="_blank" rel="noopener">https://www.youtube.com/results?search_query=stripe+subscriptions+customer+portal+nextjs</a></td>
+<td>Recurring mode, portal sessions, lifecycle webhooks</td>
+</tr>
+<tr>
+<td>Stripe test clocks / simulations</td>
+<td><a href="https://www.youtube.com/results?search_query=stripe+test+clocks+simulate+subscriptions" target="_blank" rel="noopener">https://www.youtube.com/results?search_query=stripe+test+clocks+simulate+subscriptions</a></td>
+<td>Time-travel renewal and dunning tests</td>
+</tr>
+<tr>
+<td>Prepaid credits / usage-based billing design</td>
+<td><a href="https://www.youtube.com/results?search_query=prepaid+credits+billing+saas+architecture" target="_blank" rel="noopener">https://www.youtube.com/results?search_query=prepaid+credits+billing+saas+architecture</a></td>
+<td>Ledger patterns beyond Stripe&#39;s built-in objects</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--docs"><h2 id="written-references--docs">Written References &amp; Docs</h2>
+<p>Official Stripe and Next.js documentation only.</p>
+<ul>
+<li>Stripe docs home — <a href="https://docs.stripe.com" target="_blank" rel="noopener">https://docs.stripe.com</a></li>
+<li>Checkout — <a href="https://docs.stripe.com/payments/checkout" target="_blank" rel="noopener">https://docs.stripe.com/payments/checkout</a></li>
+<li>Fulfillment with Checkout Sessions — <a href="https://docs.stripe.com/checkout/fulfillment" target="_blank" rel="noopener">https://docs.stripe.com/checkout/fulfillment</a></li>
+<li>Webhooks overview — <a href="https://docs.stripe.com/webhooks" target="_blank" rel="noopener">https://docs.stripe.com/webhooks</a></li>
+<li>Webhook signature verification (and troubleshooting) — <a href="https://docs.stripe.com/webhooks/signature" target="_blank" rel="noopener">https://docs.stripe.com/webhooks/signature</a></li>
+<li>Idempotent requests — <a href="https://docs.stripe.com/api/idempotent_requests" target="_blank" rel="noopener">https://docs.stripe.com/api/idempotent_requests</a></li>
+<li>Testing (test cards, declines, 3DS) — <a href="https://docs.stripe.com/testing" target="_blank" rel="noopener">https://docs.stripe.com/testing</a></li>
+<li>Billing testing / test clocks (Simulations) — <a href="https://docs.stripe.com/billing/testing/test-clocks" target="_blank" rel="noopener">https://docs.stripe.com/billing/testing/test-clocks</a></li>
+<li>Stripe CLI — <a href="https://docs.stripe.com/stripe-cli" target="_blank" rel="noopener">https://docs.stripe.com/stripe-cli</a></li>
+<li>Customer portal — <a href="https://docs.stripe.com/customer-management" target="_blank" rel="noopener">https://docs.stripe.com/customer-management</a></li>
+<li>Stripe Tax — <a href="https://docs.stripe.com/tax" target="_blank" rel="noopener">https://docs.stripe.com/tax</a></li>
+<li>Stripe pricing — <a href="https://stripe.com/pricing" target="_blank" rel="noopener">https://stripe.com/pricing</a></li>
+<li>Checkout Session API — <a href="https://docs.stripe.com/api/checkout/sessions/create" target="_blank" rel="noopener">https://docs.stripe.com/api/checkout/sessions/create</a></li>
+<li>Next.js App Router Route Handlers — <a href="https://nextjs.org/docs/app/building-your-application/routing/route-handlers" target="_blank" rel="noopener">https://nextjs.org/docs/app/building-your-application/routing/route-handlers</a></li>
+<li>stripe-node webhook signing example (Next.js App Router) — <a href="https://github.com/stripe/stripe-node/blob/master/examples/webhook-signing/nextjs/app/api/webhooks/route.ts" target="_blank" rel="noopener">https://github.com/stripe/stripe-node/blob/master/examples/webhook-signing/nextjs/app/api/webhooks/route.ts</a></li>
+<li>Stripe code samples — <a href="https://github.com/stripe-samples" target="_blank" rel="noopener">https://github.com/stripe-samples</a></li>
+</ul>
+<p>If a link 404s after a Stripe docs reorganization, fall back to <code>search: &lt;term&gt; Stripe docs</code>.</p>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>PaymentIntent</strong></td>
+<td>Stripe object representing an attempt to collect a payment; has a <code>status</code></td>
+</tr>
+<tr>
+<td><strong>Checkout Session</strong></td>
+<td>A checkout attempt, hosted or embedded; carries <code>metadata</code> and produces events</td>
+</tr>
+<tr>
+<td><strong>Webhook</strong></td>
+<td>HTTP POST Stripe sends to your endpoint when an event occurs; signed via <code>Stripe-Signature</code></td>
+</tr>
+<tr>
+<td><strong>Signature verification</strong></td>
+<td>Confirming a webhook genuinely came from Stripe using the raw body, header, and <code>whsec_</code> secret</td>
+</tr>
+<tr>
+<td><strong>Idempotency key</strong></td>
+<td>Client-generated key that makes a retried request return the original result instead of repeating the operation</td>
+</tr>
+<tr>
+<td><strong>Dedupe</strong></td>
+<td>Skipping an already-processed webhook, keyed on <code>event.id</code></td>
+</tr>
+<tr>
+<td><strong>Price</strong></td>
+<td>Amount + currency + interval attached to a Product; immutable</td>
+</tr>
+<tr>
+<td><strong>Product</strong></td>
+<td>The thing you sell</td>
+</tr>
+<tr>
+<td><strong>Customer</strong></td>
+<td>Stripe&#39;s record of a buyer; holds saved payment methods</td>
+</tr>
+<tr>
+<td><strong>Subscription</strong></td>
+<td>Recurring agreement that renews on an interval</td>
+</tr>
+<tr>
+<td><strong>Invoice</strong></td>
+<td>A bill for a billing period; <code>invoice.paid</code> signals renewal success</td>
+</tr>
+<tr>
+<td><strong>Coupon</strong></td>
+<td>A discount definition applied at the amount level</td>
+</tr>
+<tr>
+<td><strong>Proration</strong></td>
+<td>Crediting unused time and charging for new time when a plan changes mid-cycle</td>
+</tr>
+<tr>
+<td><strong>Dunning</strong></td>
+<td>The process of recovering failed recurring payments</td>
+</tr>
+<tr>
+<td><strong>Test clock / Simulation</strong></td>
+<td>Mechanism to advance subscription time in a sandbox</td>
+</tr>
+<tr>
+<td><strong>Credits ledger</strong></td>
+<td>Your append-only table of credit movements; balance = SUM(delta)</td>
+</tr>
+<tr>
+<td><strong>Entitlement</strong></td>
+<td>What the user is allowed to do right now, derived from your DB</td>
+</tr>
+<tr>
+<td><strong>Merchant of Record</strong></td>
+<td>An entity that sells to the end customer and remits tax for you (e.g. Paddle, Lemon Squeezy, Stripe Managed Payments)</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Can I skip webhooks if I use Payment Links?</strong>
+You can, if you fulfill manually. That&#39;s Phase 0. The moment you want automatic credits, you need a webhook.</p>
+<p><strong>What if my webhook handler is slow (LLM call inside it)?</strong>
+Never run the report inside the webhook. Return <code>200</code> fast, write the ledger row, and let the user trigger the run from the app. Webhooks are for recording that money moved, not for doing work.</p>
+<p><strong>Do I need Elements for the agency tier&#39;s white-label branding?</strong>
+No. White-label means <em>your</em> brand on <em>their</em> reports. Checkout branding (logo, colors) plus a custom success page covers the payment side.</p>
+<p><strong>How do I test a failed renewal without waiting a month?</strong>
+Test clocks / Simulations. Also <code>stripe trigger invoice.payment_failed</code> for the handler logic alone.</p>
+<p><strong>Should I use metered billing for report runs?</strong>
+No — for a solo dev with real per-run costs, prepaid credits are simpler and safer (Part 5, Step 5).</p>
+<p><strong>How do I handle refunds after credits are spent?</strong>
+Refund cash at Stripe; record a <code>refund_reversal</code> movement in your ledger to zero the remaining balance. Never delete ledger rows.</p>
+<p><strong>Next steps for Chris:</strong></p>
+<ol>
+<li>Build the Phase 0 Payment Link + manual fulfillment this week. Sell one pack.</li>
+<li>Add hosted Checkout + the webhook route. Verify with <code>stripe listen</code> and a test card.</li>
+<li>Add the credits ledger and deduct-then-refund.</li>
+<li>Add the agency subscription + customer portal.</li>
+<li>Only then consider Elements or metered billing.</li>
+</ol>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p>Every endpoint, object, parameter, event name, CLI flag, and fee figure in this paper was cross-checked against Stripe&#39;s official documentation and pricing page in <strong>September 2026</strong>. Fee figures in particular move; the numbers in Part 9 are dated and should be re-checked on <a href="https://stripe.com/pricing" target="_blank" rel="noopener">stripe.com/pricing</a>. Where a detail could not be pinned down (notably the current Billing test-clock CLI surface, which was recently reorganized), this paper points you to the docs with a <code>search:</code> phrase rather than inventing a command. Nothing here is legal, tax, or financial advice — it is engineering guidance with honest boundaries.</p>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Business &amp; Billing</span> · 11 parts · ~31 min · Generated from <code>markdown_docs/08-stripe-billing-for-saas.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>

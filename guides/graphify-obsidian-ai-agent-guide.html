@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Agents + Graphify + Obsidian — Learning Center</title>
+<meta name="description" content="A practical, step-by-step reference for building a persistent knowledge graph that your AI agent can query — and that you can see, explore, and edit in Obsidian.">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="graphify-obsidian-ai-agent-guide">
+<header class="topbar">
+  <a class="homebtn" href="../index.html">⌂ Home</a>
+  <span class="brand">AI Agents + Graphify + Obsidian</span>
+  <button id="themeToggle" title="Toggle dark / light">🌙 Dark</button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--install-graphify" data-sec="part-1--install-graphify">Part 1 — Install Graphify</a><a href="#step-11--install-the-package" data-sec="step-11--install-the-package" class="sub">Step 1.1 — Install the package</a><a href="#step-12--verify-the-install" data-sec="step-12--verify-the-install" class="sub">Step 1.2 — Verify the install</a><a href="#step-13--manual-install-fallback-curl-method" data-sec="step-13--manual-install-fallback-curl-method" class="sub">Step 1.3 — Manual install (fallback, curl method)</a><a href="#part-2--build-your-first-knowledge-graph" data-sec="part-2--build-your-first-knowledge-graph">Part 2 — Build Your First Knowledge Graph</a><a href="#step-21--decide-what-goes-in" data-sec="step-21--decide-what-goes-in" class="sub">Step 2.1 — Decide what goes in</a><a href="#step-22--build-it" data-sec="step-22--build-it" class="sub">Step 2.2 — Build it</a><a href="#step-23--use-the-right-mode-for-the-job" data-sec="step-23--use-the-right-mode-for-the-job" class="sub">Step 2.3 — Use the right mode for the job</a><a href="#step-24--feed-it-from-the-outside" data-sec="step-24--feed-it-from-the-outside" class="sub">Step 2.4 — Feed it from the outside</a><a href="#part-3--understand-the-output" data-sec="part-3--understand-the-output">Part 3 — Understand the Output</a><a href="#part-4--set-up-obsidian" data-sec="part-4--set-up-obsidian">Part 4 — Set Up Obsidian</a><a href="#step-41--install-obsidian" data-sec="step-41--install-obsidian" class="sub">Step 4.1 — Install Obsidian</a><a href="#step-42--learn-the-three-core-features-this-stack-uses" data-sec="step-42--learn-the-three-core-features-this-stack-uses" class="sub">Step 4.2 — Learn the three core features this stack uses</a><a href="#step-43--community-plugins-the-ones-actually-worth-installing" data-sec="step-43--community-plugins-the-ones-actually-worth-installing" class="sub">Step 4.3 — Community plugins (the ones actually worth installing)</a><a href="#part-5--connect-obsidian-to-the-graph" data-sec="part-5--connect-obsidian-to-the-graph">Part 5 — Connect Obsidian to the Graph</a><a href="#step-51--pick-your-integration-pattern" data-sec="step-51--pick-your-integration-pattern" class="sub">Step 5.1 — Pick your integration pattern</a><a href="#step-52--open-it-standalone-pattern" data-sec="step-52--open-it-standalone-pattern" class="sub">Step 5.2 — Open it (Standalone pattern)</a><a href="#step-53--merge-it-quarantine-pattern" data-sec="step-53--merge-it-quarantine-pattern" class="sub">Step 5.3 — Merge it (Quarantine pattern)</a><a href="#step-54--what-to-look-at-first" data-sec="step-54--what-to-look-at-first" class="sub">Step 5.4 — What to look at first</a><a href="#part-6--connect-your-ai-agent-to-the-graph" data-sec="part-6--connect-your-ai-agent-to-the-graph">Part 6 — Connect Your AI Agent to the Graph</a><a href="#level-1--the-skill-already-done" data-sec="level-1--the-skill-already-done" class="sub">Level 1 — The skill (already done)</a><a href="#level-2--claudemd-awareness-30-seconds-big-payoff" data-sec="level-2--claudemd-awareness-30-seconds-big-payoff" class="sub">Level 2 — CLAUDE.md awareness (30 seconds, big payoff)</a><a href="#level-3--mcp-server-the-agent-gets-its-own-query-tools" data-sec="level-3--mcp-server-the-agent-gets-its-own-query-tools" class="sub">Level 3 — MCP server (the agent gets its own query tools)</a><a href="#part-7--let-your-ai-agent-readwrite-obsidian-directly" data-sec="part-7--let-your-ai-agent-readwrite-obsidian-directly">Part 7 — Let Your AI Agent Read/Write Obsidian Directly</a><a href="#step-71--install-the-plugin" data-sec="step-71--install-the-plugin" class="sub">Step 7.1 — Install the plugin</a><a href="#step-72--connect-claude-code" data-sec="step-72--connect-claude-code" class="sub">Step 7.2 — Connect Claude Code</a><a href="#step-73--what-the-agent-can-now-do" data-sec="step-73--what-the-agent-can-now-do" class="sub">Step 7.3 — What the agent can now do</a><a href="#part-8--keep-everything-fresh-automation" data-sec="part-8--keep-everything-fresh-automation">Part 8 — Keep Everything Fresh (Automation)</a><a href="#part-9--everyday-workflows--recipes" data-sec="part-9--everyday-workflows--recipes">Part 9 — Everyday Workflows &amp; Recipes</a><a href="#recipe-a--research-second-brain" data-sec="recipe-a--research-second-brain" class="sub">Recipe A — Research second brain</a><a href="#recipe-b--codebase-onboarding" data-sec="recipe-b--codebase-onboarding" class="sub">Recipe B — Codebase onboarding</a><a href="#recipe-c--meetingidea-capture" data-sec="recipe-c--meetingidea-capture" class="sub">Recipe C — Meeting/idea capture</a><a href="#recipe-d--the-wiki-for-agents-optional-extras" data-sec="recipe-d--the-wiki-for-agents-optional-extras" class="sub">Recipe D — The wiki for agents <em>(optional extras)</em></a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#table-of-contents" data-sec="table-of-contents">Table of Contents</a><a href="#what-youre-building-the-big-picture" data-sec="what-youre-building-the-big-picture">What You&#39;re Building (The Big Picture)</a><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#command-cheat-sheets" data-sec="command-cheat-sheets">Command Cheat Sheets</a><a href="#graphify-run-inside-claude-code-unless-noted" data-sec="graphify-run-inside-claude-code-unless-noted" class="sub">Graphify (run inside Claude Code unless noted)</a><a href="#obsidian-essentials" data-sec="obsidian-essentials" class="sub">Obsidian essentials</a><a href="#agent-connection-terminal" data-sec="agent-connection-terminal" class="sub">Agent connection (terminal)</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library-clickable-youtube-references" data-sec="video-library-clickable-youtube-references">Video Library (Clickable YouTube References)</a><a href="#written-references--repos" data-sec="written-references--repos">Written References &amp; Repos</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a></div>
+</nav>
+<main>
+<h1>AI Agents + Graphify + Obsidian</h1>
+<div class="callout lede"><strong>A practical, step-by-step reference for building a persistent knowledge graph that your AI agent can query — and that you can see, explore, and edit in Obsidian.</strong></div>
+<section id="table-of-contents"><h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#what-youre-building-the-big-picture">What You&#39;re Building (The Big Picture)</a></li>
+<li><a href="#the-60-second-version-tldr">The 60-Second Version (TL;DR)</a></li>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#part-1--install-graphify">Part 1 — Install Graphify</a></li>
+<li><a href="#part-2--build-your-first-knowledge-graph">Part 2 — Build Your First Knowledge Graph</a></li>
+<li><a href="#part-3--understand-the-output">Part 3 — Understand the Output</a></li>
+<li><a href="#part-4--set-up-obsidian">Part 4 — Set Up Obsidian</a></li>
+<li><a href="#part-5--connect-obsidian-to-the-graph">Part 5 — Connect Obsidian to the Graph</a></li>
+<li><a href="#part-6--connect-your-ai-agent-to-the-graph">Part 6 — Connect Your AI Agent to the Graph</a></li>
+<li><a href="#part-7--let-your-ai-agent-readwrite-obsidian-directly">Part 7 — Let Your AI Agent Read/Write Obsidian Directly</a></li>
+<li><a href="#part-8--keep-everything-fresh-automation">Part 8 — Keep Everything Fresh (Automation)</a></li>
+<li><a href="#part-9--everyday-workflows--recipes">Part 9 — Everyday Workflows &amp; Recipes</a></li>
+<li><a href="#command-cheat-sheets">Command Cheat Sheets</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#video-library-clickable-youtube-references">Video Library (Clickable YouTube References)</a></li>
+<li><a href="#written-references--repos">Written References &amp; Repos</a></li>
+<li><a href="#glossary">Glossary</a></li>
+<li><a href="#faq--next-steps">FAQ &amp; Next Steps</a></li>
+</ol>
+<hr>
+</section><section id="what-youre-building-the-big-picture"><h2 id="what-youre-building-the-big-picture">What You&#39;re Building (The Big Picture)</h2>
+<p>Three tools, three jobs. Each one does one thing well, and they snap together like this:</p>
+<div class="codewrap"><pre data-lang=""><code>┌─────────────────────┐        ┌─────────────────────┐        ┌─────────────────────┐
+│                      │        │                      │        │                      │
+│    YOUR FILES        │  ──►   │      GRAPHIFY        │  ──►   │      OBSIDIAN        │
+│  code · notes ·      │ builds │  Knowledge Graph     │ shows  │  You see, explore,   │
+│  papers · images     │        │  (graph.json)        │        │  and edit the graph  │
+│                      │        │                      │        │                      │
+└─────────────────────┘        └──────────┬───────────┘        └──────────▲───────────┘
+                                          │                               │
+                                          │        ┌─────────────────┐    │
+                                          │        │                  │    │
+                                          └───────►│   AI AGENT       │────┘
+                                   queries graph   │ (Claude Code /   │ reads &amp; writes
+                                   via MCP/skill   │  Cursor / etc.)  │ your vault
+                                                   │                  │
+                                                   └─────────────────┘</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Its Job</th>
+<th>Analogy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Graphify</strong></td>
+<td>Reads your files and builds a structured <strong>knowledge graph</strong> — nodes (concepts, functions, people) and edges (relationships).</td>
+<td>The librarian who reads everything and builds the card catalog.</td>
+</tr>
+<tr>
+<td><strong>Obsidian</strong></td>
+<td>A markdown note app that becomes the <strong>visual layer</strong> — the graph gets exported as interconnected notes you can browse, link, and edit.</td>
+<td>The map room — you walk the shelf and see how everything connects.</td>
+</tr>
+<tr>
+<td><strong>AI Agent</strong> (Claude Code, Cursor, etc.)</td>
+<td><strong>Queries</strong> the graph instead of re-reading all your files, and can <strong>act</strong> in your vault (create notes, append findings) via MCP.</td>
+<td>The research assistant who checks the catalog before burning energy reading every book.</td>
+</tr>
+</tbody></table>
+<p><strong>Why bother?</strong> Without a graph, an AI agent treats every question like a linear scan — grep tells it <em>where</em> something is. A knowledge graph tells it <em>why</em> something connects. Graphify benchmarks show <strong>~71.5× fewer tokens per query</strong> on a mixed corpus (code + papers + images) compared to the agent reading raw files. The graph also persists across sessions, and every edge is honestly tagged <code>EXTRACTED</code>, <code>INFERRED</code>, or <code>AMBIGUOUS</code> — so the agent (and you) always know what&#39;s fact vs. educated guess.</p>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<p>For those who just want the whole recipe up front:</p>
+<div class="codewrap"><pre data-lang="bash"><code># 1. Install (requires Claude Code + Python 3.10+)
+pip install graphifyy &amp;&amp; graphify install
+
+# 2. Open Claude Code in the folder you care about, then:
+/graphify .
+
+# 3. Open the output in Obsidian
+#    Obsidian → &quot;Open folder as vault&quot; → &lt;yourfolder&gt;/graphify-out/obsidian/
+
+# 4. (Optional power move) Serve the graph to your agent over MCP
+/graphify ./ --mcp</code></pre></div>
+<p>That&#39;s the spine of it. Everything below is the careful, explained version with options, plugins, and automation.</p>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<p>Check these off before you start — four items, all quick to get:</p>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Why</th>
+<th>How to Check / Get It</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Claude Code</strong> (or another supported agent)</td>
+<td>Graphify is installed <em>as a skill inside</em> the agent.</td>
+<td><a href="https://claude.ai/code" target="_blank" rel="noopener">claude.ai/code</a> — Graphify also works with Codex, OpenCode, Cursor, Gemini CLI, Copilot CLI, Aider, and Trae.</td>
+</tr>
+<tr>
+<td><strong>Python 3.10+</strong></td>
+<td>Graphify runs on Python.</td>
+<td>Run <code>python3 --version</code> in a terminal.</td>
+</tr>
+<tr>
+<td><strong>pip or pipx</strong></td>
+<td>To install the package.</td>
+<td>Comes with Python. On macOS/Linux, <code>pipx</code> is often smoother.</td>
+</tr>
+<tr>
+<td><strong>Obsidian</strong></td>
+<td>The visualization layer.</td>
+<td><a href="https://obsidian.md" target="_blank" rel="noopener">obsidian.md</a> — free for personal use.</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Note on the package name:</strong> On PyPI, the package is temporarily called <strong><code>graphifyy</code></strong> (double &quot;y&quot;) while the <code>graphify</code> name is being reclaimed. The CLI command and the skill command are still just <code>graphify</code> / <code>/graphify</code>. Don&#39;t let the spelling trip you up.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--install-graphify"><h2 id="part-1--install-graphify">Part 1 — Install Graphify</h2>
+<h3 id="step-11--install-the-package">Step 1.1 — Install the package</h3>
+<p>Pick the line that fits your system:</p>
+<div class="codewrap"><pre data-lang="bash"><code># Standard install (works for most people)
+pip install graphifyy &amp;&amp; graphify install</code></pre></div>
+<div class="codewrap"><pre data-lang="bash"><code># macOS — if pip fails with &quot;externally-managed-environment&quot;
+pipx install graphifyy &amp;&amp; graphify install</code></pre></div>
+<div class="codewrap"><pre data-lang="bash"><code># Windows — if 'graphify' is not recognized afterwards, add the Python
+# Scripts folder to your PATH, or just use pipx (handles PATH for you):
+pipx install graphifyy &amp;&amp; graphify install</code></pre></div>
+<p><strong>What did that do?</strong></p>
+<ul>
+<li><code>pip install graphifyy</code> — installs the graph-building engine (NetworkX + tree-sitter + graspologic + Claude extraction) locally. No server, no database, no Neo4j required.</li>
+<li><code>graphify install</code> — registers the <code>/graphify</code> <strong>skill</strong> into your AI agent (e.g., Claude Code&#39;s skills folder) so the slash command works everywhere.</li>
+</ul>
+<h3 id="step-12--verify-the-install">Step 1.2 — Verify the install</h3>
+<div class="codewrap"><pre data-lang="bash"><code>graphify --help</code></pre></div>
+<p>If you see the help text with flags like <code>--update</code>, <code>--watch</code>, <code>--mcp</code>, you&#39;re good.</p>
+<h3 id="step-13--manual-install-fallback-curl-method">Step 1.3 — Manual install (fallback, curl method)</h3>
+<p>If the pip route gives you trouble, you can install the skill file by hand:</p>
+<div class="codewrap"><pre data-lang="bash"><code>mkdir -p ~/.claude/skills/graphify
+curl -fsSL https://raw.githubusercontent.com/safishamsi/graphify/v1/skills/graphify/skill.md \
+  &gt; ~/.claude/skills/graphify/SKILL.md</code></pre></div>
+<p>Then add this block to your global <code>~/.claude/CLAUDE.md</code> so the agent knows when to trigger it:</p>
+<div class="codewrap"><pre data-lang="markdown"><code>- **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
+When the user types `/graphify`, invoke the Skill tool with `skill: &quot;graphify&quot;` before doing anything else.</code></pre></div>
+<hr>
+</section><section id="part-2--build-your-first-knowledge-graph"><h2 id="part-2--build-your-first-knowledge-graph">Part 2 — Build Your First Knowledge Graph</h2>
+<h3 id="step-21--decide-what-goes-in">Step 2.1 — Decide what goes in</h3>
+<p>Graphify is <strong>fully multimodal</strong>. It digests any mix of the following and connects them into one graph:</p>
+<table>
+<thead>
+<tr>
+<th>Input type</th>
+<th>Extensions</th>
+<th>How it&#39;s extracted</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Code</td>
+<td><code>.py .ts .js .go .rs .java .c .cpp .rb .cs .kt .scala .php</code></td>
+<td>AST parsing via tree-sitter + a call-graph pass</td>
+</tr>
+<tr>
+<td>Docs</td>
+<td><code>.md .txt .rst</code></td>
+<td>Concept + relationship extraction via the LLM</td>
+</tr>
+<tr>
+<td>Papers</td>
+<td><code>.pdf</code></td>
+<td>Citation mining + concept extraction</td>
+</tr>
+<tr>
+<td>Images</td>
+<td><code>.png .jpg .webp .gif</code></td>
+<td>Vision analysis (screenshots, diagrams, whiteboards — even non-English)</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The Karpathy pattern:</strong> The tool was designed around Andrej Karpathy&#39;s habit of keeping a <code>/raw</code> folder where he drops papers, tweets, screenshots, and notes. One folder for everything interesting, one command to make sense of it. Creating your own <code>raw/</code> drop-folder is a great way to start.</p>
+</blockquote>
+<h3 id="step-22--build-it">Step 2.2 — Build it</h3>
+<p>Open Claude Code <strong>in the directory you want to graph</strong> (or point at one), and run:</p>
+<div class="codewrap"><pre data-lang=""><code>/graphify .</code></pre></div>
+<p>That&#39;s it. Graphify will scan the files, extract nodes and edges, cluster them into communities, and write its output into a new <code>graphify-out/</code> folder. When it finishes, it prints a <strong>token benchmark</strong> showing how many fewer tokens queries cost now.</p>
+<blockquote>
+<p><strong>💰 Know before you build:</strong> the <em>extraction</em> step uses the Claude API, so a first build on a big corpus spends real tokens (docs, PDFs, and images especially — code is mostly parsed cheaply via tree-sitter). Two mitigations: start with a <strong>small test folder</strong> to gauge quality and cost, and rely on <code>--update</code> afterward — incremental runs only re-process changed files, and code rebuilds in <code>--watch</code> mode are AST-only (no LLM at all). Queries <em>from</em> the graph are where you save; the build is the one-time-ish investment.</p>
+</blockquote>
+<blockquote>
+<p><strong>About that 71.5× number:</strong> it&#39;s Graphify&#39;s own benchmark on their worked example corpus (52 mixed files). It&#39;s directionally honest — savings scale with corpus size — but treat it as marketing-grade, not a guarantee. Your numbers will depend on what you feed it.</p>
+</blockquote>
+<h3 id="step-23--use-the-right-mode-for-the-job">Step 2.3 — Use the right mode for the job</h3>
+<div class="codewrap"><pre data-lang=""><code>/graphify ./raw                  # graph a specific folder (e.g., your raw drop-zone)
+/graphify ./raw --mode deep     # more aggressive INFERRED edge extraction (richer, slower)
+/graphify ./raw --update        # only re-process files that changed, merge into the graph</code></pre></div>
+<p>The <code>--update</code> flag matters most as you iterate: a SHA256 cache lives in <code>graphify-out/cache/</code>, so re-runs skip unchanged files. Builds get cheaper over time.</p>
+<h3 id="step-24--feed-it-from-the-outside">Step 2.4 — Feed it from the outside</h3>
+<p>You don&#39;t have to have files locally. You can pull sources straight in:</p>
+<div class="codewrap"><pre data-lang=""><code>/graphify add https://arxiv.org/abs/1706.03762     # fetch + save a paper, update graph
+/graphify add https://x.com/karpathy/status/...    # fetch + save a tweet, update graph</code></pre></div>
+<hr>
+</section><section id="part-3--understand-the-output"><h2 id="part-3--understand-the-output">Part 3 — Understand the Output</h2>
+<p>Every build produces the same folder structure. Know what each piece is for:</p>
+<div class="codewrap"><pre data-lang=""><code>graphify-out/
+├── graph.html       # Interactive graph in your browser — click nodes, search,
+│                    # filter by community. Zero setup, just double-click it.
+├── obsidian/        # A ready-made Obsidian vault (open this folder in Obsidian)
+├── wiki/            # Wikipedia-style articles per community (with --wiki)
+├── GRAPH_REPORT.md  # The headline analysis — read this first
+├── graph.json       # The persistent graph itself. Query weeks later, no re-read.
+└── cache/           # SHA256 cache — re-runs only process changed files</code></pre></div>
+<p><strong>Read <code>GRAPH_REPORT.md</code> first.</strong> It gives you three things:</p>
+<ol>
+<li><strong>God nodes</strong> — the highest-degree concepts everything routes through. In a codebase this might be your core class; in research notes, the central theory.</li>
+<li><strong>Surprising connections</strong> — edges ranked by a composite score. Cross-type edges (code ↔ paper) rank above same-type ones, and each comes with a plain-English <em>why</em>.</li>
+<li><strong>Suggested questions</strong> — 4–5 questions the graph is uniquely positioned to answer. Great starting prompts for your agent.</li>
+</ol>
+<p><strong>The honesty system.</strong> Every edge is tagged:</p>
+<table>
+<thead>
+<tr>
+<th>Tag</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>EXTRACTED</code></td>
+<td>Directly found in a file (a call, a citation, an explicit mention)</td>
+</tr>
+<tr>
+<td><code>INFERRED</code></td>
+<td>Reasoned out by the model — likely true, not guaranteed</td>
+</tr>
+<tr>
+<td><code>AMBIGUOUS</code></td>
+<td>Signals conflicted — surfaced deliberately rather than hidden</td>
+</tr>
+</tbody></table>
+<p>When your agent answers from the graph, it can cite which tag each claim rests on. That&#39;s a meaningful hallucination guardrail.</p>
+<hr>
+</section><section id="part-4--set-up-obsidian"><h2 id="part-4--set-up-obsidian">Part 4 — Set Up Obsidian</h2>
+<h3 id="step-41--install-obsidian">Step 4.1 — Install Obsidian</h3>
+<p>Download from <a href="https://obsidian.md" target="_blank" rel="noopener">obsidian.md</a>. Install, launch, skip any vault creation for now — Graphify will hand you a vault in the next section.</p>
+<h3 id="step-42--learn-the-three-core-features-this-stack-uses">Step 4.2 — Learn the three core features this stack uses</h3>
+<p>These are <strong>built into Obsidian</strong> — no plugins needed:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>What it does</th>
+<th>How to open it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Graph view</strong></td>
+<td>Renders your whole vault as an interactive node network. Color by cluster, filter by tag, zoom into neighborhoods.</td>
+<td>Ribbon icon, or <code>Ctrl/Cmd + G</code></td>
+</tr>
+<tr>
+<td><strong>Backlinks / Outgoing links</strong></td>
+<td>Sidebar panels showing every note that links to (and from) the current one — this is how you <em>walk</em> the graph by hand.</td>
+<td>Right sidebar</td>
+</tr>
+<tr>
+<td><strong>Canvas</strong></td>
+<td>An infinite board for laying out notes spatially. Graphify&#39;s export includes a Canvas layout of the graph communities.</td>
+<td>Ribbon icon → &quot;Create new canvas&quot;</td>
+</tr>
+</tbody></table>
+<h3 id="step-43--community-plugins-the-ones-actually-worth-installing">Step 4.3 — Community plugins (the ones actually worth installing)</h3>
+<p>Obsidian&#39;s community plugins are off by default. To enable them: <code>Settings → Community plugins → Turn on community plugins</code>. Then browse and install:</p>
+<table>
+<thead>
+<tr>
+<th>Plugin</th>
+<th>Priority</th>
+<th>Why you want it for this stack</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Dataview</strong></td>
+<td>⭐ Essential</td>
+<td>Graphify&#39;s Obsidian export ships notes with YAML frontmatter (type, community, etc.). Dataview turns that frontmatter into live queryable tables — e.g., &quot;show me every INFERRED edge&quot; or &quot;list all nodes in community 3&quot;.</td>
+</tr>
+<tr>
+<td><strong>Local REST API with MCP</strong></td>
+<td>⭐ Essential (for Part 7)</td>
+<td>Lets your AI agent read, write, and search your vault directly from <em>inside</em> Obsidian. This is the bridge that makes the loop fully two-way. Details in Part 7.</td>
+</tr>
+<tr>
+<td><strong>Templater</strong></td>
+<td>Recommended</td>
+<td>Auto-format new notes the agent creates so they match your frontmatter conventions.</td>
+</tr>
+<tr>
+<td><strong>Excalidraw</strong></td>
+<td>Optional</td>
+<td>Hand-sketch diagrams that Graphify can later read as images and fold into the graph. Nice feedback loop.</td>
+</tr>
+<tr>
+<td><strong>Smart Connections</strong></td>
+<td>Optional</td>
+<td>AI-powered semantic search <em>inside</em> Obsidian. Redundant with the graph for some workflows, but handy for quick fuzzy &quot;what did I write about X?&quot; lookups.</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Rule of thumb:</strong> You strictly need <strong>zero</strong> plugins to view the graph (Graph view + Canvas are core). Add <strong>Dataview</strong> and <strong>Local REST API with MCP</strong> the moment you want queries and agent write-access.</p>
+</blockquote>
+<hr>
+</section><section id="part-5--connect-obsidian-to-the-graph"><h2 id="part-5--connect-obsidian-to-the-graph">Part 5 — Connect Obsidian to the Graph</h2>
+<p>This is the moment the abstract graph becomes something you can <em>walk around in</em>. Every build already creates <code>graphify-out/obsidian/</code> — a folder formatted as an Obsidian vault: one markdown note per graph node, <code>[[wikilinks]]</code> for every edge, YAML frontmatter, Dataview-ready queries, and a Canvas layout.</p>
+<h3 id="step-51--pick-your-integration-pattern">Step 5.1 — Pick your integration pattern</h3>
+<p>There are four patterns. Pick one <strong>before</strong> you open anything:</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>How it works</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Standalone vault</strong></td>
+<td>Open <code>graphify-out/obsidian/</code> as its own separate vault. Graph notes never touch your personal notes.</td>
+<td>First-timers. Safest, zero risk.</td>
+</tr>
+<tr>
+<td><strong>Quarantine dump</strong> ⭐</td>
+<td>Copy <code>graphify-out/obsidian/</code> into your main vault as a single subfolder (e.g., <code>Graph/</code>). All graph notes live in one deletable folder.</td>
+<td>The recommended starting point once you want everything in one vault.</td>
+</tr>
+<tr>
+<td><strong>Selective harvest</strong></td>
+<td>Have the AI agent cherry-pick only the relevant nodes into your existing folders.</td>
+<td>Large graphs where most nodes don&#39;t matter to you.</td>
+</tr>
+<tr>
+<td><strong>Redistribution</strong></td>
+<td>The agent re-files graph nodes into your existing folder taxonomy (PARA, etc.), merging with your notes.</td>
+<td>Advanced; after you trust the graph quality.</td>
+</tr>
+</tbody></table>
+<h3 id="step-52--open-it-standalone-pattern">Step 5.2 — Open it (Standalone pattern)</h3>
+<ol>
+<li>Launch Obsidian → <strong>&quot;Open folder as vault&quot;</strong></li>
+<li>Select <code>&lt;your project&gt;/graphify-out/obsidian/</code></li>
+<li>Trust the author when prompted (enables Dataview queries if bundled)</li>
+<li>Press <code>Ctrl/Cmd + G</code> → you&#39;re looking at your knowledge graph, live</li>
+</ol>
+<h3 id="step-53--merge-it-quarantine-pattern">Step 5.3 — Merge it (Quarantine pattern)</h3>
+<div class="codewrap"><pre data-lang="bash"><code># Copy the exported vault into your main vault as one folder
+cp -r /path/to/project/graphify-out/obsidian /path/to/your-main-vault/Graph</code></pre></div>
+<p>Then in your main vault, open <strong>Graph view</strong> and filter by <code>path:Graph</code> to see just the imported network, or open the Graph folder&#39;s Canvas for the community map.</p>
+<p><strong>Why quarantine first?</strong> Every node becomes a real markdown note. If the extraction disappointed you, you delete one folder and you&#39;re clean. Promote individual notes into your permanent folders only after they&#39;ve earned it.</p>
+<blockquote>
+<p><strong>⚠️ The one real gotcha of this pattern:</strong> the export is a <strong>snapshot</strong>, and re-importing is destructive. If you edit, annotate, or re-link notes inside the <code>Graph/</code> folder and then re-copy a fresh export over it later, <strong>your edits are overwritten</strong>. Rule of thumb: treat notes inside the quarantine folder as read-only reference. Notes you care about → promote them <em>out</em> of <code>Graph/</code> into your permanent folders first, then refresh the export freely. (Some Graphify versions include migration/update workflows like <code>vault-promote</code> with merge semantics — check <code>graphify --help</code> and the README for what your version supports before hand-rolling this.)</p>
+</blockquote>
+<h3 id="step-54--what-to-look-at-first">Step 5.4 — What to look at first</h3>
+<ol>
+<li><p>The <strong>Canvas file</strong> — Graphify lays out communities spatially. Start here for the bird&#39;s-eye view.</p>
+</li>
+<li><p>The <strong>god-node notes</strong> — they have the most links; open one and browse its <strong>Backlinks</strong> panel to walk the graph.</p>
+</li>
+<li><p>Run a <strong>Dataview query</strong> (once the plugin is on) like:</p>
+<div class="codewrap"><pre data-lang=""><code>```dataview
+TABLE community, edge_type
+FROM &quot;Graph&quot;
+WHERE edge_type = &quot;INFERRED&quot;
+```</code></pre></div>
+<p><em>(Illustrative — the exact frontmatter fields depend on your Graphify version. Open any exported note and look at its <code>---</code> frontmatter block to see the real field names, then adjust the query to match.)</em></p>
+</li>
+</ol>
+<hr>
+</section><section id="part-6--connect-your-ai-agent-to-the-graph"><h2 id="part-6--connect-your-ai-agent-to-the-graph">Part 6 — Connect Your AI Agent to the Graph</h2>
+<p>There are <strong>three levels</strong> of agent-graph connection. Go as deep as you need.</p>
+<h3 id="level-1--the-skill-already-done">Level 1 — The skill (already done)</h3>
+<p>You already have this: <code>/graphify query</code>, <code>/graphify path</code>, <code>/graphify explain</code> run inside Claude Code. The skill reads <code>graph.json</code> and answers without re-scanning your files.</p>
+<div class="codewrap"><pre data-lang=""><code>/graphify query &quot;what connects the auth module to the retry logic?&quot;
+/graphify path &quot;DigestAuth&quot; &quot;Response&quot;
+/graphify explain &quot;SwinTransformer&quot;</code></pre></div>
+<h3 id="level-2--claudemd-awareness-30-seconds-big-payoff">Level 2 — CLAUDE.md awareness (30 seconds, big payoff)</h3>
+<p>Tell the agent the graph exists so it reaches for it <strong>by default</strong> instead of grepping. Add to your project&#39;s <code>CLAUDE.md</code>:</p>
+<div class="codewrap"><pre data-lang="markdown"><code>## Knowledge Graph
+
+This project has a pre-built knowledge graph at `graphify-out/graph.json`
+(report: `graphify-out/GRAPH_REPORT.md`, vault: `graphify-out/obsidian/`).
+
+Before grep-reading source files to answer structural or &quot;what connects X to Y&quot;
+questions, query the graph first via the graphify skill. Edge tags EXTRACTED /
+INFERRED / AMBIGUOUS indicate confidence — cite them in answers.</code></pre></div>
+<p>This one block changes agent behavior permanently: graph-first, files-second.</p>
+<h3 id="level-3--mcp-server-the-agent-gets-its-own-query-tools">Level 3 — MCP server (the agent gets its own query tools)</h3>
+<p><strong>MCP (Model Context Protocol)</strong> is the standard way to give an AI agent a set of callable tools. Here it means: the agent can call <code>query_graph</code>, <code>find_path</code>, etc. as structured tools, getting answers in milliseconds without loading any files into its context.</p>
+<h4 id="option-a--graphifys-built-in-server">Option A — Graphify&#39;s built-in server</h4>
+<div class="codewrap"><pre data-lang=""><code>/graphify ./ --mcp</code></pre></div>
+<p>or directly:</p>
+<div class="codewrap"><pre data-lang="bash"><code>python -m graphify.serve graphify-out/graph.json</code></pre></div>
+<p>This exposes tools like <code>query_graph</code>, <code>get_node</code>, <code>get_neighbors</code>, <code>get_community</code>, <code>god_nodes</code>, <code>graph_stats</code>, and <code>shortest_path</code> over MCP stdio. To register it with Claude Code as a persistent server instead of running it ad-hoc:</p>
+<div class="codewrap"><pre data-lang="bash"><code>claude mcp add graphify -- python -m graphify.serve /absolute/path/to/graphify-out/graph.json</code></pre></div>
+<p>Then restart Claude Code and confirm with <code>claude mcp list</code>. (Same registration pattern works for other MCP-capable agents via their config files.)</p>
+<h4 id="option-b--the-dedicated-query-server-graph-query-mcp">Option B — The dedicated query server (graph-query-mcp)</h4>
+<p>A community companion purpose-built for graphify graphs in Obsidian vaults. The differences that matter: it <strong>loads the graph once at startup</strong> (answers in &lt;50ms), never spills the graph into context, and supports <strong>two scopes</strong> — e.g., a personal vault graph and a team vault graph queried by name.</p>
+<p>Install it as a Claude Code plugin — open Claude Code and paste:</p>
+<div class="codewrap"><pre data-lang=""><code>/plugin marketplace add adelaidasofia/graph-query-mcp
+/plugin install graph-query-mcp@graph-query-mcp</code></pre></div>
+<blockquote>
+<p><strong>🔌 Telemetry disclosure (worth knowing before installing):</strong> per its own README, this plugin sends a <strong>single anonymous install ping</strong> (plugin name + version only — no user data, paths, or content) to the maintainer&#39;s domain the first time it loads on a machine. To opt out entirely, set the environment variable <code>MYCELIUM_NO_PING=1</code> before launching Claude Code. Graphify itself sends nothing of the sort; this is specific to this third-party companion.</p>
+</blockquote>
+<p>Then point it at your graph via environment variables:</p>
+<table>
+<thead>
+<tr>
+<th>Env var</th>
+<th>Points to</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GRAPH_JSON_PATH</code></td>
+<td>Your primary graph: <code>.../Meta/graphify-out/graph.json</code></td>
+</tr>
+<tr>
+<td><code>SECONDARY_GRAPH_JSON_PATH</code></td>
+<td>Optional second graph (e.g., team vault)</td>
+</tr>
+</tbody></table>
+<p>Legacy/manual registration in <code>.mcp.json</code> looks like:</p>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;mcpServers&quot;: {
+    &quot;graph-query&quot;: {
+      &quot;type&quot;: &quot;stdio&quot;,
+      &quot;command&quot;: &quot;fastmcp&quot;,
+      &quot;args&quot;: [&quot;run&quot;, &quot;/Users/YOU/.claude/graph-query-mcp/server.py&quot;],
+      &quot;env&quot;: {
+        &quot;GRAPH_JSON_PATH&quot;: &quot;/path/to/your/vault/graphify-out/graph.json&quot;
+      }
+    }
+  }
+}</code></pre></div>
+<p>Restart the agent, then <code>claude mcp list</code> should show it connected.</p>
+<p><strong>The tools your agent gets via graph-query-mcp:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it answers</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>search_nodes(query)</code></td>
+<td>&quot;Find nodes named roughly like this&quot; (fuzzy)</td>
+</tr>
+<tr>
+<td><code>get_neighbors(node, max_hops)</code></td>
+<td>&quot;What&#39;s connected to X, within N hops?&quot;</td>
+</tr>
+<tr>
+<td><code>find_path(source, target)</code></td>
+<td>&quot;How do A and B relate?&quot; — shortest path</td>
+</tr>
+<tr>
+<td><code>get_top_nodes(n)</code></td>
+<td>&quot;What are the god nodes?&quot;</td>
+</tr>
+<tr>
+<td><code>query_subgraph(concepts)</code></td>
+<td>&quot;Show me the neighborhood around these ideas&quot;</td>
+</tr>
+<tr>
+<td><code>get_node_info(node)</code></td>
+<td>Full metadata + top neighbors for one node</td>
+</tr>
+<tr>
+<td><code>get_community_members(node)</code></td>
+<td>&quot;What else is in X&#39;s cluster?&quot;</td>
+</tr>
+</tbody></table>
+<p>Now instead of <em>&quot;grep the codebase and guess,&quot;</em> your agent calls <code>find_path(&quot;LoginFlow&quot;, &quot;StripeWebhook&quot;)</code> and gets the actual chain of relationships, with tags.</p>
+<hr>
+</section><section id="part-7--let-your-ai-agent-readwrite-obsidian-directly"><h2 id="part-7--let-your-ai-agent-readwrite-obsidian-directly">Part 7 — Let Your AI Agent Read/Write Obsidian Directly</h2>
+<p>Part 6 let the agent <em>query the graph</em>. This part lets it <em>act in your vault</em>: create notes from findings, append session summaries, file new sources. The bridge is the <strong>Local REST API with MCP</strong> community plugin (by Adam Coddington), which runs an MCP server <em>inside Obsidian itself</em>.</p>
+<h3 id="step-71--install-the-plugin">Step 7.1 — Install the plugin</h3>
+<ol>
+<li>Obsidian → <code>Settings → Community plugins → Browse</code></li>
+<li>Search <strong>&quot;Local REST API&quot;</strong> → Install → Enable</li>
+<li>Open the plugin&#39;s settings and <strong>copy your API key</strong></li>
+</ol>
+<p>The server runs at <code>https://127.0.0.1:27124/mcp/</code> — entirely local, nothing leaves your machine, and it only ever touches the currently open vault.</p>
+<h3 id="step-72--connect-claude-code">Step 7.2 — Connect Claude Code</h3>
+<div class="codewrap"><pre data-lang="bash"><code>claude mcp add --transport http obsidian https://127.0.0.1:27124/mcp/ \
+  --header &quot;Authorization: Bearer YOUR-API-KEY-HERE&quot;</code></pre></div>
+<p>(Cursor and other MCP-capable tools use the same URL + header pattern in their MCP config files.)</p>
+<h3 id="step-73--what-the-agent-can-now-do">Step 7.3 — What the agent can now do</h3>
+<p>The plugin exposes tools including <code>vault_read</code>, <code>vault_write</code>, <code>vault_append</code>, <code>vault_patch</code> (surgical edits by heading/frontmatter), <code>vault_delete</code>, <code>search_query</code>, <code>command_execute</code> (trigger any Obsidian command!), and more.</p>
+<p>That completes the full loop:</p>
+<div class="codewrap"><pre data-lang=""><code>You drop a paper in raw/  →  /graphify ./raw --update  →  graph refreshes
+        →  agent answers from the graph (MCP query)
+        →  agent writes its summary back into a vault note (MCP write)
+        →  you see it in Obsidian, linked into the graph</code></pre></div>
+<hr>
+</section><section id="part-8--keep-everything-fresh-automation"><h2 id="part-8--keep-everything-fresh-automation">Part 8 — Keep Everything Fresh (Automation)</h2>
+<p>A stale graph is a lying graph. Three automation layers, mix and match:</p>
+<table>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>Command</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Manual incremental</strong></td>
+<td><code>/graphify ./raw --update</code></td>
+<td>Re-processes only files whose SHA256 changed; merges into the existing graph. Your everyday refresh.</td>
+</tr>
+<tr>
+<td><strong>Watch mode</strong></td>
+<td><code>/graphify ./raw --watch</code></td>
+<td>Background terminal process. Code saves trigger an instant AST-only rebuild (no LLM cost); doc/image changes notify you to run <code>--update</code>. Great when multiple agents are writing code in parallel.</td>
+</tr>
+<tr>
+<td><strong>Git hook</strong></td>
+<td><code>graphify hook install</code></td>
+<td>Installs a post-commit hook that rebuilds the graph on every commit. No background process, editor-agnostic, coexists with existing hooks.</td>
+</tr>
+</tbody></table>
+<p><strong>Suggested cadence:</strong></p>
+<ul>
+<li>Solo note/research vault → <code>--update</code> whenever you add a batch of sources.</li>
+<li>Active codebase → <code>graphify hook install</code> once, forget about it.</li>
+<li>Multi-agent coding sessions → <code>--watch</code> in a spare terminal tab.</li>
+</ul>
+<p>If you imported the graph into Obsidian (Part 5), remember that the <strong>vault export is a snapshot</strong> — re-copy the <code>obsidian/</code> folder after big updates (or delete the old <code>Graph/</code> folder and re-import) to bring Obsidian current. And mind the warning in Part 5: re-importing <strong>overwrites any edits you made inside the graph folder</strong> — promote notes you care about out of the quarantine folder before refreshing.</p>
+<hr>
+</section><section id="part-9--everyday-workflows--recipes"><h2 id="part-9--everyday-workflows--recipes">Part 9 — Everyday Workflows &amp; Recipes</h2>
+<h3 id="recipe-a--research-second-brain">Recipe A — Research second brain</h3>
+<ol>
+<li>Drop papers/articles/screenshots into <code>raw/</code> as you encounter them</li>
+<li><code>/graphify ./raw --update</code></li>
+<li>Open the vault in Obsidian; check the Canvas for new clusters</li>
+<li>Ask the agent: <em>&quot;What in my graph relates to X?&quot;</em> → it calls <code>search_nodes</code> + <code>get_neighbors</code></li>
+<li>Have the agent write a synthesis note into your vault (<code>vault_write</code>) with <code>[[links]]</code> to the source nodes</li>
+</ol>
+<h3 id="recipe-b--codebase-onboarding">Recipe B — Codebase onboarding</h3>
+<ol>
+<li><code>/graphify .</code> on an unfamiliar repo</li>
+<li>Read <code>GRAPH_REPORT.md</code> god nodes → those are the files to read first</li>
+<li><code>/graphify explain &quot;PaymentProcessor&quot;</code> — the agent&#39;s answer cites EXTRACTED vs INFERRED edges</li>
+<li><code>find_path(&quot;UIComponent&quot;, &quot;DatabaseLayer&quot;)</code> when you need the real dependency chain</li>
+</ol>
+<h3 id="recipe-c--meetingidea-capture">Recipe C — Meeting/idea capture</h3>
+<ol>
+<li>Take rough notes in Obsidian as normal</li>
+<li>Weekly: <code>/graphify . --update</code> on the vault folder</li>
+<li>Review the report&#39;s <strong>surprising connections</strong> — cross-project links you didn&#39;t notice</li>
+<li>Promote the good ones out of the quarantine folder into permanent notes</li>
+</ol>
+<h3 id="recipe-d--the-wiki-for-agents-optional-extras">Recipe D — The wiki for agents <em>(optional extras)</em></h3>
+<div class="codewrap"><pre data-lang=""><code>/graphify ./raw --wiki</code></pre></div>
+<p>Generates Wikipedia-style markdown articles per community and god node, with an <code>index.md</code> entry point. Point any agent (even ones without MCP) at <code>index.md</code> and it can navigate your knowledge base by reading files instead of parsing JSON.</p>
+<p><strong>Other export formats for other tools:</strong></p>
+<div class="codewrap"><pre data-lang=""><code>/graphify ./raw --svg        # graph.svg for docs/presentations
+/graphify ./raw --graphml    # for Gephi / yEd power analysis
+/graphify ./raw --neo4j      # generates cypher.txt if you want a real graph DB</code></pre></div>
+<hr>
+</section><section id="command-cheat-sheets"><h2 id="command-cheat-sheets">Command Cheat Sheets</h2>
+<h3 id="graphify-run-inside-claude-code-unless-noted">Graphify (run inside Claude Code unless noted)</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/graphify</code></td>
+<td>Build a graph of the current directory</td>
+</tr>
+<tr>
+<td><code>/graphify ./raw</code></td>
+<td>Build from a specific folder</td>
+</tr>
+<tr>
+<td><code>/graphify ./raw --mode deep</code></td>
+<td>Aggressive INFERRED edge extraction</td>
+</tr>
+<tr>
+<td><code>/graphify ./raw --update</code></td>
+<td>Incremental rebuild (changed files only)</td>
+</tr>
+<tr>
+<td><code>/graphify add &lt;url&gt;</code></td>
+<td>Fetch a paper/tweet, save, update graph</td>
+</tr>
+<tr>
+<td><code>/graphify query &quot;...&quot;</code></td>
+<td>Ask a natural-language question of the graph</td>
+</tr>
+<tr>
+<td><code>/graphify path &quot;A&quot; &quot;B&quot;</code></td>
+<td>Shortest relationship path between two nodes</td>
+</tr>
+<tr>
+<td><code>/graphify explain &quot;X&quot;</code></td>
+<td>Explain a node with edge-tag citations</td>
+</tr>
+<tr>
+<td><code>/graphify ./raw --watch</code></td>
+<td>Auto-sync on file changes</td>
+</tr>
+<tr>
+<td><code>/graphify ./raw --wiki</code></td>
+<td>Build agent-crawlable wiki articles</td>
+</tr>
+<tr>
+<td><code>/graphify ./raw --mcp</code></td>
+<td>Serve the graph over MCP stdio</td>
+</tr>
+<tr>
+<td><code>/graphify ./raw --svg</code> / <code>--graphml</code> / <code>--neo4j</code></td>
+<td>Alternate export formats</td>
+</tr>
+<tr>
+<td><code>graphify install</code> (terminal)</td>
+<td>Register the skill with your agent</td>
+</tr>
+<tr>
+<td><code>graphify hook install</code> (terminal)</td>
+<td>Auto-rebuild on every git commit</td>
+</tr>
+<tr>
+<td><code>python -m graphify.serve graphify-out/graph.json</code> (terminal)</td>
+<td>MCP server, direct invocation</td>
+</tr>
+</tbody></table>
+<h3 id="obsidian-essentials">Obsidian essentials</h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Graph view</td>
+<td><code>Ctrl/Cmd + G</code></td>
+</tr>
+<tr>
+<td>Local graph (current note only)</td>
+<td>Command Palette → &quot;Open local graph&quot;</td>
+</tr>
+<tr>
+<td>Command palette</td>
+<td><code>Ctrl/Cmd + P</code></td>
+</tr>
+<tr>
+<td>Quick switcher (jump to note)</td>
+<td><code>Ctrl/Cmd + O</code></td>
+</tr>
+<tr>
+<td>New canvas</td>
+<td>Ribbon → &quot;Create new canvas&quot;</td>
+</tr>
+<tr>
+<td>Follow a <code>[[link]]</code></td>
+<td><code>Ctrl/Cmd + Click</code></td>
+</tr>
+<tr>
+<td>Filter graph view to a folder</td>
+<td>In Graph view search: <code>path:Graph</code></td>
+</tr>
+<tr>
+<td>Show backlinks pane</td>
+<td>Right sidebar toggle</td>
+</tr>
+</tbody></table>
+<h3 id="agent-connection-terminal">Agent connection (terminal)</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>claude mcp list</code></td>
+<td>Verify MCP servers are connected</td>
+</tr>
+<tr>
+<td><code>claude mcp add --transport http obsidian https://127.0.0.1:27124/mcp/ --header &quot;Authorization: Bearer KEY&quot;</code></td>
+<td>Connect Claude Code to Obsidian&#39;s built-in MCP</td>
+</tr>
+<tr>
+<td><code>/plugin marketplace add adelaidasofia/graph-query-mcp</code> + <code>/plugin install graph-query-mcp@graph-query-mcp</code></td>
+<td>Install the dedicated graph-query MCP plugin</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>graphify: command not found</code> on Windows</td>
+<td>Add <code>%APPDATA%\Python\Python3xx\Scripts</code> to PATH (replace <code>3xx</code>, e.g. <code>313</code>), or reinstall with <code>pipx install graphifyy</code></td>
+</tr>
+<tr>
+<td><code>externally-managed-environment</code> on macOS</td>
+<td>Use <code>pipx install graphifyy</code> instead of <code>pip</code></td>
+</tr>
+<tr>
+<td><code>/graphify</code> does nothing in Claude Code</td>
+<td>Run <code>graphify install</code> again; check <code>~/.claude/skills/graphify/SKILL.md</code> exists (curl fallback in Step 1.3)</td>
+</tr>
+<tr>
+<td>Install confusion: <code>graphify</code> vs <code>graphifyy</code></td>
+<td>The <strong>PyPI package</strong> is temporarily <code>graphifyy</code>; the <strong>command</strong> and <strong>skill</strong> are <code>graphify</code>. Normal and intentional.</td>
+</tr>
+<tr>
+<td>Graph seems stale after edits</td>
+<td>Run <code>/graphify &lt;folder&gt; --update</code>. The SHA256 cache means unchanged files are skipped, so it&#39;s fast.</td>
+</tr>
+<tr>
+<td>Obsidian vault copy outdated</td>
+<td>The <code>obsidian/</code> export is a snapshot — re-copy it (or delete + re-import the quarantine folder) after major updates</td>
+</tr>
+<tr>
+<td>Agent still greps instead of using the graph</td>
+<td>Add/strengthen the CLAUDE.md block from Part 6, Level 2; MCP (Level 3) makes graph-first the path of least resistance</td>
+</tr>
+<tr>
+<td>MCP server won&#39;t connect</td>
+<td><code>claude mcp list</code> to inspect; check <code>GRAPH_JSON_PATH</code> points to a real <code>graph.json</code>; restart the agent after config edits</td>
+</tr>
+<tr>
+<td>Obsidian MCP: connection refused</td>
+<td>The vault must be <strong>open</strong> in Obsidian — the plugin&#39;s server only runs while Obsidian runs, on that vault</td>
+</tr>
+<tr>
+<td>Obsidian MCP: certificate warnings</td>
+<td>The plugin uses a self-signed cert on 27124; either trust it or use the HTTP fallback on port 27123</td>
+</tr>
+<tr>
+<td>Extraction quality complaints</td>
+<td>Honest answer: check the edge tags. INFERRED-heavy areas benefit from <code>--mode deep</code> re-runs or from adding a plain-language note that states the relationship explicitly</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library-clickable-youtube-references"><h2 id="video-library-clickable-youtube-references">Video Library (Clickable YouTube References)</h2>
+<blockquote>
+<p><em>Links and titles verified September 2026 via search. Skim before relying — this tool evolves fast and older videos may show outdated install commands. When a video conflicts with this guide, the <a href="https://github.com/safishamsi/graphify" target="_blank" rel="noopener">official repo README</a> wins.</em></p>
+</blockquote>
+<p><strong>Graphify + AI agents:</strong></p>
+<ol>
+<li>🎥 <a href="https://www.youtube.com/watch?v=AkP7-uBB7hc" target="_blank" rel="noopener">Graphify: Turn Your Codebase into a Queryable Knowledge Graph for Claude Code</a> — official install → build → query walkthrough, with the token-savings demo</li>
+<li>🎥 <a href="https://www.youtube.com/watch?v=rtutpoT4SYg" target="_blank" rel="noopener">Graphify + Obsidian: Build an AI Second Brain That Never Forgets (Real Setup)</a> — the full vault export + Canvas visualization workflow from this guide, on screen</li>
+<li>🎥 <a href="https://www.youtube.com/watch?v=H-uVd08niDU" target="_blank" rel="noopener">Graphify + Claude Code = The Ultimate Second Brain</a> — the three-pass extraction system explained (tree-sitter / vision / LLM)</li>
+<li>🎥 <a href="https://www.youtube.com/watch?v=Ji4Koip_iOk" target="_blank" rel="noopener">Build a Knowledge Graph in 60s (Graphify Tutorial)</a> — rapid-fire setup short, good for a first taste</li>
+</ol>
+<p><strong>Obsidian skills this guide leans on:</strong></p>
+<ol start="5">
+<li>🎥 <a href="https://www.youtube.com/watch?v=qjx3IU9PAdk" target="_blank" rel="noopener">How To Use The Obsidian Dataview Plugin (2026 Guide)</a> — everything you need for the frontmatter queries in Part 8</li>
+<li>🎥 <a href="https://www.youtube.com/watch?v=J7GXtmTwGIk" target="_blank" rel="noopener">How to Graph View in Obsidian (Step by Step)</a> — filters, groups, colors: making the graph view actually readable</li>
+<li>🎥 <a href="https://www.youtube.com/watch?v=hwfk5CS_Zhw" target="_blank" rel="noopener">Using Canvas in Obsidian</a> — 58-second Canvas orientation</li>
+</ol>
+<hr>
+</section><section id="written-references--repos"><h2 id="written-references--repos">Written References &amp; Repos</h2>
+<p><strong>Core projects:</strong></p>
+<ul>
+<li>📦 <a href="https://github.com/safishamsi/graphify" target="_blank" rel="noopener">safishamsi/graphify</a> — the official Graphify repo (install docs, worked examples, architecture)</li>
+<li>🔌 <a href="https://github.com/adelaidasofia/graph-query-mcp" target="_blank" rel="noopener">adelaidasofia/graph-query-mcp</a> — the dedicated MCP query server for graphify graphs</li>
+<li>🧩 <a href="https://community.obsidian.md/plugins/obsidian-local-rest-api" target="_blank" rel="noopener">Local REST API with MCP — Obsidian plugin page</a> — the Obsidian-side bridge</li>
+</ul>
+<p><strong>Deep-dive articles:</strong></p>
+<ul>
+<li>📄 <a href="https://charlieautomates.com/blog/claude-code-knowledge-graph-graphify-obsidian/" target="_blank" rel="noopener">Claude Code Knowledge Graph Setup (Graphify + Obsidian) — Charlie Automates</a></li>
+<li>📄 <a href="https://moderncreator.app/2026-06-08-chase-ai-the-claude-code-knowledge-graph-stack" target="_blank" rel="noopener">The Claude Code Knowledge Graph Stack — Modern Creator</a></li>
+<li>📄 <a href="https://www.stork.ai/blog/the-ai-brain-that-never-forgets" target="_blank" rel="noopener">Build an AI Second Brain with Graphify, Obsidian, and Claude — Stork.AI</a></li>
+<li>📄 <a href="https://www.mindstudio.ai/blog/graphify-knowledge-graph-ai-agent" target="_blank" rel="noopener">How to Use Graphify to Build a Queryable Knowledge Graph for Your AI Agent — MindStudio</a></li>
+<li>📄 <a href="https://www.tonyreviewsthings.com/how-to-connect-obsidian-to-ai-agents/" target="_blank" rel="noopener">How to Connect Obsidian to AI Agents (MCP Setup) — Tony Reviews Things</a></li>
+<li>📄 <a href="https://datasciencedojo.com/blog/obsidian-ai-knowledge-base/" target="_blank" rel="noopener">Obsidian: The Complete Guide to Building a Powerful AI Knowledge Base in 9 Steps — Data Science Dojo</a></li>
+</ul>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Knowledge graph</strong></td>
+<td>A network of <em>nodes</em> (things: concepts, functions, papers) and <em>edges</em> (relationships between them), so structure is data — not something you re-derive by reading.</td>
+</tr>
+<tr>
+<td><strong>Node / Edge</strong></td>
+<td>A dot / a line between dots. In Graphify, edges carry a type and an honesty tag.</td>
+</tr>
+<tr>
+<td><strong>EXTRACTED / INFERRED / AMBIGUOUS</strong></td>
+<td>Graphify&#39;s confidence tags: found in a file / reasoned by the model / conflicting evidence.</td>
+</tr>
+<tr>
+<td><strong>God node</strong></td>
+<td>The highest-degree node(s) — the concepts everything else connects through.</td>
+</tr>
+<tr>
+<td><strong>Community</strong></td>
+<td>An auto-detected cluster of tightly connected nodes (via Leiden clustering). Roughly = a topic or subsystem.</td>
+</tr>
+<tr>
+<td><strong>Skill</strong></td>
+<td>A packaged workflow file your AI agent invokes via slash command. <code>/graphify</code> is a skill.</td>
+</tr>
+<tr>
+<td><strong>MCP (Model Context Protocol)</strong></td>
+<td>A standard for giving AI agents callable tools (servers) — here, graph queries and vault operations.</td>
+</tr>
+<tr>
+<td><strong>Vault</strong></td>
+<td>An Obsidian &quot;workspace&quot; = one folder of markdown notes.</td>
+</tr>
+<tr>
+<td><strong>Wikilink</strong></td>
+<td>Obsidian&#39;s <code>[[double-bracket]]</code> link. Graphify exports edges as wikilinks so graph = notes.</td>
+</tr>
+<tr>
+<td><strong>Frontmatter</strong></td>
+<td>YAML metadata at the top of a note (<code>---</code> block). Dataview queries against it.</td>
+</tr>
+<tr>
+<td><strong>Quarantine dump</strong></td>
+<td>Importing the whole graph export as one deletable vault subfolder until trust is earned.</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Does Graphify need Neo4j or any server/database?</strong>
+No. It&#39;s NetworkX in-process, runs entirely locally, outputs plain files. Neo4j export (<code>--neo4j</code>) exists if you <em>want</em> one later.</p>
+<p><strong>Does it only work with Claude Code?</strong>
+Claude Code is the primary target, but the skill format also works with Codex, OpenCode, Cursor, Gemini CLI, Copilot CLI, Aider, and Trae.</p>
+<p><strong>Is my data sent anywhere?</strong>
+Extraction uses the Claude API (that&#39;s how concepts get pulled from docs/images); the graph, cache, and vault all live on your machine. The Obsidian MCP bridge is localhost-only.</p>
+<p><strong>How big can a corpus get before this stops helping?</strong>
+It goes the other way: token savings scale with corpus size (worked examples go from ~1× on 6 files to 71.5× on 52). Small corpora benefit structurally; big ones benefit structurally <em>and</em> financially.</p>
+<p><strong>Can I have two vaults&#39; graphs queryable at once?</strong>
+Yes — <code>graph-query-mcp</code> supports a primary + secondary scope (e.g., personal and team) via <code>GRAPH_JSON_PATH</code> and <code>SECONDARY_GRAPH_JSON_PATH</code>.</p>
+<p><strong>How do I undo all of this? (Uninstall / cleanup)</strong>
+The stack is designed to be removable in layers. Delete the <code>graphify-out/</code> folder (and any imported <code>Graph/</code> folder in your vault) to drop the graph and its notes. Remove the skill with <code>rm -rf ~/.claude/skills/graphify</code> and the package with <code>pip uninstall graphifyy</code> (or <code>pipx uninstall graphifyy</code>). Remove MCP registrations with <code>claude mcp remove &lt;name&gt;</code> (and <code>/plugin uninstall</code> for graph-query-mcp). In Obsidian, disable/remove community plugins from <code>Settings → Community plugins</code>. Your original source files are never modified by any of this — Graphify only reads them.</p>
+<p><strong>Suggested next steps, in order:</strong></p>
+<ol>
+<li>✅ Get through Part 2 (first graph built)</li>
+<li>✅ Part 5 with the <strong>quarantine dump</strong> pattern</li>
+<li>✅ Part 6, <strong>Level 2</strong> (CLAUDE.md block) — best effort-to-payoff ratio in this guide</li>
+<li>Automation (Part 8): pick <code>--update</code> <em>or</em> the git hook</li>
+<li>Graduate to MCP (Part 6, Level 3) and the Obsidian bridge (Part 7) once the loop feels natural</li>
+<li>Consider folding the graph into a larger vault structure (PARA / Ideaverse ACE profile support exists via the vault adapter)</li>
+</ol>
+<hr>
+<p><em>Guide ends. Everything above was verified against the official Graphify repository and linked sources as of September 2026 — but this space moves fast, so when in doubt, the <a href="https://github.com/safishamsi/graphify" target="_blank" rel="noopener">official repo README</a> is the source of truth.</em></p>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">AI &amp; Agents</span> · 9 parts · ~19 min · Generated from <code>markdown_docs/Graphify-Obsidian-AI-Agent-Guide.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>

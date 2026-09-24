@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Web Platform in 2026 — Learning Center</title>
+<meta name="description" content="You already ship Next.js. This paper explains the substrate underneath it — server components, streaming, caching, runtimes, and WebAssembly — so &quot;it compiles&quot; becomes &quot;I know why.&quot;">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="05-web-platform-2026-rsc-streaming-edge-wasm">
+<header class="topbar">
+  <a class="homebtn" href="../index.html">⌂ Home</a>
+  <span class="brand">The Web Platform in 2026</span>
+  <button id="themeToggle" title="Toggle dark / light">🌙 Dark</button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--the-rendering-spectrum-csr--ssr--ssg--isr--streaming--rsc" data-sec="part-1--the-rendering-spectrum-csr--ssr--ssg--isr--streaming--rsc">Part 1 — The Rendering Spectrum: CSR → SSR → SSG → ISR → Streaming → RSC</a><a href="#step-1-client-side-rendering-csr" data-sec="step-1-client-side-rendering-csr" class="sub">Step 1: Client-Side Rendering (CSR)</a><a href="#step-2-server-side-rendering-ssr" data-sec="step-2-server-side-rendering-ssr" class="sub">Step 2: Server-Side Rendering (SSR)</a><a href="#step-3-static-site-generation-ssg" data-sec="step-3-static-site-generation-ssg" class="sub">Step 3: Static Site Generation (SSG)</a><a href="#step-4-incremental-static-regeneration-isr" data-sec="step-4-incremental-static-regeneration-isr" class="sub">Step 4: Incremental Static Regeneration (ISR)</a><a href="#step-5-streaming-ssr" data-sec="step-5-streaming-ssr" class="sub">Step 5: Streaming SSR</a><a href="#step-6-react-server-components-rsc" data-sec="step-6-react-server-components-rsc" class="sub">Step 6: React Server Components (RSC)</a><a href="#part-2--react-server-components-deep-dive" data-sec="part-2--react-server-components-deep-dive">Part 2 — React Server Components Deep Dive</a><a href="#the-two-component-types" data-sec="the-two-component-types" class="sub">The two component types</a><a href="#there-is-no-use-server-component-directive" data-sec="there-is-no-use-server-component-directive" class="sub">There is no <code>&quot;use server&quot;</code> component directive</a><a href="#the-serialization-boundary" data-sec="the-serialization-boundary" class="sub">The serialization boundary</a><a href="#composition-rules" data-sec="composition-rules" class="sub">Composition rules</a><a href="#common-errors-and-fixes" data-sec="common-errors-and-fixes" class="sub">Common errors and fixes</a><a href="#part-3--streaming-suspense-and-partial-prerendering" data-sec="part-3--streaming-suspense-and-partial-prerendering">Part 3 — Streaming, Suspense, and Partial Prerendering</a><a href="#how-streaming-actually-works" data-sec="how-streaming-actually-works" class="sub">How streaming actually works</a><a href="#loadingtsx-vs-explicit-suspense" data-sec="loadingtsx-vs-explicit-suspense" class="sub"><code>loading.tsx</code> vs explicit <code>&lt;Suspense&gt;</code></a><a href="#the-http-contract--the-constraint-everyone-forgets" data-sec="the-http-contract--the-constraint-everyone-forgets" class="sub">The HTTP contract — the constraint everyone forgets</a><a href="#partial-prerendering-ppr" data-sec="partial-prerendering-ppr" class="sub">Partial Prerendering (PPR)</a><a href="#how-to-push-dynamic-access-down" data-sec="how-to-push-dynamic-access-down" class="sub">How to push dynamic access down</a><a href="#react-19-features-you-should-know" data-sec="react-19-features-you-should-know" class="sub">React 19 features you should know</a><a href="#part-4--the-app-router-server-actions-route-handlers-layouts-and-rendering" data-sec="part-4--the-app-router-server-actions-route-handlers-layouts-and-rendering">Part 4 — The App Router: Server Actions, Route Handlers, Layouts, and Rendering</a><a href="#layouts-vs-pages" data-sec="layouts-vs-pages" class="sub">Layouts vs pages</a><a href="#server-actions" data-sec="server-actions" class="sub">Server Actions</a><a href="#route-handlers" data-sec="route-handlers" class="sub">Route Handlers</a><a href="#dynamic-vs-static-rendering" data-sec="dynamic-vs-static-rendering" class="sub">Dynamic vs static rendering</a><a href="#generatestaticparams" data-sec="generatestaticparams" class="sub"><code>generateStaticParams</code></a><a href="#part-5--the-caching-layers" data-sec="part-5--the-caching-layers">Part 5 — The Caching Layers</a><a href="#the-classic-four-caches-previous-model" data-sec="the-classic-four-caches-previous-model" class="sub">The classic four caches (previous model)</a><a href="#the-cache-components-model-nextjs-16" data-sec="the-cache-components-model-nextjs-16" class="sub">The Cache Components model (Next.js 16)</a><a href="#invalidation-pick-the-right-verb" data-sec="invalidation-pick-the-right-verb" class="sub">Invalidation: pick the right verb</a><a href="#practical-rules" data-sec="practical-rules" class="sub">Practical rules</a><a href="#part-6--runtimes-nodejs-vs-edge" data-sec="part-6--runtimes-nodejs-vs-edge">Part 6 — Runtimes: Node.js vs Edge</a><a href="#what-actually-runs-where" data-sec="what-actually-runs-where" class="sub">What actually runs where</a><a href="#the-crypto-failure-everyone-hits" data-sec="the-crypto-failure-everyone-hits" class="sub">The <code>crypto</code> failure everyone hits</a><a href="#cold-starts-and-region-placement" data-sec="cold-starts-and-region-placement" class="sub">Cold starts and region placement</a><a href="#when-to-use-each" data-sec="when-to-use-each" class="sub">When to use each</a><a href="#part-7--webassembly-in-the-browser" data-sec="part-7--webassembly-in-the-browser">Part 7 — WebAssembly in the Browser</a><a href="#what-webassembly-is" data-sec="what-webassembly-is" class="sub">What WebAssembly is</a><a href="#when-wasm-beats-javascript" data-sec="when-wasm-beats-javascript" class="sub">When Wasm beats JavaScript</a><a href="#the-jswasm-boundary-cost" data-sec="the-jswasm-boundary-cost" class="sub">The JS↔WASM boundary cost</a><a href="#in-browser-ml-the-practical-cases" data-sec="in-browser-ml-the-practical-cases" class="sub">In-browser ML: the practical cases</a><a href="#where-this-is-heading" data-sec="where-this-is-heading" class="sub">Where this is heading</a><a href="#part-8--shipping-it-core-web-vitals-deploy-targets-and-a-worked-page" data-sec="part-8--shipping-it-core-web-vitals-deploy-targets-and-a-worked-page">Part 8 — Shipping It: Core Web Vitals, Deploy Targets, and a Worked Page</a><a href="#core-web-vitals-as-an-engineering-target" data-sec="core-web-vitals-as-an-engineering-target" class="sub">Core Web Vitals as an engineering target</a><a href="#deploy-targets-decision-table" data-sec="deploy-targets-decision-table" class="sub">Deploy targets decision table</a><a href="#a-worked-page-before-and-after" data-sec="a-worked-page-before-and-after" class="sub">A worked page: before and after</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheets" data-sec="cheat-sheets">Cheat Sheets</a><a href="#rsc-vs-client-components" data-sec="rsc-vs-client-components" class="sub">RSC vs Client Components</a><a href="#cache-layers" data-sec="cache-layers" class="sub">Cache layers</a><a href="#runtime-capabilities" data-sec="runtime-capabilities" class="sub">Runtime capabilities</a><a href="#core-web-vitals-targets" data-sec="core-web-vitals-targets" class="sub">Core Web Vitals targets</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references" data-sec="written-references">Written References</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#verification-note" data-sec="verification-note">Verification Note</a></div>
+</nav>
+<main>
+<h1>The Web Platform in 2026</h1>
+<div class="callout lede">You already ship Next.js. This paper explains the substrate underneath it — server components, streaming, caching, runtimes, and WebAssembly — so &quot;it compiles&quot; becomes &quot;I know why.&quot;</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>A modern Next.js request is not one thing. It is a relay race through four or five different execution environments, each with its own rules, its own available APIs, and its own failure modes. Here is the whole path in one diagram:</p>
+<div class="codewrap"><pre data-lang=""><code>  BROWSER                  EDGE / CDN              NODE SERVER (origin)        BROWSER (again)
+ ┌──────────┐            ┌──────────────┐        ┌─────────────────────┐      ┌──────────────────┐
+ │ 1. GET   │───────────▶│ 2. CDN cache │──────▶ │ 3. RSC RENDER       │─────▶│ 5. HYDRATION     │
+ │ /product │            │  static shell│        │  • server comps run │      │  • React boots   │
+ │ /42      │            │  hit? serve  │        │  • data fetched     │      │  • client comps  │
+ └──────────┘            │  instantly   │        │  • client comps are │      │    attach events │
+                         └──────────────┘        │    placeholders     │      └────────┬─────────┘
+                                │                └──────────┬──────────┘               │
+                                │                           │                          ▼
+                                │             4. STREAMING HTML + RSC PAYLOAD   ┌──────────────┐
+                                │◀──────────────────────────────────────────────│ 6. CLIENT    │
+                                │   chunk 1: &lt;head&gt;, layout, Suspense fallback │    ISLANDS   │
+                                │   chunk 2: Suspense boundary A resolves      │  onClick,    │
+                                │   chunk 3: Suspense boundary B resolves      │  useState,   │
+                                └──────────────────────────────────────────────│  useEffect   │
+                                                                               └──────────────┘</code></pre></div>
+<p>Two details matter more than anything else in that picture:</p>
+<ol>
+<li><strong>The static shell</strong> — everything that renders before any async work resolves — can be served by the CDN without waking the origin at all. Layouts, navigation, Suspense fallbacks. That is why the first paint is fast.</li>
+<li><strong>The client never receives your server component source code.</strong> Server components are executed and their output is serialized. The browser gets HTML plus a compact &quot;RSC payload&quot; — a representation of the rendered tree — and a small JavaScript bundle containing only the client components.</li>
+</ol>
+<p>Here is the same architecture mapped to plain-English analogies:</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Plain-English analogy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Client-side rendering (CSR)</td>
+<td>A restaurant that hands you an empty plate and a cookbook; you assemble dinner yourself</td>
+</tr>
+<tr>
+<td>Server-side rendering (SSR)</td>
+<td>A kitchen cooks the whole meal before the waiter carries out one tray</td>
+</tr>
+<tr>
+<td>Static site generation (SSG)</td>
+<td>Meal prepped once in the morning, plated all day</td>
+</tr>
+<tr>
+<td>Incremental static regeneration (ISR)</td>
+<td>Meal prepped once, secretly re-cooked after it has been sitting a while</td>
+</tr>
+<tr>
+<td>Streaming SSR</td>
+<td>Courses arrive as they finish cooking; soup now, steak in five minutes</td>
+</tr>
+<tr>
+<td>Server Components</td>
+<td>The kitchen preps and plates everything; you only get the finished dish, never the recipe</td>
+</tr>
+<tr>
+<td>Client Components</td>
+<td>The small table-side burner the waiter brings you, for things you must do yourself</td>
+</tr>
+<tr>
+<td>Suspense boundary</td>
+<td>A placeholder card that says &quot;reserved for dessert&quot; so nobody rearranges the table</td>
+</tr>
+<tr>
+<td>Edge runtime</td>
+<td>A tiny satellite kitchen with a microwave — close to you, fast, very limited tools</td>
+</tr>
+<tr>
+<td>Node.js runtime</td>
+<td>The full kitchen with the industrial oven and the walk-in freezer</td>
+</tr>
+<tr>
+<td>Caching layers</td>
+<td>Pantry (per-request), fridge (persistent data), pre-poured glasses (rendered HTML), your tray (in-browser)</td>
+</tr>
+<tr>
+<td>Hydration</td>
+<td>The waiter explaining the dish so you can now interact with it</td>
+</tr>
+<tr>
+<td>WebAssembly</td>
+<td>Shipping a CNC machine in a box that any browser can open</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ul>
+<li><strong>RSC is a component <em>type</em>, not a rendering strategy.</strong> &quot;Server Component&quot; describes <em>where a component executes and what ships to the browser</em>. SSR describes <em>when HTML is produced</em>. You can have RSC with no SSR at all, and SSR with no RSC.</li>
+<li><strong>Server Components ship zero JavaScript.</strong> Client Components (marked <code>&quot;use client&quot;</code>) ship JavaScript and are the only place you get <code>useState</code>, <code>onClick</code>, <code>useEffect</code>, and DOM access.</li>
+<li><strong>The serialization boundary is the whole ballgame.</strong> Only serializable values cross from server to client. No functions (except Server Functions), no class instances, no DOM nodes.</li>
+<li><strong>Streaming means the server sends HTML in chunks tied to <code>&lt;Suspense&gt;</code> boundaries</strong>, in whatever order they resolve. The user sees the shell immediately and each hole fills in later.</li>
+<li><strong>Partial Prerendering (PPR)</strong> is static shell + streamed dynamic holes in one response. In Next.js 16 it is the default behavior of the App Router once you enable <code>cacheComponents: true</code>. <em>(Fast-moving: verify current status in the Next.js docs.)</em></li>
+<li><strong>Caching defaults flipped.</strong> <code>fetch</code> is <strong>not cached by default</strong> in modern Next.js. Caching is opt-in, and Next.js 16 introduced <code>&quot;use cache&quot;</code>, <code>cacheLife</code>, and <code>cacheTag</code>. <em>(Fast-moving: verify the current caching model before relying on memory.)</em></li>
+<li><strong>The Edge Runtime is deprecated in Next.js 16.</strong> <code>export const runtime = &#39;edge&#39;</code> now warns. The Node.js runtime is the default for everything. <em>(Verify in the Next.js docs.)</em></li>
+<li><strong>WebAssembly is a compile target, not a language.</strong> It beats JS for heavy deterministic compute (media, image processing, ML inference) and loses for anything DOM-heavy, because every JS↔WASM call and every string conversion costs.</li>
+<li><strong>Core Web Vitals are LCP, INP, CLS</strong> with &quot;good&quot; thresholds of ≤2.5s, ≤200ms, ≤0.1, measured at the 75th percentile. <em>(Thresholds evolve — verify at web.dev.)</em></li>
+<li><strong>Deploy target shapes your architecture.</strong> Vercel gives you deep framework integration; Cloudflare Workers gives you cheap global compute with real limits (128 MB memory, CPU-time budgets); self-hosting gives you control and operational load.</li>
+</ul>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<p>Before the deep dives, make sure you can actually run the experiments in this paper.</p>
+<ol>
+<li><p><strong>A Next.js App Router project on a current major version.</strong> Run <code>npx create-next-app@latest</code> and check the installed version. The caching and PPR behavior described here assumes Next.js 16 or later.</p>
+<div class="codewrap"><pre data-lang="bash"><code>npx create-next-app@latest my-platform-lab --ts --app --tailwind
+cd my-platform-lab
+npx next --version</code></pre></div>
+</li>
+<li><p><strong>Node.js 20 or later.</strong> Bytecode caching and modern APIs assume it.</p>
+<div class="codewrap"><pre data-lang="bash"><code>node --version</code></pre></div>
+</li>
+<li><p><strong>A browser with DevTools and the Network tab&#39;s &quot;Timing&quot; view.</strong> You will inspect chunked responses. Chrome or Edge recommended.</p>
+</li>
+<li><p><strong>Optional but valuable: a Wasm toolchain for Part 7.</strong> Nothing to install for reading, but if you want to follow along:</p>
+<div class="codewrap"><pre data-lang="bash"><code>rustup target add wasm32-unknown-unknown
+# or, for TypeScript-friendly Wasm:
+npm install --save-dev assemblyscript</code></pre></div>
+</li>
+<li><p><strong>Familiarity with <code>fetch</code>, Promises, and React hooks.</strong> This paper assumes you can read <code>async/await</code> fluently.</p>
+</li>
+<li><p><strong>A willingness to read documentation side-by-side.</strong> Three areas in this paper change faster than any blog post can track: <strong>PPR status</strong>, <strong>caching defaults</strong>, and <strong>Core Web Vitals thresholds</strong>. Where it matters, I flag it, and you should verify in the official docs.</p>
+</li>
+</ol>
+<hr>
+</section><section id="part-1--the-rendering-spectrum-csr--ssr--ssg--isr--streaming--rsc"><h2 id="part-1--the-rendering-spectrum-csr--ssr--ssg--isr--streaming--rsc">Part 1 — The Rendering Spectrum: CSR → SSR → SSG → ISR → Streaming → RSC</h2>
+<p>The history of frontend rendering is a history of moving one expensive step to a different machine or a different moment. Every step solves the previous step&#39;s problem and introduces a new cost. Understand the costs and you will never be confused about &quot;which rendering mode should I use&quot; again.</p>
+<h3 id="step-1-client-side-rendering-csr">Step 1: Client-Side Rendering (CSR)</h3>
+<p>The server sends an almost-empty HTML file plus a JavaScript bundle. The browser downloads, parses, executes, fetches data, and only then paints content.</p>
+<ul>
+<li><strong>Problem it solved:</strong> Rich, app-like interactivity without full page reloads. The server can be dumb.</li>
+<li><strong>Cost it introduced:</strong> A terrible first paint. Empty screen → bundle download → data fetch → paint. Bad for LCP and for SEO, and it wastes the server you are already paying for.</li>
+</ul>
+<h3 id="step-2-server-side-rendering-ssr">Step 2: Server-Side Rendering (SSR)</h3>
+<p>The server runs your React tree to HTML <em>per request</em> and sends fully-formed HTML. The browser paints immediately, then downloads the bundle and &quot;hydrates&quot; — attaching event handlers to the existing DOM.</p>
+<ul>
+<li><strong>Problem it solved:</strong> First paint. Users and crawlers get real HTML.</li>
+<li><strong>Cost it introduced:</strong> Time to First Byte now equals your slowest database query. One slow API call blocks the <em>entire</em> page. Hydration also runs in one blocking pass, which hurts INP on large pages.</li>
+<li><strong>Critical nuance:</strong> SSR alone does not make React components run &quot;on the server&quot; in the RSC sense. Classic SSR runs the <em>same</em> component code on both machines; the browser still downloads all of it.</li>
+</ul>
+<h3 id="step-3-static-site-generation-ssg">Step 3: Static Site Generation (SSG)</h3>
+<p>Same as SSR, but the HTML is produced <em>at build time</em> and served as a file.</p>
+<ul>
+<li><strong>Problem it solved:</strong> Speed and cost. A static file from a CDN is the fastest possible response, and it costs almost nothing to serve.</li>
+<li><strong>Cost it introduced:</strong> Staleness. Content is frozen at build time. A page that depends on user data cannot be static.</li>
+</ul>
+<h3 id="step-4-incremental-static-regeneration-isr">Step 4: Incremental Static Regeneration (ISR)</h3>
+<p>Static HTML that the server can rebuild in the background after a time window or an explicit invalidation.</p>
+<div class="codewrap"><pre data-lang="tsx"><code>// Route segment config (previous caching model)
+export const revalidate = 3600 // seconds</code></pre></div>
+<ul>
+<li><strong>Problem it solved:</strong> The staleness of SSG without giving up static speed.</li>
+<li><strong>Cost it introduced:</strong> Conceptual complexity — you now have to reason about <em>when</em> a page is fresh, and about the gap where a visitor sees stale content.</li>
+</ul>
+<h3 id="step-5-streaming-ssr">Step 5: Streaming SSR</h3>
+<p>Instead of buffering the whole document, the server sends HTML in chunks as pieces become ready, using chunked transfer encoding. React aligns chunks with <code>&lt;Suspense&gt;</code> boundaries.</p>
+<ul>
+<li><strong>Problem it solved:</strong> The &quot;slowest query blocks everything&quot; problem. The shell paints instantly; slow sections stream in.</li>
+<li><strong>Cost it introduced:</strong> Once you start streaming, <strong>the HTTP status code is already committed</strong>. You cannot send a 404 later. (More on this &quot;HTTP contract&quot; in Part 3.)</li>
+</ul>
+<h3 id="step-6-react-server-components-rsc">Step 6: React Server Components (RSC)</h3>
+<p>RSC is not the next item on that ladder. It is a <strong>different axis</strong>. A Server Component is a component that:</p>
+<ul>
+<li>executes <em>only</em> on the server (at build time or per request),</li>
+<li>can be <code>async</code> and <code>await</code> data directly,</li>
+<li>can read from a database or filesystem,</li>
+<li>and <strong>ships zero JavaScript to the browser</strong>.</li>
+</ul>
+<p>A Client Component is a component marked with <code>&quot;use client&quot;</code> that is bundled, downloaded, and executed in the browser, where it can use state, effects, and event handlers.</p>
+<blockquote>
+<p><strong>The sentence that unlocks interviews:</strong> SSR answers <em>&quot;when is HTML produced?&quot;</em> RSC answers <em>&quot;which components execute where, and what code ships to the client?&quot;</em> They are composable, not sequential.</p>
+</blockquote>
+<p>You can render Server Components with streaming SSR (the default in Next.js App Router). You can also render Server Components to static HTML at build time. The axes are independent.</p>
+<p><strong>What RSC costs:</strong> a new mental model, an honest serialization boundary, and a learning curve around composition. But it buys you: dramatically less client JavaScript, direct data access without hand-written API endpoints, and much earlier data fetching (no client-side request waterfall).</p>
+<p><strong>Try it:</strong></p>
+<ol>
+<li>Create <code>app/page.tsx</code> and make it <code>async</code>, <code>await</code> some data directly, and log the data.</li>
+<li>Open DevTools → Network, filter to JS, and confirm your data-fetching code is nowhere in the bundle.</li>
+<li>Add <code>&quot;use client&quot;</code> to a child component and watch a new chunk appear in the bundle.</li>
+</ol>
+<hr>
+</section><section id="part-2--react-server-components-deep-dive"><h2 id="part-2--react-server-components-deep-dive">Part 2 — React Server Components Deep Dive</h2>
+<h3 id="the-two-component-types">The two component types</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Server Component (default)</th>
+<th>Client Component (<code>&quot;use client&quot;</code>)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Executes on</td>
+<td>Server only</td>
+<td>Server (for initial HTML) <strong>and</strong> browser</td>
+</tr>
+<tr>
+<td>Ships JS to browser</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Can be <code>async</code> / <code>await</code></td>
+<td>Yes</td>
+<td>No (use <code>use()</code> on a promise instead)</td>
+</tr>
+<tr>
+<td>Can use <code>useState</code>, <code>useEffect</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Can use event handlers (<code>onClick</code>)</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Can read DB / filesystem / secrets</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Can read <code>cookies()</code> / <code>headers()</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Re-renders on the client</td>
+<td>N/A</td>
+<td>Yes</td>
+</tr>
+</tbody></table>
+<p>A crucial detail most people get wrong, straight from the React docs: <strong><code>&quot;use client&quot;</code> defines a boundary on the <em>module dependency tree</em>, not the render tree.</strong> Once you mark <code>InspirationGenerator.tsx</code> as client code, everything it imports becomes client code too — even if that imported module has no directive of its own. But a component <em>rendered as <code>children</code></em> by a Server Component can still be a Server Component, even if it appears inside a Client Component&#39;s JSX.</p>
+<p>That is why this works:</p>
+<div class="codewrap"><pre data-lang="tsx"><code>// app/page.tsx  — Server Component
+import Expandable from './expandable' // client component
+
+async function Notes() {
+  const notes = await db.notes.getAll() // direct data access, no API route
+  return (
+    &lt;div&gt;
+      {notes.map((note) =&gt; (
+        &lt;Expandable key={note.id}&gt;
+          &lt;p&gt;{note.text}&lt;/p&gt; {/* server-rendered children passed into client */}
+        &lt;/Expandable&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}
+
+export default Notes</code></pre></div>
+<div class="codewrap"><pre data-lang="tsx"><code>// app/expandable.tsx  — Client Component
+'use client'
+
+import { useState } from 'react'
+
+export default function Expandable({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useState(false)
+  return (
+    &lt;div&gt;
+      &lt;button onClick={() =&gt; setOpen(!open)}&gt;Toggle&lt;/button&gt;
+      {open &amp;&amp; children}
+    &lt;/div&gt;
+  )
+}</code></pre></div>
+<p>The <code>&lt;p&gt;</code> is rendered on the server. The button logic is client code. You get interactivity without dragging the whole tree into the bundle.</p>
+<h3 id="there-is-no-use-server-component-directive">There is no <code>&quot;use server&quot;</code> component directive</h3>
+<p>A very common interview stumble: <code>&quot;use server&quot;</code> does <strong>not</strong> mark a Server Component. Server Components are the default and need no directive. <code>&quot;use server&quot;</code> marks a <strong>Server Function</strong> (used by Server Actions) — an RPC-style callable that the client can invoke but not inspect.</p>
+<h3 id="the-serialization-boundary">The serialization boundary</h3>
+<p>Props passed from a Server Component into a Client Component must be serializable. From the React docs, serializable values include:</p>
+<ul>
+<li>Primitives: <code>string</code>, <code>number</code>, <code>bigint</code>, <code>boolean</code>, <code>undefined</code>, <code>null</code>, and globally-registered symbols</li>
+<li><code>Date</code>, <code>Map</code>, <code>Set</code>, <code>TypedArray</code>, <code>ArrayBuffer</code></li>
+<li>Plain objects and arrays containing only the above</li>
+<li>Promises</li>
+<li><strong>JSX elements</strong> (this is how <code>children</code> pass through)</li>
+<li><strong>Server Functions</strong> (<code>&quot;use server&quot;</code>)</li>
+</ul>
+<p>Not serializable:</p>
+<ul>
+<li>Classes and class instances</li>
+<li>Ordinary functions (only Server Functions work)</li>
+<li>DOM nodes, <code>WeakMap</code>, <code>WeakSet</code></li>
+<li>Objects with a null prototype</li>
+<li>Non-global symbols</li>
+</ul>
+<div class="codewrap"><pre data-lang="tsx"><code>// ❌ Fails: you cannot hand a closure to a client component
+export default async function Page() {
+  const format = (n: number) =&gt; n.toFixed(2)
+  return &lt;Price value={9.5} format={format} /&gt; // serialization error
+}
+
+// ✅ Pass data, format on the client
+export default async function Page() {
+  return &lt;Price value={9.5} /&gt;
+}</code></pre></div>
+<blockquote>
+<p><strong>Gotcha:</strong> Server Components cannot <em>accept</em> functions as props either, except through pass-through patterns. And a Server Component cannot accept arbitrary JSX as an argument to a <code>&quot;use cache&quot;</code> function unless it merely passes it through without introspecting it.</p>
+</blockquote>
+<h3 id="composition-rules">Composition rules</h3>
+<ol>
+<li><strong>Server → Client: allowed.</strong> A Server Component may import and render a Client Component.</li>
+<li><strong>Client → Server: only via <code>children</code>.</strong> A Client Component cannot import a Server Component, but it can receive one as a prop, because the parent Server Component did the importing and rendering.</li>
+<li><strong>Context providers must be Client Components.</strong> A Server Component cannot create context, but it can render a provider exported from a <code>&quot;use client&quot;</code> module.</li>
+<li><strong>Client Components cannot be <code>async</code>.</strong> Await on the server and pass the promise down, then unwrap with <code>use()</code>.</li>
+</ol>
+<h3 id="common-errors-and-fixes">Common errors and fixes</h3>
+<ul>
+<li><strong>&quot;Functions cannot be passed directly to Client Components&quot;</strong> → move the function&#39;s <em>result</em> across the boundary, or convert it to a Server Action with <code>&quot;use server&quot;</code>.</li>
+<li><strong>&quot;Only plain objects can be passed&quot;</strong> → map your ORM/class instance into a plain object before passing.</li>
+<li><strong><code>&quot;useState is not a function&quot; / &quot;useEffect only works in Client Components&quot;</code> errors</strong> → add <code>&quot;use client&quot;</code> at the top of the file, <em>above</em> all imports, using quotes (not backticks).</li>
+<li><strong><code>window is not defined</code></strong> → you are touching a browser API during server render. Move it into <code>useEffect</code> or guard with <code>typeof window !== &#39;undefined&#39;</code>.</li>
+<li><strong>&quot;You&#39;re importing a component that needs <code>useState</code>&quot;</strong> → the fix is almost always to extract the interactive part into its own small client component, not to mark the whole page <code>&quot;use client&quot;</code>.</li>
+</ul>
+<hr>
+</section><section id="part-3--streaming-suspense-and-partial-prerendering"><h2 id="part-3--streaming-suspense-and-partial-prerendering">Part 3 — Streaming, Suspense, and Partial Prerendering</h2>
+<h3 id="how-streaming-actually-works">How streaming actually works</h3>
+<p>The browser makes one request. The server responds with <code>200 OK</code> and starts sending HTML. React&#39;s server renderer produces chunks:</p>
+<ol>
+<li><strong>Static shell</strong> — <code>&lt;head&gt;</code>, layouts, navigation, and the fallback UI inside every <code>&lt;Suspense&gt;</code> boundary. Sent immediately.</li>
+<li><strong>Component payload</strong> — a serialized representation of the rendered tree, used for hydration and later client navigation.</li>
+<li><strong>Boundary resolutions</strong> — when an async section finishes, React streams its HTML wrapped in <code>&lt;div hidden id=&quot;S:0&quot;&gt;</code> plus a tiny inline <code>&lt;script&gt;</code> that swaps it into the placeholder <code>&lt;template id=&quot;B:0&quot;&gt;</code>.</li>
+</ol>
+<p>Because the swap is an inline script, content appears as soon as the chunk arrives — it does <strong>not</strong> wait for the page bundle or for hydration. The user sees progressive reveal.</p>
+<p>On <strong>client-side navigation</strong>, the browser does not receive HTML at all. It sends a request with an <code>rsc: 1</code> header and receives only the component payload, which React uses to update the tree in place.</p>
+<h3 id="loadingtsx-vs-explicit-suspense"><code>loading.tsx</code> vs explicit <code>&lt;Suspense&gt;</code></h3>
+<p><code>app/dashboard/loading.tsx</code> is the zero-effort option: Next.js wraps the page content in a Suspense boundary using your loading component as the fallback.</p>
+<div class="codewrap"><pre data-lang="tsx"><code>// app/dashboard/loading.tsx
+export default function Loading() {
+  return (
+    &lt;div className=&quot;animate-pulse space-y-2&quot;&gt;
+      &lt;div className=&quot;h-8 w-48 rounded bg-gray-200&quot; /&gt;
+      &lt;div className=&quot;h-4 w-full rounded bg-gray-200&quot; /&gt;
+      &lt;div className=&quot;h-4 w-2/3 rounded bg-gray-200&quot; /&gt;
+    &lt;/div&gt;
+  )
+}</code></pre></div>
+<p>But <code>loading.tsx</code> wraps the <em>entire page</em>. When the framework hits dynamic work, it walks up the tree looking for the nearest Suspense boundary. If the only boundary is your page-level <code>loading.tsx</code>, the whole page falls back to the full skeleton — you lose granularity. Prefer explicit boundaries close to the dynamic access:</p>
+<div class="codewrap"><pre data-lang="tsx"><code>// app/dashboard/page.tsx
+import { Suspense } from 'react'
+import { Revenue } from './revenue'
+import { RecentOrders } from './recent-orders'
+
+export default function Dashboard() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Dashboard&lt;/h1&gt;
+      &lt;div className=&quot;grid grid-cols-2 gap-4&quot;&gt;
+        &lt;Suspense fallback={&lt;Skeleton label=&quot;revenue&quot; /&gt;}&gt;
+          &lt;Revenue /&gt;
+        &lt;/Suspense&gt;
+        &lt;Suspense fallback={&lt;Skeleton label=&quot;orders&quot; /&gt;}&gt;
+          &lt;RecentOrders /&gt;
+        &lt;/Suspense&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre></div>
+<p>If <code>Revenue</code> resolves in 200 ms and <code>RecentOrders</code> in 1 s, each appears independently. Sibling boundaries do not block each other.</p>
+<h3 id="the-http-contract--the-constraint-everyone-forgets">The HTTP contract — the constraint everyone forgets</h3>
+<p>Once streaming begins, <strong>headers and status codes are already sent</strong>.</p>
+<ul>
+<li><code>notFound()</code> firing <em>mid-stream</em> cannot produce a real 404. Next.js injects <code>&lt;meta name=&quot;robots&quot; content=&quot;noindex&quot;&gt;</code> into the streamed HTML instead.</li>
+<li><code>redirect()</code> mid-stream becomes a client-side redirect, not an HTTP 30x.</li>
+<li>Therefore: <strong>do your existence checks and auth gates before the first Suspense boundary or first <code>await</code> that suspends.</strong></li>
+</ul>
+<div class="codewrap"><pre data-lang="tsx"><code>export default async function PostPage({ params }: { params: Promise&lt;{ slug: string }&gt; }) {
+  const { slug } = await params
+  const exists = await checkSlugExists(slug) // fast check
+  if (!exists) notFound() // real 404 — no boundary has suspended yet
+
+  return (
+    &lt;Suspense fallback={&lt;p&gt;Loading post…&lt;/p&gt;}&gt;
+      &lt;PostContent slug={slug} /&gt;
+    &lt;/Suspense&gt;
+  )
+}</code></pre></div>
+<blockquote>
+<p><strong>Gotcha:</strong> Bots and crawlers are handled differently. HTML-limited crawlers get a fully-rendered, non-streamed document so metadata is present in <code>&lt;head&gt;</code>. This means shell code that only worked at build time can fail for a crawler if it is re-executed at request time. Keep shell dependencies available at request time.</p>
+</blockquote>
+<h3 id="partial-prerendering-ppr">Partial Prerendering (PPR)</h3>
+<p>PPR is the culmination of the whole spectrum: a <strong>static shell served from the CDN instantly</strong>, with <strong>dynamic holes streamed from the origin in the same HTTP response</strong>. No client-side fetch waterfall, no layout shift, one round trip.</p>
+<p>The mental model:</p>
+<ul>
+<li>Anything cacheable (layout, nav, product copy, marketing content) goes in the shell.</li>
+<li>Anything request-specific (cart, personalized recommendations, live inventory) lives behind <code>&lt;Suspense&gt;</code> and streams.</li>
+</ul>
+<blockquote>
+<p><strong>Version-dependent — verify this in the Next.js docs.</strong> In Next.js 16, PPR became the default behavior of the App Router under the <strong>Cache Components</strong> feature, enabled with <code>cacheComponents: true</code> in <code>next.config.ts</code>. The old <code>experimental.ppr</code> flag and the <code>experimental_ppr</code> route export have been <strong>removed</strong>. On Next.js 15 and earlier, PPR was experimental with different flags. Do not trust any tutorial that does not state its version.</p>
+</blockquote>
+<div class="codewrap"><pre data-lang="ts"><code>// next.config.ts
+import type { NextConfig } from 'next'
+
+const nextConfig: NextConfig = {
+  cacheComponents: true,
+}
+
+export default nextConfig</code></pre></div>
+<blockquote>
+<p><strong>Gotcha:</strong> Cache Components requires the Node.js runtime. If you have routes exporting the deprecated <code>runtime = &#39;edge&#39;</code>, migrate them first.</p>
+</blockquote>
+<h3 id="how-to-push-dynamic-access-down">How to push dynamic access down</h3>
+<p>The deeper your dynamic access sits in the tree, the more remains static. This is the highest-leverage structural habit in the App Router.</p>
+<div class="codewrap"><pre data-lang="tsx"><code>// ❌ This awaits params at layout level — the whole layout becomes dynamic
+export default async function Layout({ children, params }: LayoutProps&lt;'/shop/[slug]'&gt;) {
+  const { slug } = await params
+  return &lt;div&gt;&lt;Sidebar /&gt;&lt;h1&gt;{slug}&lt;/h1&gt;{children}&lt;/div&gt;
+}
+
+// ✅ Pass the promise; await inside the boundary
+export default function Layout({ children, params }: LayoutProps&lt;'/shop/[slug]'&gt;) {
+  return (
+    &lt;div&gt;
+      &lt;Sidebar /&gt;
+      &lt;Suspense fallback={&lt;h1&gt;Loading…&lt;/h1&gt;}&gt;
+        {params.then(({ slug }) =&gt; &lt;SlugHeading slug={slug} /&gt;)}
+      &lt;/Suspense&gt;
+      {children}
+    &lt;/div&gt;
+  )
+}</code></pre></div>
+<p>The same pattern applies to <code>cookies()</code>, <code>headers()</code>, and <code>searchParams</code>. Start the work, pass the promise, resolve it inside a boundary.</p>
+<h3 id="react-19-features-you-should-know">React 19 features you should know</h3>
+<ul>
+<li><strong><code>use(promise)</code></strong> — unwrap a promise (or context) inside a Client Component, suspending until it resolves. This is how you stream a promise from a Server Component into a Client Component.</li>
+<li><strong>Server Functions / Actions</strong> — <code>&quot;use server&quot;</code> functions callable from the client.</li>
+<li><strong><code>useActionState</code></strong> — manage form state around an action, including pending and error states.</li>
+<li><strong><code>&lt;Activity&gt;</code></strong> — preserves component state during navigation by hiding rather than unmounting. Next.js 16 uses it when <code>cacheComponents</code> is enabled.</li>
+</ul>
+<blockquote>
+<p><strong>Verify in the React docs:</strong> the React 19 Server Components APIs are stable, but the <em>bundler/framework</em> APIs used to implement them do not follow semver between minors. Frameworks pin specific React versions for a reason.</p>
+</blockquote>
+<hr>
+</section><section id="part-4--the-app-router-server-actions-route-handlers-layouts-and-rendering"><h2 id="part-4--the-app-router-server-actions-route-handlers-layouts-and-rendering">Part 4 — The App Router: Server Actions, Route Handlers, Layouts, and Rendering</h2>
+<h3 id="layouts-vs-pages">Layouts vs pages</h3>
+<ul>
+<li><code>layout.tsx</code> wraps <code>page.tsx</code> and <strong>persists across navigations</strong> — it does not re-render when only the child segment changes.</li>
+<li><code>page.tsx</code> is the leaf UI for a URL segment.</li>
+<li><code>loading.tsx</code> wraps <code>page.tsx</code> in a Suspense boundary automatically.</li>
+<li><code>error.tsx</code> is the nearest route-level error boundary.</li>
+<li><code>template.tsx</code> re-mounts on navigation (rarely needed).</li>
+</ul>
+<h3 id="server-actions">Server Actions</h3>
+<p>A Server Action is a Server Function invoked through React&#39;s action mechanisms — <code>&lt;form action={...}&gt;</code>, <code>&lt;button formAction&gt;</code>, or a transition.</p>
+<div class="codewrap"><pre data-lang="ts"><code>// app/posts/actions.ts
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { auth } from '@/lib/auth'
+import { db } from '@/lib/db'
+
+export async function createPost(formData: FormData) {
+  const session = await auth()
+  if (!session?.user) throw new Error('Unauthorized')
+
+  await db.post.create({
+    data: { title: String(formData.get('title')), authorId: session.user.id },
+  })
+
+  revalidatePath('/posts')
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="tsx"><code>// app/posts/new-post.tsx
+import { createPost } from './actions'
+
+export default function NewPost() {
+  return (
+    &lt;form action={createPost}&gt;
+      &lt;input name=&quot;title&quot; required /&gt;
+      &lt;button type=&quot;submit&quot;&gt;Publish&lt;/button&gt;
+    &lt;/form&gt;
+  )
+}</code></pre></div>
+<p>Things worth internalizing:</p>
+<ol>
+<li><strong>One response carries data and UI.</strong> When an action calls <code>updateTag</code>, <code>revalidatePath</code>, or <code>refresh</code>, Next.js re-renders the current route server-side and returns the action&#39;s return value <em>plus</em> a fresh RSC payload in the same stream. No follow-up fetch needed.</li>
+<li><strong>Client dispatch is sequential.</strong> Actions run one at a time per client. Do not try to parallelize them with <code>Promise.all</code> from the client — parallelize <em>inside</em> a single action instead.</li>
+<li><strong>Every action is an untrusted POST endpoint.</strong> Authenticate, authorize, and validate inside the action. Rendering a form only on authenticated pages is not a security boundary.</li>
+<li><strong>Return values are serialized to the client.</strong> Never return raw database records.</li>
+<li><strong>Action IDs are build-specific.</strong> A client on an old build can hit &quot;Failed to find Server Action&quot; after a deploy. Surface it as a retry path.</li>
+<li><strong>Framework protections exist but are not sufficient:</strong> CSRF checks compare <code>Origin</code> to <code>Host</code>, bodies are capped (default 1 MB), and closure variables are encrypted. For multi-instance deployments, set <code>NEXT_SERVER_ACTIONS_ENCRYPTION_KEY</code> to a stable shared value.</li>
+</ol>
+<blockquote>
+<p><strong>Verify in the Next.js docs:</strong> the <code>serverActions</code> config keys (<code>allowedOrigins</code>, <code>bodySizeLimit</code>) and their exact location under <code>experimental</code> have moved between majors.</p>
+</blockquote>
+<h3 id="route-handlers">Route Handlers</h3>
+<p><code>app/api/.../route.ts</code> is your HTTP boundary: webhooks, public APIs, non-React streaming.</p>
+<div class="codewrap"><pre data-lang="ts"><code>// app/api/stream/route.ts
+export async function GET() {
+  const encoder = new TextEncoder()
+  const stream = new ReadableStream({
+    async start(controller) {
+      for (let i = 0; i &lt; 5; i++) {
+        controller.enqueue(encoder.encode(`Chunk ${i + 1}\n`))
+        await new Promise((r) =&gt; setTimeout(r, 200))
+      }
+      controller.close()
+    },
+  })
+  return new Response(stream, {
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+  })
+}</code></pre></div>
+<p>Use a Route Handler when the caller is not React (a Stripe webhook, a cron job, an external service). Use a Server Action when the caller is your own UI.</p>
+<h3 id="dynamic-vs-static-rendering">Dynamic vs static rendering</h3>
+<p>In the App Router, rendering is a spectrum resolved per component, not a page-level switch. The triggers for dynamic work are:</p>
+<ul>
+<li>runtime APIs: <code>cookies()</code>, <code>headers()</code>, <code>searchParams</code>, dynamic <code>params</code></li>
+<li>uncached data fetches</li>
+<li>non-deterministic values: <code>Date.now()</code>, <code>Math.random()</code>, <code>crypto.randomUUID()</code></li>
+</ul>
+<p>With Cache Components, each of these must be handled explicitly: cache it, wrap it in <code>&lt;Suspense&gt;</code>, or opt the route out with <code>connection()</code>. The dev overlay names the offending route and offers the fix.</p>
+<h3 id="generatestaticparams"><code>generateStaticParams</code></h3>
+<p>For dynamic segments, <code>generateStaticParams</code> tells the build which URLs to prerender.</p>
+<div class="codewrap"><pre data-lang="tsx"><code>export async function generateStaticParams() {
+  const products = await getTopProducts()
+  return products.map((p) =&gt; ({ id: p.id }))
+}</code></pre></div>
+<p>With PPR/Cache Components, unknown params are served the reusable <strong>App Shell</strong> instantly and upgraded in the background after the first visit. Known params get fully concrete prerendered content.</p>
+<hr>
+</section><section id="part-5--the-caching-layers"><h2 id="part-5--the-caching-layers">Part 5 — The Caching Layers</h2>
+<p>This is the part of Next.js that has changed most, so read the version note before the details.</p>
+<blockquote>
+<p><strong>Version-dependent — verify in the Next.js docs.</strong> Next.js 14 cached <code>fetch</code> by default. Next.js 15 flipped that: <strong><code>fetch</code> is not cached by default</strong>, and GET Route Handlers lost automatic caching. Next.js 16 introduced <strong>Cache Components</strong> (<code>cacheComponents: true</code>), which replaces route segment configs like <code>dynamic</code>, <code>revalidate</code>, and <code>fetchCache</code> with the <code>&quot;use cache&quot;</code> directive and <code>cacheLife</code>. Both models coexist in the docs — one guide for Cache Components, one for the previous model.</p>
+</blockquote>
+<h3 id="the-classic-four-caches-previous-model">The classic four caches (previous model)</h3>
+<table>
+<thead>
+<tr>
+<th>Cache</th>
+<th>Scope</th>
+<th>What it stores</th>
+<th>How to control</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Request Memoization</strong></td>
+<td>Single render pass</td>
+<td>Deduplicates identical <code>fetch</code> calls in one render</td>
+<td>Automatic; <code>React.cache()</code> for non-fetch</td>
+</tr>
+<tr>
+<td><strong>Data Cache</strong></td>
+<td>Persistent, across requests and deploys</td>
+<td>Individual <code>fetch</code> responses</td>
+<td><code>cache: &#39;force-cache&#39;</code>, <code>next: { revalidate, tags }</code></td>
+</tr>
+<tr>
+<td><strong>Full Route Cache</strong></td>
+<td>Persistent</td>
+<td>Rendered HTML + RSC payload for a route</td>
+<td>Static rendering, <code>revalidate</code>, <code>dynamic</code></td>
+</tr>
+<tr>
+<td><strong>Router Cache</strong></td>
+<td>Client-side, in-browser</td>
+<td>Prefetched route payloads</td>
+<td><code>router.refresh()</code>, <code>revalidatePath</code>/<code>revalidateTag</code>, <code>staleTimes</code></td>
+</tr>
+</tbody></table>
+<p>In the previous model:</p>
+<div class="codewrap"><pre data-lang="tsx"><code>// Opt into caching explicitly (default is uncached)
+const res = await fetch('https://api.example.com/products', {
+  cache: 'force-cache',
+  next: { revalidate: 3600, tags: ['products'] },
+})</code></pre></div>
+<p>Route segment configs:</p>
+<div class="codewrap"><pre data-lang="tsx"><code>export const dynamic = 'force-dynamic'   // render every request
+export const revalidate = 3600           // default revalidation window
+export const fetchCache = 'auto'         // override fetch cache defaults per segment</code></pre></div>
+<h3 id="the-cache-components-model-nextjs-16">The Cache Components model (Next.js 16)</h3>
+<p>The philosophy: <strong>nothing is cached unless you say so, at a named boundary, with an explicit lifetime.</strong></p>
+<div class="codewrap"><pre data-lang="tsx"><code>// app/lib/data.ts
+import { cacheLife, cacheTag } from 'next/cache'
+
+export async function getProducts() {
+  'use cache'
+  cacheLife('hours')     // time-based freshness
+  cacheTag('products')   // on-demand invalidation handle
+  const res = await fetch('https://api.example.com/products')
+  return res.json()
+}</code></pre></div>
+<p>Key behaviors:</p>
+<ul>
+<li>The cache key is derived from <strong>build ID + function identity + serialized arguments and captured closure values</strong>. <code>getProduct(&#39;a&#39;)</code> and <code>getProduct(&#39;b&#39;)</code> get separate entries automatically.</li>
+<li>Cached functions <strong>cannot read runtime APIs</strong> like <code>cookies()</code> or <code>headers()</code>. Read them outside and pass the value in.</li>
+<li>With the default in-memory handler, entries on <strong>serverless do not persist across requests</strong> — instances are ephemeral. <code>&quot;use cache: remote&quot;</code> uses a durable platform cache handler (network round trip, typically billed).</li>
+<li>Entries are <strong>scoped to a single deployment</strong>. A new deploy rebuilds prerenders and <code>&quot;use cache&quot;</code> entries do not carry over.</li>
+</ul>
+<h3 id="invalidation-pick-the-right-verb">Invalidation: pick the right verb</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Called from</th>
+<th>Semantics</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>updateTag(tag)</code></td>
+<td>Server Actions only</td>
+<td>Expires the tag; next read <strong>waits</strong> for fresh data</td>
+<td>Read-your-own-writes (user must see their change now)</td>
+</tr>
+<tr>
+<td><code>revalidateTag(tag, &#39;max&#39;)</code></td>
+<td>Actions + Route Handlers</td>
+<td>Marks stale; serves stale while refreshing in background</td>
+<td>Webhooks, CMS fan-out, eventual consistency is fine</td>
+</tr>
+<tr>
+<td><code>revalidateTag(tag, { expire: 0 })</code></td>
+<td>Actions + Route Handlers</td>
+<td>Blocking revalidation, no stale served</td>
+<td>Immediate purge from a non-action context</td>
+</tr>
+<tr>
+<td><code>revalidatePath(&#39;/path&#39;)</code></td>
+<td>Actions + Route Handlers</td>
+<td>Invalidates one URL path&#39;s cached output</td>
+<td>One route affected, tagging is overkill</td>
+</tr>
+<tr>
+<td><code>refresh()</code></td>
+<td>Server Actions</td>
+<td>Refetch current route payload without invalidating cache</td>
+<td>View depends on state outside the cache</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Version-dependent:</strong> In Next.js 16 the two-argument <code>revalidateTag(tag, profile)</code> signature is the supported form; the single-argument form is deprecated. In the <strong>previous</strong> caching model, <code>revalidateTag(&#39;user&#39;)</code> with one argument is the normal call. Verify which model your project is on.</p>
+</blockquote>
+<blockquote>
+<p><strong>Trap:</strong> <code>revalidateTag</code> does not revalidate anything on its own — a <strong>request</strong> triggers the refresh. Pages using the tag revalidate as they are visited, not all at once.</p>
+</blockquote>
+<h3 id="practical-rules">Practical rules</h3>
+<ol>
+<li>Cache at the <strong>data</strong> level (<code>getProducts</code>) and, where it helps, at the <strong>UI</strong> level (a whole blog list component).</li>
+<li>Tag at the <strong>granularity you mutate at</strong>. <code>product:42</code> is better than <code>products</code> if you usually update one product.</li>
+<li><code>updateTag</code> for the mutation the user just performed; <code>revalidateTag</code> for everything else.</li>
+<li>If you find yourself reaching for <code>revalidatePath</code> everywhere, you are probably over-invalidating — tags are the surgical tool.</li>
+<li>Debug with verbose cache logging in development rather than guessing.</li>
+</ol>
+<hr>
+</section><section id="part-6--runtimes-nodejs-vs-edge"><h2 id="part-6--runtimes-nodejs-vs-edge">Part 6 — Runtimes: Node.js vs Edge</h2>
+<h3 id="what-actually-runs-where">What actually runs where</h3>
+<p>Next.js historically offered two server runtimes per route: Node.js (default) and Edge. In Next.js 16, <strong>the Edge Runtime is deprecated</strong> — the <code>runtime = &#39;edge&#39;</code> route segment export now warns and the recommended action is to remove it. The Edge Runtime still powers the <code>proxy</code> file convention (the renamed middleware layer), which runs before your page renders.</p>
+<blockquote>
+<p><strong>Version-dependent — verify in the Next.js docs.</strong> Earlier majors encouraged per-route Edge rendering. Later majors reversed course: the framework&#39;s caching model, ISR, and native dependencies all assume Node.js. Treat any &quot;deploy to the edge for speed&quot; advice older than a year as suspect.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Node.js runtime (default)</th>
+<th>Edge runtime</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Full Node APIs (<code>fs</code>, <code>node:crypto</code>, <code>node:stream</code>)</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td><code>require()</code> (CommonJS)</td>
+<td>Yes</td>
+<td>No — ESM only</td>
+</tr>
+<tr>
+<td>npm native modules</td>
+<td>Yes</td>
+<td>No (must be pure ESM without Node APIs)</td>
+</tr>
+<tr>
+<td>Web APIs (<code>fetch</code>, <code>Request</code>, <code>Response</code>, Streams, <code>crypto.subtle</code>)</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Streaming responses</td>
+<td>Yes (platform-dependent)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Incremental Static Regeneration (ISR)</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td><code>eval</code> / <code>new Function</code></td>
+<td>Yes</td>
+<td>Disabled</td>
+</tr>
+<tr>
+<td><code>WebAssembly.compile</code> / <code>instantiate</code></td>
+<td>Yes</td>
+<td>Disabled in the Next.js Edge runtime</td>
+</tr>
+<tr>
+<td>Cache Components (<code>use cache</code>)</td>
+<td>Yes — required</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Typical cold start</td>
+<td>Higher (larger bundles)</td>
+<td>Lower (small isolates)</td>
+</tr>
+</tbody></table>
+<h3 id="the-crypto-failure-everyone-hits">The <code>crypto</code> failure everyone hits</h3>
+<p>A classic symptom: your app works locally and fails on the edge with something like <code>crypto.createHash is not a function</code>. The Node <code>crypto</code> module does not exist on the Edge Runtime. You must use the Web Crypto API:</p>
+<div class="codewrap"><pre data-lang="ts"><code>// ❌ Node-only
+import { createHash } from 'node:crypto'
+const digest = createHash('sha256').update(input).digest('hex')
+
+// ✅ Works in both runtimes (Web Crypto)
+const data = new TextEncoder().encode(input)
+const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+const digest = Array.from(new Uint8Array(hashBuffer))
+  .map((b) =&gt; b.toString(16).padStart(2, '0'))
+  .join('')</code></pre></div>
+<blockquote>
+<p><strong>Gotcha:</strong> Web Crypto&#39;s <code>subtle</code> API is async and does not support every legacy algorithm (for example, MD5 is generally absent). If you depend on a specific digest, verify availability for your target runtime.</p>
+</blockquote>
+<h3 id="cold-starts-and-region-placement">Cold starts and region placement</h3>
+<ul>
+<li><strong>Cold starts</strong> happen when a platform spins up a fresh execution context. Next.js on Vercel uses &quot;fluid compute,&quot; where multiple invocations can share one instance and compiled bytecode is cached for Node.js 20+ — Vercel reports this reduces cold-start impact. <em>That is a vendor claim; measure it for your own traffic.</em></li>
+<li><strong>Region placement</strong> decides how far a request travels. Run your functions near your database, not near your users, if the DB round trip dominates. A function near the user that then crosses an ocean to reach Postgres is slower than a function next to Postgres.</li>
+<li><strong>Concurrency vs isolation</strong> is a real tradeoff. Sharing instances improves cost and cold starts, and it means global state can be shared between concurrent requests. Never store per-request data in module-level variables.</li>
+</ul>
+<h3 id="when-to-use-each">When to use each</h3>
+<ul>
+<li><strong>Default to Node.js.</strong> It is what the framework assumes and what your dependencies expect.</li>
+<li><strong>Use the edge layer for:</strong> request-time routing decisions, auth redirects, A/B bucketing, geographic personalization, header rewriting — cheap work that must happen before rendering.</li>
+<li><strong>Avoid the edge for:</strong> anything needing native modules, the filesystem, ISR, or the Cache Components caching model.</li>
+</ul>
+<hr>
+</section><section id="part-7--webassembly-in-the-browser"><h2 id="part-7--webassembly-in-the-browser">Part 7 — WebAssembly in the Browser</h2>
+<h3 id="what-webassembly-is">What WebAssembly is</h3>
+<p>WebAssembly (Wasm) is a <strong>low-level bytecode format</strong> designed as a compilation target — not a language you write by hand. C, C++, Rust, C#, and AssemblyScript compile to it. Browsers and Node.js load and run it at near-native speed inside a sandbox that enforces the same origin and permission rules as JavaScript.</p>
+<p>The core concepts map 1:1 to the JavaScript API:</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Module</strong></td>
+<td>A compiled Wasm binary. Stateless; can be shared between workers. Declares imports and exports.</td>
+</tr>
+<tr>
+<td><strong>Memory</strong></td>
+<td>A resizable <code>ArrayBuffer</code> holding the linear byte array Wasm reads and writes.</td>
+</tr>
+<tr>
+<td><strong>Table</strong></td>
+<td>A resizable typed array of references (e.g. function pointers) that cannot live as raw bytes.</td>
+</tr>
+<tr>
+<td><strong>Instance</strong></td>
+<td>A module paired with its memory, table, and imported values — the runnable thing.</td>
+</tr>
+</tbody></table>
+<p>Wasm is <strong>not a JavaScript replacement</strong>. It has no DOM access. To touch a Web API, Wasm calls out to JavaScript, which makes the call. That indirection is the single most important cost to understand.</p>
+<h3 id="when-wasm-beats-javascript">When Wasm beats JavaScript</h3>
+<p>Wasm wins when work is <strong>deterministic, numeric, and compute-dense</strong>:</p>
+<ul>
+<li>Media transcoding (FFmpeg compiled with Emscripten)</li>
+<li>Image processing and resizing</li>
+<li>Heavy math, simulation, physics, codecs</li>
+<li>Machine-learning inference in the browser</li>
+</ul>
+<p>Wasm loses when work is <strong>DOM-heavy, allocation-heavy, or string-heavy</strong>, because every crossing of the JS↔WASM boundary costs, and every string has to be encoded into linear memory and decoded out.</p>
+<h3 id="the-jswasm-boundary-cost">The JS↔WASM boundary cost</h3>
+<div class="codewrap"><pre data-lang="ts"><code>const instance = await WebAssembly.instantiateStreaming(
+  fetch('/heavy.wasm'),
+  { env: { log: (n: number) =&gt; console.log(n) } }
+)
+
+const { add, process_array } = instance.instance.exports
+
+// ✅ One call with many numbers inside: cheap
+process_array(ptr, length)
+
+// ❌ A thousand tiny calls, each converting strings: expensive
+for (const word of words) {
+  const ptr = copyStringIntoMemory(instance, word) // allocation + encode
+  check_word(ptr)                                   // another boundary cross
+}</code></pre></div>
+<p>Rules of thumb:</p>
+<ol>
+<li><strong>Batch across the boundary.</strong> Pass arrays and buffers, not individual values.</li>
+<li><strong>Keep strings out of hot loops.</strong> Prefer numeric IDs and typed arrays.</li>
+<li><strong>Use <code>SharedArrayBuffer</code> + workers for concurrency</strong> where the platform allows it.</li>
+<li><strong>Stream compilation.</strong> Use <code>instantiateStreaming</code> so the module compiles while it downloads.</li>
+<li><strong>Measure first.</strong> If plain JS hits the performance target, Wasm adds bundle size, build complexity, and a debugging tax for nothing.</li>
+</ol>
+<h3 id="in-browser-ml-the-practical-cases">In-browser ML: the practical cases</h3>
+<p>Two libraries dominate this space:</p>
+<p><strong><code>onnxruntime-web</code></strong> runs ONNX-format models in the browser. It supports multiple execution providers: <code>wasm</code> (CPU, all operators), <code>webgl</code>, <code>webgpu</code>, and <code>webnn</code>, with GPU providers currently supporting a subset of operators. Typical pipeline: pick a model, preprocess inputs into tensors, <code>session.run()</code>, postprocess outputs. The ONNX Runtime docs also publish a Next.js image-classification tutorial.</p>
+<p><strong>Transformers.js</strong> wraps ONNX Runtime with a Hugging Face-style <code>pipeline</code> API:</p>
+<div class="codewrap"><pre data-lang="ts"><code>import { pipeline } from '@huggingface/transformers'
+
+const classifier = await pipeline('sentiment-analysis', 'Xenova/distilbert-base-uncased-finetuned-sst-2-english', {
+  dtype: 'q8',            // quantized for smaller download (default for WASM)
+  device: 'webgpu',       // optional GPU offload — verify browser support
+})
+
+const out = await classifier('I love building things on the web.')</code></pre></div>
+<p>Why in-browser inference is attractive: data never leaves the device (privacy), it works offline, it offloads cost from your servers, and latency can be far lower than a network round trip to a GPU. Why it is often wrong: models are big downloads, quantized accuracy drops, older devices stall, and the first inference includes model load time.</p>
+<blockquote>
+<p><strong>Verify in the docs:</strong> supported tasks, quantization options, and WebGPU availability change quickly. Check <code>onnxruntime.ai</code> and the Transformers.js docs for the current model/task matrix and device support.</p>
+</blockquote>
+<h3 id="where-this-is-heading">Where this is heading</h3>
+<ul>
+<li><strong>WasmGC</strong> lets garbage-collected languages (Java, Kotlin, Dart, and more) target Wasm efficiently by sharing the host&#39;s GC instead of shipping their own.</li>
+<li><strong>The Component Model</strong> aims to make Wasm modules composable across languages via a common interface, rather than gluing them together with hand-written JavaScript.</li>
+<li><strong>ES module integration</strong> would let you <code>import</code> a <code>.wasm</code> module like any other module.</li>
+</ul>
+<blockquote>
+<p><strong>Verify current status:</strong> these are evolving standardization efforts. Check <code>webassembly.org</code> and MDN&#39;s WebAssembly guides for what is actually shipped in browsers, versus what is proposed.</p>
+</blockquote>
+<hr>
+</section><section id="part-8--shipping-it-core-web-vitals-deploy-targets-and-a-worked-page"><h2 id="part-8--shipping-it-core-web-vitals-deploy-targets-and-a-worked-page">Part 8 — Shipping It: Core Web Vitals, Deploy Targets, and a Worked Page</h2>
+<h3 id="core-web-vitals-as-an-engineering-target">Core Web Vitals as an engineering target</h3>
+<p>Three metrics, measured from <strong>real user sessions</strong> and evaluated at the <strong>75th percentile</strong> — meaning 75% of visits must clear the bar. All three must pass simultaneously for an overall &quot;good&quot; assessment.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Measures</th>
+<th>Good</th>
+<th>Needs improvement</th>
+<th>Poor</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>LCP</strong> (Largest Contentful Paint)</td>
+<td>Loading: when the largest visible element renders</td>
+<td>≤ 2.5 s</td>
+<td>2.5 – 4.0 s</td>
+<td>&gt; 4.0 s</td>
+</tr>
+<tr>
+<td><strong>INP</strong> (Interaction to Next Paint)</td>
+<td>Responsiveness: latency across interactions</td>
+<td>≤ 200 ms</td>
+<td>200 – 500 ms</td>
+<td>&gt; 500 ms</td>
+</tr>
+<tr>
+<td><strong>CLS</strong> (Cumulative Layout Shift)</td>
+<td>Visual stability: unexpected layout movement</td>
+<td>≤ 0.1</td>
+<td>0.1 – 0.25</td>
+<td>&gt; 0.25</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Thresholds evolve — verify at web.dev.</strong> INP replaced FID as a stable Core Web Vital in March 2024. LCP and CLS thresholds have been stable for years, but the metric set goes through an experimental → pending → stable lifecycle, and Google commits to communicating changes clearly. Treat any chart older than a year as a starting point, not a source of truth.</p>
+</blockquote>
+<p><strong>Next.js causes and fixes:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Common Next.js cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>LCP</strong></td>
+<td>LCP element inside a Suspense boundary</td>
+<td>Keep hero image / main heading <strong>outside</strong> boundaries; use <code>next/image</code> with the <code>preload</code> prop</td>
+</tr>
+<tr>
+<td><strong>LCP</strong></td>
+<td>Hero depends on client-side data</td>
+<td>Render it in a Server Component; never let the hero wait on <code>useEffect</code></td>
+</tr>
+<tr>
+<td><strong>LCP</strong></td>
+<td>Slow TTFB from a blocking query at the page root</td>
+<td>Push the query into a Suspense boundary; cache with <code>&quot;use cache&quot;</code></td>
+</tr>
+<tr>
+<td><strong>INP</strong></td>
+<td>One giant client component hydrating in a blocking pass</td>
+<td>Split hydration with multiple <code>&lt;Suspense&gt;</code> boundaries</td>
+</tr>
+<tr>
+<td><strong>INP</strong></td>
+<td>Heavy third-party scripts</td>
+<td>Load them lazily; audit with DevTools performance traces</td>
+</tr>
+<tr>
+<td><strong>CLS</strong></td>
+<td>Skeleton fallback differs in size from resolved content</td>
+<td>Match fallback dimensions exactly; reserve space with fixed/min-height containers</td>
+</tr>
+<tr>
+<td><strong>CLS</strong></td>
+<td>Fonts swapping in at a different size</td>
+<td>Use <code>font-display</code> carefully and <code>size-adjust</code> to match metrics</td>
+</tr>
+</tbody></table>
+<p>Measure in the field, not just the lab. Lighthouse can measure LCP and CLS but <strong>cannot measure INP</strong> (there is no user input); Total Blocking Time is a lab proxy. For real numbers, use the <code>web-vitals</code> library and send events to your analytics endpoint.</p>
+<h3 id="deploy-targets-decision-table">Deploy targets decision table</h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Vercel</th>
+<th>Cloudflare Workers</th>
+<th>Self-host (Node/Docker)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Next.js integration depth</td>
+<td>Deepest (build, ISR, PPR, image optimization, cron, analytics)</td>
+<td>Via OpenNext adapter — verify current support</td>
+<td>You own the adapter</td>
+</tr>
+<tr>
+<td>ISR / PPR caching</td>
+<td>First-class</td>
+<td>Adapter-dependent; verify</td>
+<td>You configure cache handlers</td>
+</tr>
+<tr>
+<td>Runtime model</td>
+<td>Node.js (fluid compute, instance sharing)</td>
+<td>V8 isolates, globally distributed</td>
+<td>Whatever you deploy</td>
+</tr>
+<tr>
+<td>Cold starts</td>
+<td>Bytecode caching on Node 20+; vendor-reported reductions</td>
+<td>Isolates start in single-digit ms</td>
+<td>Depends on your infra</td>
+</tr>
+<tr>
+<td>CPU limits</td>
+<td>Duration-based (default 300 s, up to 800 s on Pro; longer in beta) — vendor figures</td>
+<td>Free: 10 ms CPU/request; Paid: default 30 s, configurable to 5 min</td>
+<td>Your hardware</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>Plan-dependent</td>
+<td><strong>128 MB per isolate</strong></td>
+<td>Your hardware</td>
+</tr>
+<tr>
+<td>Bundle size</td>
+<td>Not the primary constraint</td>
+<td><strong>64 MiB uncompressed</strong> worker, 1 s startup, 5 KB per env var</td>
+<td>Not constrained</td>
+</tr>
+<tr>
+<td>Subrequests</td>
+<td>Platform-dependent</td>
+<td>50 free / 10,000 paid per invocation; 6 simultaneous open connections</td>
+<td>Unconstrained</td>
+</tr>
+<tr>
+<td>Cron</td>
+<td>Built-in</td>
+<td>Cron Triggers (5 free / 250 paid per account)</td>
+<td>Your scheduler</td>
+</tr>
+<tr>
+<td>Image optimization</td>
+<td>Built-in (<code>next/image</code>)</td>
+<td>Cloudflare Images / your code</td>
+<td>You build it</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>Integrated logs/traces</td>
+<td>Workers Logs, Tail Workers, Logpush</td>
+<td>You assemble it</td>
+</tr>
+<tr>
+<td>Cost at scale</td>
+<td>Predictable but can surprise on function invocations</td>
+<td>Cheap for I/O-bound work; CPU-bound work hits limits</td>
+<td>Cheapest compute, highest ops burden</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Next.js apps that want framework features</td>
+<td>Global edge APIs, auth, routing, small services</td>
+<td>Compliance, existing infra, cost control</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Vendor claims:</strong> Vercel&#39;s fluid compute, cold-start reductions, and concurrency benefits are documented at <code>vercel.com/docs</code>. They are plausible and measurable — measure them against your own workload. Cloudflare&#39;s limits are documented at <code>developers.cloudflare.com/workers/platform/limits</code> and were current at the time of writing.</p>
+</blockquote>
+<h3 id="a-worked-page-before-and-after">A worked page: before and after</h3>
+<p><strong>Before</strong> — a client-side product dashboard. Data fetched after mount, no caching, no streaming.</p>
+<div class="codewrap"><pre data-lang="tsx"><code>// app/product/[id]/page.tsx  — BEFORE
+'use client'
+
+import { useEffect, useState } from 'react'
+
+type Product = { id: string; name: string; price: number; stock: number }
+type Review = { id: string; body: string; rating: number }
+
+export default function ProductPage({ params }: { params: { id: string } }) {
+  const [product, setProduct] = useState&lt;Product | null&gt;(null)
+  const [reviews, setReviews] = useState&lt;Review[]&gt;([])
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() =&gt; {
+    fetch(`/api/products/${params.id}`).then((r) =&gt; r.json()).then(setProduct)
+    fetch(`/api/products/${params.id}/reviews`).then((r) =&gt; r.json()).then(setReviews)
+  }, [params.id])
+
+  async function saveStock(stock: number) {
+    setSaving(true)
+    await fetch(`/api/products/${params.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ stock }),
+    })
+    setSaving(false)
+    window.location.reload() // 🙈 the classic
+  }
+
+  if (!product) return &lt;p&gt;Loading…&lt;/p&gt; // whole page blocked
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;{product.name}&lt;/h1&gt;
+      &lt;p&gt;${product.price}&lt;/p&gt;
+      &lt;button onClick={() =&gt; saveStock(product.stock - 1)} disabled={saving}&gt;
+        Sell one
+      &lt;/button&gt;
+      &lt;section&gt;
+        {reviews.map((r) =&gt; (
+          &lt;article key={r.id}&gt;{r.body}&lt;/article&gt;
+        ))}
+      &lt;/section&gt;
+    &lt;/div&gt;
+  )
+}</code></pre></div>
+<p>Problems: two client-side request waterfalls, an empty screen until both land, full-page reload after every mutation, and no caching — every visit refetches everything.</p>
+<p><strong>After</strong> — a Server Component shell with a streamed reviews section, a small client island for the interactive stock control, a Server Action, and a tag-based revalidation.</p>
+<div class="codewrap"><pre data-lang="ts"><code>// app/lib/data.ts
+import { cacheLife, cacheTag } from 'next/cache'
+
+export async function getProduct(id: string) {
+  'use cache'
+  cacheLife('minutes')
+  cacheTag('products', `product-${id}`)
+
+  const res = await fetch(`https://api.example.com/products/${id}`)
+  if (!res.ok) return null
+  return res.json() as Promise&lt;{ id: string; name: string; price: number; stock: number }&gt;
+}
+
+export async function getReviews(id: string) {
+  const res = await fetch(`https://api.example.com/products/${id}/reviews`)
+  return res.json() as Promise&lt;{ id: string; body: string }[]&gt;
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="ts"><code>// app/product/[id]/actions.ts
+'use server'
+
+import { updateTag } from 'next/cache'
+import { db } from '@/lib/db'
+import { auth } from '@/lib/auth'
+
+export async function sellOne(productId: string) {
+  const session = await auth()
+  if (!session?.user) throw new Error('Unauthorized')
+
+  // Validate by re-reading from a trusted source, not by trusting the client.
+  const product = await db.product.findFirst({
+    where: { id: productId, ownerId: session.user.id },
+  })
+  if (!product || product.stock &lt;= 0) return { ok: false, error: 'Out of stock' }
+
+  await db.product.update({
+    where: { id: product.id },
+    data: { stock: product.stock - 1 },
+  })
+
+  // Read-your-own-writes: the next read waits for fresh data.
+  updateTag(`product-${productId}`)
+  updateTag('products')
+
+  return { ok: true }
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="tsx"><code>// app/product/[id]/stock-control.tsx  — the client island
+'use client'
+
+import { useTransition } from 'react'
+import { sellOne } from './actions'
+
+export function StockControl({ productId, stock }: { productId: string; stock: number }) {
+  const [pending, startTransition] = useTransition()
+
+  return (
+    &lt;div&gt;
+      &lt;span&gt;{stock} in stock&lt;/span&gt;
+      &lt;button
+        disabled={pending || stock &lt;= 0}
+        onClick={() =&gt; startTransition(() =&gt; { void sellOne(productId) })}
+      &gt;
+        {pending ? 'Saving…' : 'Sell one'}
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="tsx"><code>// app/product/[id]/reviews.tsx  — streams behind Suspense
+import { getReviews } from '@/lib/data'
+
+export async function Reviews({ productId }: { productId: string }) {
+  const reviews = await getReviews(productId) // uncached: fresh every request
+  return (
+    &lt;section&gt;
+      {reviews.map((r) =&gt; (
+        &lt;article key={r.id}&gt;{r.body}&lt;/article&gt;
+      ))}
+    &lt;/section&gt;
+  )
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="tsx"><code>// app/product/[id]/page.tsx  — AFTER
+import { Suspense } from 'react'
+import { notFound } from 'next/navigation'
+import { getProduct } from '@/lib/data'
+import { StockControl } from './stock-control'
+import { Reviews } from './reviews'
+import Image from 'next/image'
+
+export async function generateStaticParams() {
+  return [{ id: '1' }, { id: '2' }] // prerender known products at build
+}
+
+export default async function ProductPage({ params }: { params: Promise&lt;{ id: string }&gt; }) {
+  const { id } = await params
+  const product = await getProduct(id) // cached — part of the static shell
+  if (!product) notFound()             // real 404, before any boundary suspends
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;{product.name}&lt;/h1&gt;                          {/* LCP element in the shell */}
+      &lt;Image src={`/products/${product.id}.jpg`} alt=&quot;&quot; width={800} height={450} preload /&gt;
+      &lt;p&gt;${product.price}&lt;/p&gt;
+      &lt;StockControl productId={product.id} stock={product.stock} /&gt;
+      &lt;Suspense fallback={&lt;ReviewsSkeleton /&gt;}&gt;
+        &lt;Reviews productId={product.id} /&gt;
+      &lt;/Suspense&gt;
+    &lt;/div&gt;
+  )
+}
+
+function ReviewsSkeleton() {
+  return (
+    &lt;section className=&quot;space-y-2&quot;&gt;
+      &lt;div className=&quot;h-4 w-full rounded bg-gray-200&quot; /&gt;
+      &lt;div className=&quot;h-4 w-2/3 rounded bg-gray-200&quot; /&gt;
+    &lt;/section&gt;
+  )
+}</code></pre></div>
+<p>What changed:</p>
+<ol>
+<li><strong>No client-side waterfall.</strong> Data is fetched during render on the server.</li>
+<li><strong>Product data is cached</strong> with <code>&quot;use cache&quot;</code>, <code>cacheLife(&#39;minutes&#39;)</code>, and tags — so it can be part of the static shell.</li>
+<li><strong>Reviews stream</strong> behind a Suspense boundary, with a skeleton that matches the final dimensions (CLS-safe).</li>
+<li><strong>The only client JavaScript is the stock button.</strong> The page around it ships none.</li>
+<li><strong>The mutation is a Server Action</strong> with authentication, ownership checks, validation, and <code>updateTag</code> for read-your-own-writes.</li>
+<li><strong>The 404 is real</strong>, because <code>notFound()</code> runs before any boundary suspends.</li>
+<li><strong>The LCP element is in the shell</strong>, not behind a boundary.</li>
+</ol>
+<blockquote>
+<p><strong>Gotcha:</strong> <code>updateTag</code> is the right call <em>only</em> because the user must immediately see their own write. If this were a background sync from a supplier&#39;s API, you would use <code>revalidateTag(tag, &#39;max&#39;)</code> instead. Also note: <code>&quot;use cache&quot;</code> requires <code>cacheComponents: true</code> and the Node.js runtime. If your project is not on Cache Components, use the previous model&#39;s <code>fetch</code> options and <code>revalidateTag(tag)</code>.</p>
+</blockquote>
+<hr>
+</section><section id="cheat-sheets"><h2 id="cheat-sheets">Cheat Sheets</h2>
+<h3 id="rsc-vs-client-components">RSC vs Client Components</h3>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Server Component</th>
+<th>Client Component</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Directive</td>
+<td>none</td>
+<td><code>&quot;use client&quot;</code> at top of file</td>
+</tr>
+<tr>
+<td>Async / <code>await</code> in component</td>
+<td>Yes</td>
+<td>No — use <code>use(promise)</code></td>
+</tr>
+<tr>
+<td>State / effects / handlers</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Ships JS to browser</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Direct DB / FS access</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>cookies()</code> / <code>headers()</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Can read secrets</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Can render the other type</td>
+<td>Yes</td>
+<td>Only via <code>children</code> / props</td>
+</tr>
+</tbody></table>
+<h3 id="cache-layers">Cache layers</h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Scope</th>
+<th>Persists across requests</th>
+<th>Invalidation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Request Memoization</td>
+<td>One render pass</td>
+<td>No</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Data Cache (<code>fetch</code> / <code>unstable_cache</code>)</td>
+<td>Server</td>
+<td>Yes</td>
+<td><code>revalidateTag</code>, <code>revalidatePath</code>, time</td>
+</tr>
+<tr>
+<td>Full Route Cache</td>
+<td>Server + CDN</td>
+<td>Yes</td>
+<td><code>revalidateTag</code>, <code>revalidatePath</code>, time</td>
+</tr>
+<tr>
+<td>Router Cache</td>
+<td>Browser</td>
+<td>Until navigation/TTL</td>
+<td><code>router.refresh()</code>, revalidation calls</td>
+</tr>
+<tr>
+<td><code>&quot;use cache&quot;</code> (Cache Components)</td>
+<td>Server, per deployment</td>
+<td>In-memory; ephemeral on serverless</td>
+<td><code>cacheLife</code>, <code>cacheTag</code> + <code>updateTag</code>/<code>revalidateTag</code></td>
+</tr>
+<tr>
+<td><code>&quot;use cache: remote&quot;</code></td>
+<td>Shared durable store</td>
+<td>Yes, until deploy</td>
+<td>Same tag APIs</td>
+</tr>
+</tbody></table>
+<h3 id="runtime-capabilities">Runtime capabilities</h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Node.js</th>
+<th>Edge</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>fs</code>, <code>node:crypto</code>, native modules</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Web APIs (fetch, streams, Web Crypto)</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ISR</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Cache Components (<code>use cache</code>)</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>eval</code> / dynamic code</td>
+<td>Yes</td>
+<td>Disabled</td>
+</tr>
+<tr>
+<td><code>WebAssembly.compile</code></td>
+<td>Yes</td>
+<td>Disabled (Next.js Edge)</td>
+</tr>
+<tr>
+<td>Typical use</td>
+<td>Everything</td>
+<td>Proxy-layer routing, redirects, auth gates</td>
+</tr>
+</tbody></table>
+<h3 id="core-web-vitals-targets">Core Web Vitals targets</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Good</th>
+<th>Poor</th>
+<th>Primary Next.js lever</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LCP</td>
+<td>≤ 2.5 s</td>
+<td>&gt; 4.0 s</td>
+<td>Server-render the hero; <code>next/image</code> + <code>preload</code>; keep it out of Suspense</td>
+</tr>
+<tr>
+<td>INP</td>
+<td>≤ 200 ms</td>
+<td>&gt; 500 ms</td>
+<td>Split hydration with Suspense; shrink client islands</td>
+</tr>
+<tr>
+<td>CLS</td>
+<td>≤ 0.1</td>
+<td>&gt; 0.25</td>
+<td>Dimension-matched skeletons; reserved space</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Hydration mismatch</strong>: &quot;Text content does not match server-rendered HTML&quot;</td>
+<td>Nondeterministic output — <code>Date.now()</code>, <code>Math.random()</code>, locale/timezone formatting, or reading <code>window</code>/<code>localStorage</code> during render</td>
+<td>Render the value in <code>useEffect</code>, or gate the client value behind a mounted flag; pass a stable server value as a prop</td>
+</tr>
+<tr>
+<td><strong>Hydration mismatch</strong> with a third-party library</td>
+<td>Library adds DOM during render</td>
+<td>Load it with <code>next/dynamic</code> and <code>ssr: false</code>, or mount in an effect</td>
+</tr>
+<tr>
+<td><strong><code>&quot;use client&quot;</code> overuse</strong>: huge client bundle, poor INP</td>
+<td>Marking whole pages or layouts <code>&quot;use client&quot;</code>, which marks every transitive import as client code too</td>
+<td>Push <code>&quot;use client&quot;</code> down to the smallest interactive leaf; pass server-rendered <code>children</code> in</td>
+</tr>
+<tr>
+<td><strong>Stale cache</strong>: old data after a mutation</td>
+<td>Mutation did not invalidate, or used stale-while-revalidate when read-your-own-writes was needed</td>
+<td>Use <code>updateTag(tag)</code> in the Server Action for immediate freshness; <code>revalidateTag(tag, &#39;max&#39;)</code> for background fan-out; verify tag strings match exactly (case-sensitive, ≤256 chars)</td>
+</tr>
+<tr>
+<td><strong>Cache never hits in production</strong></td>
+<td>Serverless in-memory <code>&quot;use cache&quot;</code> entries do not survive between instances</td>
+<td>Cache at build time where possible, or move to <code>&quot;use cache: remote&quot;</code> with a durable handler</td>
+</tr>
+<tr>
+<td><strong>RSC serialization error</strong>: &quot;Functions cannot be passed directly to Client Components&quot;</td>
+<td>Passing a callback, class instance, or unserializable object across the boundary</td>
+<td>Pass plain data; convert callbacks to Server Actions (<code>&quot;use server&quot;</code>); map ORM/class instances to plain objects</td>
+</tr>
+<tr>
+<td><strong>RSC serialization error</strong>: &quot;only plain objects&quot;</td>
+<td>Passing a <code>Date</code>-like custom class, a <code>URL</code> instance, or a null-prototype object</td>
+<td>Rebuild as a plain object or a supported built-in</td>
+</tr>
+<tr>
+<td><strong>Edge crypto failure</strong>: <code>crypto.createHash is not a function</code></td>
+<td>Node <code>crypto</code> used in the Edge Runtime / proxy</td>
+<td>Switch to Web Crypto (<code>crypto.subtle</code>), or move the route to the Node.js runtime</td>
+</tr>
+<tr>
+<td><strong>Edge failure generally</strong> in Next.js 16</td>
+<td>The Edge Runtime is deprecated and Cache Components requires Node.js</td>
+<td>Remove <code>export const runtime = &#39;edge&#39;</code>; keep edge work to the proxy layer</td>
+</tr>
+<tr>
+<td><strong>404/redirect did not stick</strong></td>
+<td><code>notFound()</code> or <code>redirect()</code> ran after streaming started</td>
+<td>Move the check before the first Suspense boundary or suspending <code>await</code></td>
+</tr>
+<tr>
+<td><strong>Build hangs ~50 s with a cache timeout</strong></td>
+<td>A <code>&quot;use cache&quot;</code> scope awaited request-specific data (<code>cookies()</code>, <code>params</code>, <code>searchParams</code>)</td>
+<td>Read runtime values outside the cached scope and pass them as arguments</td>
+</tr>
+<tr>
+<td><strong>PPR/<code>use cache</code> errors after upgrade</strong></td>
+<td>Mixed caching models — route segment configs left in while <code>cacheComponents</code> is on</td>
+<td>Remove <code>dynamic</code>, <code>revalidate</code>, <code>fetchCache</code> exports; migrate to <code>cacheLife</code>/<code>cacheTag</code></td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>No invented URLs. These are YouTube search links — pick the highest-quality result, and check the upload date against your Next.js version.</p>
+<ul>
+<li><a href="https://www.youtube.com/results?search_query=Next.js+16+Cache+Components+use+cache+explained" target="_blank" rel="noopener">Next.js 16 Cache Components explained</a> — the new caching model and why defaults flipped.</li>
+<li><a href="https://www.youtube.com/results?search_query=React+Server+Components+deep+dive" target="_blank" rel="noopener">React Server Components deep dive</a> — the serialization boundary and composition rules.</li>
+<li><a href="https://www.youtube.com/results?search_query=Next.js+streaming+Suspense+loading+tsx" target="_blank" rel="noopener">Next.js streaming and Suspense</a> — watching chunks arrive in DevTools.</li>
+<li><a href="https://www.youtube.com/results?search_query=Next.js+Partial+Prerendering+tutorial" target="_blank" rel="noopener">Partial Prerendering tutorial</a> — static shell plus streamed holes.</li>
+<li><a href="https://www.youtube.com/results?search_query=Next.js+Server+Actions+tutorial+revalidateTag" target="_blank" rel="noopener">Server Actions in practice</a> — forms, mutations, and revalidation.</li>
+<li><a href="https://www.youtube.com/results?search_query=Next.js+Node+vs+Edge+runtime" target="_blank" rel="noopener">Next.js Node vs Edge runtime</a> — what actually runs where.</li>
+<li><a href="https://www.youtube.com/results?search_query=Core+Web+Vitals+2026+LCP+INP+CLS" target="_blank" rel="noopener">Core Web Vitals in 2026</a> — thresholds and fixes.</li>
+<li><a href="https://www.youtube.com/results?search_query=WebAssembly+crash+course+for+web+developers" target="_blank" rel="noopener">WebAssembly crash course</a> — modules, memory, and the JS boundary.</li>
+<li><a href="https://www.youtube.com/results?search_query=Transformers.js+ONNX+Runtime+Web+browser+inference" target="_blank" rel="noopener">Run ML models in the browser</a> — Transformers.js and onnxruntime-web.</li>
+<li><a href="https://www.youtube.com/results?search_query=Vercel+vs+Cloudflare+Workers+deployment+comparison" target="_blank" rel="noopener">Vercel vs Cloudflare Workers</a> — tradeoffs for full-stack apps.</li>
+</ul>
+<hr>
+</section><section id="written-references"><h2 id="written-references">Written References</h2>
+<p>Official documentation only. Where I am not certain of the exact URL path, I say &quot;search&quot; rather than guess.</p>
+<ul>
+<li><strong>Next.js — Caching</strong> — <code>https://nextjs.org/docs/app/getting-started/caching</code> (Cache Components model)</li>
+<li><strong>Next.js — Caching and Revalidating (previous model)</strong> — <code>https://nextjs.org/docs/app/guides/caching-without-cache-components</code></li>
+<li><strong>Next.js — <code>use cache</code> directive</strong> — <code>https://nextjs.org/docs/app/api-reference/directives/use-cache</code></li>
+<li><strong>Next.js — <code>cacheComponents</code> config</strong> — <code>https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheComponents</code></li>
+<li><strong>Next.js — <code>revalidateTag</code></strong> — <code>https://nextjs.org/docs/app/api-reference/functions/revalidateTag</code></li>
+<li><strong>Next.js — <code>updateTag</code></strong> — <code>https://nextjs.org/docs/app/api-reference/functions/updateTag</code></li>
+<li><strong>Next.js — Streaming guide</strong> — <code>https://nextjs.org/docs/app/guides/streaming</code></li>
+<li><strong>Next.js — Server Actions guide</strong> — <code>https://nextjs.org/docs/app/guides/server-actions</code></li>
+<li><strong>Next.js — Edge Runtime API reference</strong> — <code>https://nextjs.org/docs/app/api-reference/edge</code></li>
+<li><strong>Next.js — <code>runtime</code> route segment config</strong> — <code>https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config/runtime</code></li>
+<li><strong>Next.js — Partial Prerendering platform guide</strong> — <code>https://nextjs.org/docs/app/guides/ppr-platform-guide</code></li>
+<li><strong>Next.js — Migrating to Cache Components</strong> — <code>https://nextjs.org/docs/app/guides/migrating-to-cache-components</code></li>
+<li><strong>React — Server Components</strong> — <code>https://react.dev/reference/rsc/server-components</code></li>
+<li><strong>React — <code>&#39;use client&#39;</code></strong> — <code>https://react.dev/reference/rsc/use-client</code></li>
+<li><strong>React — <code>use server</code> / Server Functions</strong> — search: <code>react.dev use server</code></li>
+<li><strong>React — <code>&lt;Suspense&gt;</code></strong> — search: <code>react.dev Suspense</code></li>
+<li><strong>web.dev — Web Vitals</strong> — <code>https://web.dev/articles/vitals</code></li>
+<li><strong>web.dev — Defining Core Web Vitals thresholds</strong> — <code>https://web.dev/articles/defining-core-web-vitals-thresholds</code></li>
+<li><strong>web.dev — Optimize LCP / INP / CLS</strong> — <code>https://web.dev/articles/optimize-lcp</code>, <code>.../optimize-inp</code>, <code>.../optimize-cls</code></li>
+<li><strong>MDN — WebAssembly</strong> — <code>https://developer.mozilla.org/en-US/docs/WebAssembly</code></li>
+<li><strong>MDN — WebAssembly concepts</strong> — <code>https://developer.mozilla.org/en-US/docs/WebAssembly/Guides/Concepts</code></li>
+<li><strong>Cloudflare Workers — Platform limits</strong> — <code>https://developers.cloudflare.com/workers/platform/limits/</code></li>
+<li><strong>Cloudflare Workers — Runtime APIs</strong> — search: <code>developers.cloudflare.com workers runtime-apis</code></li>
+<li><strong>Vercel — Fluid compute</strong> — <code>https://vercel.com/docs/fluid-compute</code></li>
+<li><strong>Vercel — Incremental Static Regeneration</strong> — search: <code>vercel.com docs incremental static regeneration</code></li>
+<li><strong>ONNX Runtime — Web tutorials</strong> — <code>https://onnxruntime.ai/docs/tutorials/web/</code></li>
+<li><strong>ONNX Runtime — WebGPU execution provider</strong> — search: <code>onnxruntime.ai webgpu execution provider</code></li>
+<li><strong>Transformers.js</strong> — <code>https://huggingface.co/docs/transformers.js</code></li>
+<li><strong>webassembly.org — Features and roadmap</strong> — <code>https://webassembly.org/features/</code></li>
+</ul>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<ul>
+<li><strong>App Shell</strong> — The reusable, URL-independent static shell served for dynamic params not known at build time; upgraded in the background after the first visit.</li>
+<li><strong>Cache Components</strong> — Next.js 16 feature (<code>cacheComponents: true</code>) enabling <code>&quot;use cache&quot;</code>, <code>cacheLife</code>, <code>cacheTag</code>, and PPR as the default App Router rendering behavior.</li>
+<li><strong>Client Component</strong> — A component in a module marked <code>&quot;use client&quot;</code>. Bundled and executed in the browser; the only place state, effects, and event handlers live.</li>
+<li><strong>CLS (Cumulative Layout Shift)</strong> — Visual stability metric. Good ≤ 0.1.</li>
+<li><strong>Cold start</strong> — The latency of initializing a fresh execution context before handling a request.</li>
+<li><strong>Core Web Vitals</strong> — LCP, INP, CLS. Measured in the field, evaluated at the 75th percentile.</li>
+<li><strong>CSR (Client-Side Rendering)</strong> — The browser builds the UI from JavaScript after load.</li>
+<li><strong>Data Cache</strong> — Persistent server-side cache for individual <code>fetch</code> responses (previous caching model).</li>
+<li><strong>Edge Runtime</strong> — A restricted, Web-API-only execution environment close to users. Deprecated for Next.js routes in Next.js 16; still used by the proxy layer.</li>
+<li><strong>Full Route Cache</strong> — Cached rendered HTML and RSC payload for a route.</li>
+<li><strong>Hydration</strong> — React attaching to server-rendered HTML and making it interactive.</li>
+<li><strong>INP (Interaction to Next Paint)</strong> — Responsiveness metric. Good ≤ 200 ms.</li>
+<li><strong>ISR (Incremental Static Regeneration)</strong> — Static pages rebuilt in the background after a time window or explicit invalidation.</li>
+<li><strong>Isolate</strong> — A lightweight, sandboxed V8 execution context (Cloudflare Workers model) that can host many requests.</li>
+<li><strong>LCP (Largest Contentful Paint)</strong> — Loading metric; when the largest visible element renders. Good ≤ 2.5 s.</li>
+<li><strong>Partial Prerendering (PPR)</strong> — Static shell plus streamed dynamic holes in a single HTTP response.</li>
+<li><strong>Proxy</strong> — The Next.js file convention (formerly middleware) that runs before a page renders, on the edge layer.</li>
+<li><strong>Request Memoization</strong> — Per-render deduplication of identical <code>fetch</code> calls.</li>
+<li><strong>RSC Payload</strong> — The serialized component tree sent on client navigation or embedded in streamed HTML for hydration.</li>
+<li><strong>Router Cache</strong> — Client-side cache of prefetched route payloads.</li>
+<li><strong>Server Action</strong> — A Server Function invoked through React&#39;s action mechanisms (<code>&lt;form action&gt;</code>, transitions).</li>
+<li><strong>Server Component</strong> — A component executed only on the server that ships zero JavaScript to the browser.</li>
+<li><strong>Server Function</strong> — A function marked <code>&quot;use server&quot;</code> callable from the client, but not inspectable there.</li>
+<li><strong>Static shell</strong> — Everything rendered before async work resolves: layouts, navigation, Suspense fallbacks.</li>
+<li><strong>Streaming SSR</strong> — Sending HTML in chunks via chunked transfer encoding as parts of the tree resolve.</li>
+<li><strong>Suspense boundary</strong> — A React boundary declaring fallback UI for async work; each boundary is an independent streaming and hydration unit.</li>
+<li><strong>TTFB (Time to First Byte)</strong> — Time until the first response byte. A key diagnostic for LCP.</li>
+<li><strong>WebAssembly (Wasm)</strong> — A low-level bytecode compile target for C/C++/Rust/C#/AssemblyScript, running near-native in a sandbox.</li>
+<li><strong>WasmGC</strong> — A WebAssembly proposal enabling garbage-collected languages to target Wasm efficiently.</li>
+<li><strong>Web Crypto</strong> — The browser-standard <code>crypto.subtle</code> API; the portable alternative to Node&#39;s <code>crypto</code> module.</li>
+</ul>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Is RSC the same as SSR?</strong>
+No. SSR is about <em>when</em> HTML is produced. RSC is about <em>which components execute where and what code ships to the browser</em>. Next.js uses both at once: server components are rendered on the server and their HTML is streamed, then the small client bundle hydrates.</p>
+<p><strong>Do Server Components run on every request?</strong>
+Not necessarily. They can run at build time (when cached or purely deterministic) or per request (when they touch runtime APIs or uncached data). That decision is per component, and the framework validates it.</p>
+<p><strong>If server components ship no JS, why is my bundle still big?</strong>
+Because of your client components, their transitive imports, and third-party libraries. Open the bundle analyzer and look for charts, editors, and UI kits that got pulled into a client module tree.</p>
+<p><strong>My page got slower after enabling <code>&quot;use cache&quot;</code>. Why?</strong>
+Likely a cache miss on every serverless request because in-memory entries do not persist between instances, plus serialization overhead. Check the hit rate before adopting <code>&quot;use cache: remote&quot;</code>, which adds a network round trip that only pays off at a high hit rate.</p>
+<p><strong>Should I put everything on the edge?</strong>
+No — and in Next.js 16 the per-route Edge Runtime is deprecated. Keep the edge for cheap pre-render work (redirects, routing, auth gates) via the proxy layer, and run rendering and caching on Node.js.</p>
+<p><strong>When is WebAssembly worth it in a Next.js app?</strong>
+When you have a measured, compute-bound hot path — video/image processing, codecs, or in-browser ML inference — and you can pass data in batches rather than in thousands of tiny calls. Not for DOM manipulation or string-heavy loops.</p>
+<p><strong>My INP is bad but Lighthouse says my score is fine. Why?</strong>
+Lighthouse cannot measure INP; it has no user input. Use Total Blocking Time as a lab proxy, and instrument the <code>web-vitals</code> library in production for real field data.</p>
+<p><strong>Next steps — do these, in order:</strong></p>
+<ol>
+<li>Open your largest client component and try to shrink the <code>&quot;use client&quot;</code> boundary by extracting a single interactive leaf.</li>
+<li>Add one explicit <code>&lt;Suspense&gt;</code> boundary around your slowest data read, with a dimension-matched skeleton.</li>
+<li>Check your project&#39;s caching model. Run a mutation, then a read, and confirm the UI reflects the change. If not, fix the invalidation verb.</li>
+<li>Enable <code>cacheComponents: true</code> on a branch and see what the dev overlay flags. Read each insight before fixing it.</li>
+<li>Add a <code>next/image</code> hero with <code>preload</code> and verify the LCP element is in the static shell.</li>
+<li>Benchmark one image or ML operation in plain JS; then try the Wasm build. Keep whichever wins, measured.</li>
+<li>Write down your deploy target&#39;s actual limits (memory, CPU, subrequests) and check whether your design respects them.</li>
+</ol>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p>This paper was written against the Next.js 16.x documentation line (docs version 16.3.5 at the time of writing; pages last updated between February and September 2026), React 19&#39;s Server Components and <code>&#39;use client&#39;</code> references, MDN&#39;s WebAssembly guides, web.dev&#39;s Web Vitals articles, Cloudflare Workers&#39; platform limits, Vercel&#39;s fluid compute documentation, and the ONNX Runtime Web and Transformers.js documentation.</p>
+<p>Three areas move faster than any written paper can track, and you should verify them in the live docs before relying on them:</p>
+<ol>
+<li><strong>Partial Prerendering status.</strong> PPR moved from experimental (Next.js 14–15) to the default behavior of the App Router under Cache Components in Next.js 16. The old <code>experimental.ppr</code> flag and <code>experimental_ppr</code> export were removed. Check <code>https://nextjs.org/docs/app/getting-started/caching</code> and the Cache Components config reference.</li>
+<li><strong>Caching defaults and APIs.</strong> <code>fetch</code> caching flipped from cached-by-default to uncached-by-default between Next.js 14 and 15, and Next.js 16 layered the <code>&quot;use cache&quot;</code> model on top. <code>revalidateTag</code> now takes a profile argument in the Cache Components model. Check <code>https://nextjs.org/docs/app/getting-started/caching</code> and <code>https://nextjs.org/docs/app/guides/caching-without-cache-components</code> to see which model your version uses.</li>
+<li><strong>Core Web Vitals thresholds and metrics.</strong> Current &quot;good&quot; thresholds are LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1 at the 75th percentile. Metrics go through experimental → pending → stable lifecycle phases and can be retired or replaced. Check <code>https://web.dev/articles/vitals</code>.</li>
+</ol>
+<p>Additionally, the <strong>Edge Runtime deprecation</strong> for Next.js routes is recent and consequential. If any guide tells you to set <code>runtime = &#39;edge&#39;</code> per route, verify that advice against <code>https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config/runtime</code> before following it.</p>
+<p>No API names, configuration keys, or URLs in this paper were invented. Where an exact documentation path was uncertain, the entry reads &quot;search: <code>&lt;name&gt;</code>&quot; instead of a guessed URL.</p>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Web Platform</span> · 8 parts · ~36 min · Generated from <code>markdown_docs/05-web-platform-2026-rsc-streaming-edge-wasm.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>
