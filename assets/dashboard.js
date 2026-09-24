@@ -11,10 +11,6 @@
 
   var state = { q: "", cat: "All", sort: "order", page: 1 };
 
-  var catSelect = document.getElementById("catSelect");
-  catSelect.innerHTML = '<option value="All">All categories (' + cards.length + ')</option>' +
-    catNames.map(function (c) { return '<option value="' + c.replace(/"/g, "&quot;") + '">' + c + ' (' + cats[c] + ')</option>'; }).join("");
-
   var pillsBox = document.getElementById("pills");
   pillsBox.innerHTML = '<button class="pill active" data-cat="All">All <span class="cnt">' + cards.length + '</span></button>' +
     catNames.map(function (c) { return '<button class="pill" data-cat="' + c.replace(/"/g, "&quot;") + '">' + c + ' <span class="cnt">' + cats[c] + '</span></button>'; }).join("");
@@ -72,11 +68,9 @@
     }
 
     [].forEach.call(pillsBox.children, function (b) { b.classList.toggle("active", b.getAttribute("data-cat") === state.cat); });
-    catSelect.value = state.cat;
   }
 
   document.getElementById("searchInput").addEventListener("input", function (e) { state.q = e.target.value.trim().toLowerCase(); state.page = 1; render(); });
-  catSelect.addEventListener("change", function (e) { state.cat = e.target.value; state.page = 1; render(); });
   document.getElementById("sortSelect").addEventListener("change", function (e) { state.sort = e.target.value; state.page = 1; render(); });
   pillsBox.addEventListener("click", function (e) { var b = e.target.closest(".pill"); if (!b) return; state.cat = b.getAttribute("data-cat"); state.page = 1; render(); });
   document.getElementById("clearBtn").addEventListener("click", function () { state.q = ""; state.cat = "All"; state.page = 1; document.getElementById("searchInput").value = ""; render(); });

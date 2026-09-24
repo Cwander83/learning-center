@@ -45,19 +45,27 @@ export function renderGuidePage(item) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)} — Learning Center</title>
 <meta name="description" content="${descAttr(lede)}">
+<link rel="stylesheet" href="../assets/base.css">
 <link rel="stylesheet" href="../assets/guide.css">
 </head>
 <body data-key="${slug}">
 <header class="topbar">
-  <a class="homebtn" href="../index.html">⌂ Home</a>
+  <a class="homebtn" href="../index.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/></svg>Home</a>
   <span class="brand">${esc(title)}</span>
-  <button id="themeToggle" title="Toggle dark / light">🌙 Dark</button>
+  <button id="themeToggle" title="Toggle dark / light" aria-label="Toggle dark and light theme">
+    <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <span id="themeLabel">Dark</span>
+  </button>
   <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
 </header>
 <div class="layout">
+<details id="toc" class="toc" open>
+<summary class="tocsum">Contents<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
 <nav id="side" aria-label="Guide contents">
 ${navHtml(groups)}
 </nav>
+</details>
 <main>
 <h1>${esc(title)}</h1>
 <div class="callout lede">${lede}</div>
@@ -119,12 +127,17 @@ export function renderDashboard(items, pageSize) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Learning Center</title>
 <meta name="description" content="A shelf of long-form, follow-along guides on AI agents, databases, the web platform, and the tools behind modern software.">
+<link rel="stylesheet" href="assets/base.css">
 <link rel="stylesheet" href="assets/dashboard.css">
 </head>
 <body data-page-size="${pageSize}">
 <header class="topbar">
   <span class="brand">Learning Center<small>Guides &amp; interactive walkthroughs</small></span>
-  <button id="themeToggle" title="Toggle dark / light">🌙 Dark</button>
+  <button id="themeToggle" title="Toggle dark / light" aria-label="Toggle dark and light theme">
+    <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <span id="themeLabel">Dark</span>
+  </button>
 </header>
 
 <main class="dash">
@@ -138,14 +151,12 @@ export function renderDashboard(items, pageSize) {
     <div class="searchrow">
       <input id="searchInput" type="search" placeholder="Search guides by title or topic…" autocomplete="off" aria-label="Search guides">
     </div>
-    <select id="catSelect" aria-label="Filter by category"></select>
     <select id="sortSelect" aria-label="Sort guides">
       <option value="order">Sort: Recommended</option>
       <option value="az">Sort: A → Z</option>
       <option value="time">Sort: Longest first</option>
     </select>
   </div>
-
   <div class="pills" id="pills"></div>
 
   <div class="resultbar">

@@ -10,16 +10,20 @@
   var KEY = document.body.getAttribute("data-key") || "g";
 
   /* ---- copy buttons ---- */
+  var COPY_ICON = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></svg>';
+  var CHECK_ICON = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m20 6-11 11-5-5"/></svg>';
   document.querySelectorAll("pre").forEach(function (pre) {
     var wrap = pre.closest(".codewrap"); if (!wrap) return;
     var btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "copybtn"; btn.textContent = "Copy";
+    btn.className = "copybtn";
+    btn.innerHTML = COPY_ICON + "<span>Copy</span>";
+    btn.setAttribute("aria-label", "Copy code to clipboard");
     btn.addEventListener("click", function () {
       var txt = pre.innerText;
       function done() {
-        btn.textContent = "Copied ✓"; btn.classList.add("copied");
-        setTimeout(function () { btn.textContent = "Copy"; btn.classList.remove("copied"); }, 1400);
+        btn.innerHTML = CHECK_ICON + "<span>Copied</span>"; btn.classList.add("copied");
+        setTimeout(function () { btn.innerHTML = COPY_ICON + "<span>Copy</span>"; btn.classList.remove("copied"); }, 1400);
       }
       function fb() {
         var ta = document.createElement("textarea"); ta.value = txt;
@@ -34,6 +38,19 @@
     wrap.appendChild(btn);
   });
 
+  /* ---- contents rail: collapsed disclosure on narrow screens ---- */
+  var toc = document.getElementById("toc");
+  if (toc) {
+    var wide = window.matchMedia("(min-width: 961px)");
+    function syncToc() { toc.open = wide.matches; }
+    syncToc();
+    if (wide.addEventListener) wide.addEventListener("change", syncToc);
+    else if (wide.addListener) wide.addListener(syncToc);
+    toc.addEventListener("click", function (e) {
+      if (e.target.closest("a") && !wide.matches) toc.open = false;
+    });
+  }
+
   /* ---- reading progress bar ---- */
   var fill = document.getElementById("readbarFill");
   var doc = document.documentElement;
@@ -41,7 +58,7 @@
     if (!fill) return;
     var max = doc.scrollHeight - doc.clientHeight;
     var pct = max > 0 ? Math.min(100, Math.max(0, (doc.scrollTop || document.body.scrollTop) / max * 100)) : 100;
-    fill.style.width = pct + "%";
+    fill.style.transform = "scaleX(" + (pct / 100) + ")";
   }
   window.addEventListener("scroll", updateRead, { passive: true });
   window.addEventListener("resize", updateRead);

@@ -5,3 +5,6 @@ node_modules/
 /08-stripe-billing-for-saas.html
 .vercel
 .env*
+
+# Local design tooling output
+.impeccable/

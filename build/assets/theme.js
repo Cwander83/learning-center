@@ -5,9 +5,10 @@
   function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   var KEY = "lc-theme";
   var btn = document.getElementById("themeToggle");
+  var label = document.getElementById("themeLabel");
   function apply(t) {
     document.documentElement.setAttribute("data-theme", t);
-    if (btn) btn.textContent = t === "dark" ? "☀️ Light" : "🌙 Dark";
+    if (label) label.textContent = t === "dark" ? "Light" : "Dark";
   }
   apply(load(KEY) || "light");
   if (btn) {

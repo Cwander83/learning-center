@@ -53,12 +53,25 @@ header lines and a leading `---` are stripped from the rendered body.
 
 ## Design
 
-"Deep Sea" palette, solid buttons with subtle squared corners, light + dark
-theme (shared toggle, persisted under `lc-theme`). Tokens are defined at the
-top of `build/assets/guide.css` and `build/assets/dashboard.css`.
+"Near-neutral ink" theme: off-white / near-black neutral surfaces with a single
+restrained blue accent, crisp 1px hairlines, one small radius scale, and no
+decorative shadows. Light + dark theme (shared toggle, persisted under
+`lc-theme`). Tokens and shared chrome live in `build/assets/base.css`; each
+surface adds only its own rules in `dashboard.css` or `guide.css`.
 
-- Light: bg `#f2f7fa`, panel `#ffffff`, text `#00171f`, accent `#007ea7`
-- Dark: bg `#00171f`, panel `#02222f`, text `#e6f4fa`, accent `#00a8e8`
+- Light: bg `#f7f8fa`, panel `#ffffff`, text `#0e1116`, accent `#1d4ed8`
+- Dark: bg `#0b0d11`, panel `#14171d`, text `#e7eaf0`, accent `#4d8dff`
+
+Icons are authored inline SVG (no icon font, no emoji). Browser surfaces —
+selection, caret, scrollbars, focus rings, tabular numerals — are themed from
+the palette.
+
+Category filtering lives in the pill row alone; the sort `<select>` sits beside
+the search field. One way to filter, one way to sort.
+
+On the guide page the contents rail is a sticky sidebar on wide screens and a
+collapsed "Contents" disclosure below 960px, so the article always starts in
+the first viewport.
 
 ## License
 
