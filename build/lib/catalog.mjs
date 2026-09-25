@@ -25,6 +25,7 @@ export const GUIDES = {
     title: "Linear + opencode Workflow",
   },
   "11-jev-system-one-decisions": { category: "AI & Agents", order: 11 },
+  "12-figjam-sitemaps-ia-with-ai": { category: "Design & Planning", order: 12 },
 };
 
 // Docs that are not reader-facing guides (meta / tooling material).
