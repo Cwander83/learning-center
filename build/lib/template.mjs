@@ -108,7 +108,7 @@ function card(item) {
   ]
     .filter(Boolean)
     .join(" · ");
-  return `    <article class="card" data-href="guides/${item.slug}.html" data-cat="${esc(item.category)}" data-mins="${item.mins}" data-title="${esc(item.title)}">
+  return `    <article class="card" data-href="guides/${item.slug}.html" data-cat="${esc(item.category)}" data-mins="${item.mins}" data-order="${item.order}" data-title="${esc(item.title)}">
       <div class="body">
         <span class="cat">${esc(item.category)}</span>
         <div><a class="g-name" href="guides/${item.slug}.html">${esc(item.title)}</a></div>

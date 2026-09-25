@@ -23,6 +23,7 @@
   function sortCards(arr) {
     if (state.sort === "az") arr.sort(function (a, b) { return a.getAttribute("data-title").localeCompare(b.getAttribute("data-title")); });
     else if (state.sort === "time") arr.sort(function (a, b) { return (+b.getAttribute("data-mins")) - (+a.getAttribute("data-mins")); });
+    else arr.sort(function (a, b) { return (+b.getAttribute("data-order")) - (+a.getAttribute("data-order")); });
     return arr;
   }
 

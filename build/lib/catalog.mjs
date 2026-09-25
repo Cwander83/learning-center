@@ -1,6 +1,13 @@
 // Hand-curated metadata for the shelf. Content still lives in markdown_docs/;
 // this only adds what markdown can't reliably express (category, order) and a
 // few display overrides. Anything omitted falls back to auto-derivation.
+//
+// ORDERING: the dashboard is newest-first. Higher `order` sorts to the top, so
+// the most recently added guide is first. A file with no catalog entry (or no
+// `order`) falls back to its filename prefix (e.g. `12-foo.md` -> 12), and an
+// unprefixed file falls back to 999 — also the top. So dropping in a new guide
+// and rebuilding puts it at the top without editing this file for position.
+// Existing entries keep a `category`, so add one for each new guide.
 
 export const GUIDES = {
   "01-ai-evals-regression-testing": { category: "AI & Agents", order: 1 },

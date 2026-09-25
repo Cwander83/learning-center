@@ -44,6 +44,11 @@ To control category and ordering, add an entry in `build/lib/catalog.mjs`
 keyed by the file's slug (the filename lowercased, non-alphanumerics → `-`).
 Files listed in `IGNORE` there are skipped.
 
+The dashboard is **newest-first**: higher `order` sorts to the top. A new file
+with no catalog entry falls back to its filename prefix (`12-foo.md` → 12), so
+dropping in a guide and rebuilding puts it at the top. Add a catalog entry when
+you want a specific category or position.
+
 ## What the renderer supports
 
 Standard GitHub-flavored Markdown: headings, tables, fenced code blocks (with

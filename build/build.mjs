@@ -33,6 +33,13 @@ const slugify = (s) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+// Leading number in the filename, e.g. `12-new-thing.md` -> 12. Used as the
+// default order so a freshly added guide lands at the top without a catalog entry.
+const prefixNum = (f) => {
+  const m = f.match(/^(\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+};
+
 function build() {
   const files = fs
     .readdirSync(SRC)
@@ -61,7 +68,7 @@ function build() {
       slug,
       title,
       category: cfg.category || "Uncategorized",
-      order: cfg.order ?? 999,
+      order: cfg.order ?? prefixNum(file) ?? 999,
       lede: meta.lede,
       long,
       ...counts,
@@ -71,7 +78,9 @@ function build() {
     };
   });
 
-  items.sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
+  // Newest first: the highest order number (the newest guide) sorts to the top,
+  // so adding a guide puts it first instead of last.
+  items.sort((a, b) => b.order - a.order || a.title.localeCompare(b.title));
 
   fs.rmSync(OUT, { recursive: true, force: true });
   fs.mkdirSync(OUT, { recursive: true });
