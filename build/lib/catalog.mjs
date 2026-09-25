@@ -26,6 +26,10 @@ export const GUIDES = {
   },
   "11-jev-system-one-decisions": { category: "AI & Agents", order: 11 },
   "12-figjam-sitemaps-ia-with-ai": { category: "Design & Planning", order: 12 },
+  "13-nextjs-2026": { category: "Web Platform", order: 13 },
+  "14-modern-css-2026": { category: "Web Platform", order: 14 },
+  "15-recent-ai-features-2026": { category: "AI & Agents", order: 15 },
+  "16-chrome-extensions-2026": { category: "Workflow", order: 16 },
 };
 
 // Docs that are not reader-facing guides (meta / tooling material).

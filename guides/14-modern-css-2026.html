@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modern CSS You Can Ship in 2026 — Learning Center</title>
+<meta name="description" content=":has() and nesting graduated to &quot;Widely available&quot; — delete their fallbacks. Anchor positioning and field-sizing are new and safe behind a guard. Here is what is Baseline, what still needs @supports , and how to tell the difference without guessing.">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="14-modern-css-2026">
+<header class="topbar">
+  <a class="homebtn" href="../index.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/></svg>Home</a>
+  <span class="brand">Modern CSS You Can Ship in 2026</span>
+  <button id="themeToggle" title="Toggle dark / light" aria-label="Toggle dark and light theme">
+    <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <span id="themeLabel">Dark</span>
+  </button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<details id="toc" class="toc" open>
+<summary class="tocsum">Contents<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#the-analogy-table" data-sec="the-analogy-table" class="sub">The analogy table</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--how-to-actually-read-baseline" data-sec="part-1--how-to-actually-read-baseline">Part 1 — How to Actually Read Baseline</a><a href="#11-the-two-tiers-precisely" data-sec="11-the-two-tiers-precisely" class="sub">1.1 The two tiers, precisely</a><a href="#12-the-arithmetic-that-decides-your-fallback" data-sec="12-the-arithmetic-that-decides-your-fallback" class="sub">1.2 The arithmetic that decides your fallback</a><a href="#13-where-to-check" data-sec="13-where-to-check" class="sub">1.3 Where to check</a><a href="#14-the-one-thing-people-get-wrong" data-sec="14-the-one-thing-people-get-wrong" class="sub">1.4 The one thing people get wrong</a><a href="#part-2--widely-available-delete-the-guards" data-sec="part-2--widely-available-delete-the-guards">Part 2 — Widely Available: Delete the Guards</a><a href="#21-has--the-parent-selector" data-sec="21-has--the-parent-selector" class="sub">2.1 <code>:has()</code> — the parent selector</a><a href="#22-nesting-including-" data-sec="22-nesting-including-" class="sub">2.2 Nesting, including <code>&amp;</code></a><a href="#23-the-rest-of-the-widely-available-workhorses" data-sec="23-the-rest-of-the-widely-available-workhorses" class="sub">2.3 The rest of the Widely available workhorses</a><a href="#part-3--newly-available-ship-it-but-guard-it" data-sec="part-3--newly-available-ship-it-but-guard-it">Part 3 — Newly Available: Ship It, But Guard It</a><a href="#31-anchor-positioning--replaces-popperjs-and-floating-ui" data-sec="31-anchor-positioning--replaces-popperjs-and-floating-ui" class="sub">3.1 Anchor positioning — replaces Popper.js and Floating UI</a><a href="#32-field-sizing-content--auto-growing-form-fields" data-sec="32-field-sizing-content--auto-growing-form-fields" class="sub">3.2 <code>field-sizing: content</code> — auto-growing form fields</a><a href="#33-contrast-color--automatic-accessible-text-color" data-sec="33-contrast-color--automatic-accessible-text-color" class="sub">3.3 <code>contrast-color()</code> — automatic accessible text color</a><a href="#34-scope-and-open" data-sec="34-scope-and-open" class="sub">3.4 <code>@scope</code> and <code>:open</code></a><a href="#35-also-newly-available-in-2026" data-sec="35-also-newly-available-in-2026" class="sub">3.5 Also Newly available in 2026</a><a href="#36-still-not-safe-text-wrap-style-pretty" data-sec="36-still-not-safe-text-wrap-style-pretty" class="sub">3.6 Still not safe: <code>text-wrap-style: pretty</code></a><a href="#part-4--scroll-driven-animations-the-honest-status" data-sec="part-4--scroll-driven-animations-the-honest-status">Part 4 — Scroll-Driven Animations: The Honest Status</a><a href="#41-what-it-does" data-sec="41-what-it-does" class="sub">4.1 What it does</a><a href="#42-the-support-reality" data-sec="42-the-support-reality" class="sub">4.2 The support reality</a><a href="#43-how-to-ship-it-today" data-sec="43-how-to-ship-it-today" class="sub">4.3 How to ship it today</a><a href="#44-scroll-triggered-animations-the-next-chapter" data-sec="44-scroll-triggered-animations-the-next-chapter" class="sub">4.4 Scroll-<em>triggered</em> animations (the next chapter)</a><a href="#45-one-more-not-ready-feature" data-sec="45-one-more-not-ready-feature" class="sub">4.5 One more not-ready feature</a><a href="#part-5--the-audit-delete-what-you-no-longer-need" data-sec="part-5--the-audit-delete-what-you-no-longer-need">Part 5 — The Audit: Delete What You No Longer Need</a><a href="#51-what-to-search-for" data-sec="51-what-to-search-for" class="sub">5.1 What to search for</a><a href="#52-the-decision-for-each-hit" data-sec="52-the-decision-for-each-hit" class="sub">5.2 The decision for each hit</a><a href="#53-what-dead-weight-actually-costs" data-sec="53-what-dead-weight-actually-costs" class="sub">5.3 What &quot;dead weight&quot; actually costs</a><a href="#54-the-three-step-rewrite" data-sec="54-the-three-step-rewrite" class="sub">5.4 The three-step rewrite</a><a href="#part-6--applying-it-here-this-sites-own-css" data-sec="part-6--applying-it-here-this-sites-own-css">Part 6 — Applying It Here: This Site&#39;s Own CSS</a><a href="#61-what-the-theme-already-gets-right" data-sec="61-what-the-theme-already-gets-right" class="sub">6.1 What the theme already gets right</a><a href="#62-three-changes-worth-making" data-sec="62-three-changes-worth-making" class="sub">6.2 Three changes worth making</a><a href="#63-the-guard-pattern-for-a-tooltip" data-sec="63-the-guard-pattern-for-a-tooltip" class="sub">6.3 The guard pattern for a tooltip</a><a href="#64-what-i-would-not-change-here" data-sec="64-what-i-would-not-change-here" class="sub">6.4 What I would <em>not</em> change here</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheet" data-sec="cheat-sheet">Cheat Sheet</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--docs" data-sec="written-references--docs">Written References &amp; Docs</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#next-steps-in-order" data-sec="next-steps-in-order" class="sub">Next steps, in order</a><a href="#verification-note" data-sec="verification-note">Verification Note</a><a href="#your-setup-notes-mac--vs-code--opencode" data-sec="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</a></div>
+</nav>
+</details>
+<main>
+<h1>Modern CSS You Can Ship in 2026</h1>
+<div class="callout lede"><code>:has()</code> and nesting graduated to &quot;Widely available&quot; — delete their fallbacks. Anchor positioning and <code>field-sizing</code> are new and safe behind a guard. Here is what is Baseline, what still needs <code>@supports</code>, and how to tell the difference without guessing.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>For a decade, &quot;can I use this CSS?&quot; was answered by caniuse.com and a shrug. In 2026 it has an official answer: <strong>Baseline</strong>. A feature becomes <strong>Newly available</strong> when every core browser supports it, and <strong>Widely available</strong> 30 months later. That distinction is the whole game — it tells you when to write a fallback and when to delete one.</p>
+<p>The practical consequence is asymmetric, and most people get it backwards. The interesting question in 2026 is not &quot;what new CSS can I use?&quot; It is <strong>&quot;what old workaround can I now delete?&quot;</strong> <code>:has()</code> went Widely available in June 2026. Nesting went Widely available in June 2026. If your stylesheet still carries a <code>@supports selector(:has(*))</code> guard or a PostCSS nesting plugin &quot;just in case&quot;, that scaffolding is now dead weight.</p>
+<div class="codewrap"><pre data-lang=""><code>   BASELINE: TWO TIERS, TWO DECISIONS
+
+   ┌────────────────────────────────────────────────────────────┐
+   │  LIMITED AVAILABILITY                                      │
+   │  not in all core browsers yet                              │
+   │  → don't ship it, or ship it behind a feature flag          │
+   └────────────────────────────────────────────────────────────┘
+                            │ every core browser supports it
+                            ▼
+   ┌────────────────────────────────────────────────────────────┐
+   │  NEWLY AVAILABLE                                           │
+   │  works everywhere today; 30-month clock is running          │
+   │  → ship it, usually with a @supports guard or a base style  │
+   └────────────────────────────────────────────────────────────┘
+                            │ 30 months pass
+                            ▼
+   ┌────────────────────────────────────────────────────────────┐
+   │  WIDELY AVAILABLE                                          │
+   │  the browsers that lack it are outside any mainstream target│
+   │  → ship it with NO fallback. Delete the guard.              │
+   └────────────────────────────────────────────────────────────┘</code></pre></div>
+<p>The single most important idea: <strong>&quot;Newly available&quot; means write a fallback; &quot;Widely available&quot; means delete one.</strong> Your stylesheet should be full of base styles plus a few <code>@supports</code> layers, not full of polyfills for features that have been safe for two and a half years.</p>
+<h3 id="the-analogy-table">The analogy table</h3>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English analogy</th>
+<th>Why it matters to you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Baseline</strong></td>
+<td>An official compatibility label</td>
+<td>Replaces &quot;search caniuse and guess&quot;</td>
+</tr>
+<tr>
+<td><strong>Core browser set</strong></td>
+<td>Chrome, Edge, Firefox, Safari (desktop + mobile)</td>
+<td>If all five agree, it&#39;s interoperable</td>
+</tr>
+<tr>
+<td><strong>Newly available</strong></td>
+<td>Fresh off the line</td>
+<td>Ship it, but guard it</td>
+</tr>
+<tr>
+<td><strong>Widely available</strong></td>
+<td>Been on the shelf 30 months</td>
+<td>Ship it raw; remove the guard</td>
+</tr>
+<tr>
+<td><strong>Limited availability</strong></td>
+<td>Not ready</td>
+<td>Don&#39;t ship, or hide behind a flag</td>
+</tr>
+<tr>
+<td><strong><code>@supports (prop: value)</code></strong></td>
+<td>A runtime feature test for a declaration</td>
+<td>The right way to layer an enhancement</td>
+</tr>
+<tr>
+<td><strong><code>@supports selector(:has(*))</code></strong></td>
+<td>A runtime test for a <em>selector</em></td>
+<td>Tests selectors, not properties</td>
+</tr>
+<tr>
+<td><strong>Progressive enhancement</strong></td>
+<td>Base style works everywhere; the enhancement adds to it</td>
+<td>The fallback-first mindset</td>
+</tr>
+<tr>
+<td><strong>Graceful degradation</strong></td>
+<td>It works, minus the flourish</td>
+<td>What you get when you skip the base style</td>
+</tr>
+<tr>
+<td><strong>Interop 2026</strong></td>
+<td>Browser vendors agreeing on a shared test suite</td>
+<td>Signals where support is converging</td>
+</tr>
+<tr>
+<td><strong>Baseline 2026</strong></td>
+<td>Everything that went Newly available during 2026</td>
+<td>The year&#39;s safe-to-adopt set</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The one-sentence version:</strong> use Baseline as a build-time lint, not a memory exercise — check the tier, write a base style, add one <code>@supports</code> layer if it&#39;s Newly available, and delete old guards once a feature goes Widely available.</p>
+</blockquote>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>Baseline has two tiers.</strong> Newly available = interoperable now. Widely available = interoperable for 30 months. Check the tier before writing anything.</li>
+<li><strong><code>:has()</code> is Widely available</strong> (June 2026). Delete the <code>@supports</code> guard and the JS class toggles it replaced.</li>
+<li><strong>Nesting is Widely available</strong> (June 2026), including the <code>&amp;</code> selector. Drop the PostCSS nesting plugin.</li>
+<li><strong>Anchor positioning is Newly available</strong> (January 2026, when Firefox 147 shipped). It replaces Popper.js/Floating UI for tooltips and dropdowns — behind a guard.</li>
+<li><strong><code>field-sizing: content</code> is Newly available</strong> (June 2026). It deletes auto-resizing <code>&lt;textarea&gt;</code> JavaScript.</li>
+<li><strong><code>contrast-color()</code> is Newly available</strong> (April 2026). It picks black or white text for guaranteed WCAG AA contrast on a background.</li>
+<li><strong><code>@scope</code> and <code>:open</code> are Newly available</strong> (2026). Scoped styles, and one selector for expanded <code>&lt;details&gt;</code>, open dialogs, and showing popovers.</li>
+<li><strong>Scroll-driven animations still need a guard.</strong> Chrome and Safari ship <code>animation-timeline</code>; <strong>Firefox had not shipped it as of the September 2026 check.</strong> It&#39;s an Interop 2026 focus area, so this is changing.</li>
+<li><strong><code>text-wrap-style: pretty</code> is not safe yet.</strong> The property is Baseline, but the <code>pretty</code> value has not shipped in Firefox. Progressive enhancement only.</li>
+<li><strong>The cheapest win is deletion.</strong> Audit for <code>@supports</code> guards, vendor prefixes, and polyfills on features that are now Widely available. That&#39;s dead weight with a maintenance cost.</li>
+</ol>
+<p>If you read nothing else, read <strong>Part 1 (how to read Baseline)</strong> and <strong>Part 5 (the audit)</strong>.</p>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>A modern browser to test in — ideally one of each engine. On a Mac: Safari (WebKit) is already installed; Chrome (Blink) and Firefox (Gecko) are a download away.</li>
+<li>Familiarity with basic CSS and DevTools.</li>
+<li>Optional but useful: an editor with a Baseline linter. Chrome DevTools now shows Baseline info for CSS properties in the <strong>Elements</strong> panel, which makes the check a hover away.</li>
+<li>A stylesheet you own, so the audit in Part 5 is real work rather than a thought experiment.</li>
+</ul>
+<blockquote>
+<p><strong>A caution up front:</strong> Baseline describes the <em>core browser set</em>, not every browser in the world. Embedded WebViews, kiosk browsers, and corporate-locked old Safari versions can lag. Baseline is a strong signal, not a guarantee. For a consumer site it is enough; for a hospital intranet, verify your own floor.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--how-to-actually-read-baseline"><h2 id="part-1--how-to-actually-read-baseline">Part 1 — How to Actually Read Baseline</h2>
+<h3 id="11-the-two-tiers-precisely">1.1 The two tiers, precisely</h3>
+<p>Straight from the source:</p>
+<ul>
+<li><strong>Newly available:</strong> the feature is supported by all of the core browsers, and is therefore interoperable.</li>
+<li><strong>Widely available:</strong> 30 months have passed since that newly-interoperable date. The feature can be used by most sites without worrying about support.</li>
+<li><strong>Limited availability</strong> is what a feature has <em>before</em> Newly available.</li>
+</ul>
+<p>The core browser set is Chrome (desktop and Android), Edge, Firefox (desktop and Android), and Safari (macOS and iOS).</p>
+<p><strong>Baseline 2026</strong> is the shorthand for everything that became Newly available during 2026.</p>
+<h3 id="12-the-arithmetic-that-decides-your-fallback">1.2 The arithmetic that decides your fallback</h3>
+<p>You don&#39;t have to remember dates — do the subtraction:</p>
+<div class="codewrap"><pre data-lang=""><code>tier = today - (date it became Newly available)
+
+  &lt; 30 months   →  Newly available  →  write a base style + @supports guard
+  ≥ 30 months   →  Widely available →  ship raw, delete any guard</code></pre></div>
+<p>Worked examples, so you can see how fast this moves:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Newly available</th>
+<th>30-month mark</th>
+<th>Status today (Sep 2026)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Size container queries</td>
+<td>Feb 2023</td>
+<td>Aug 2025</td>
+<td><strong>Widely available</strong></td>
+</tr>
+<tr>
+<td><code>:has()</code></td>
+<td>Dec 2023</td>
+<td>Jun 2026</td>
+<td><strong>Widely available</strong></td>
+</tr>
+<tr>
+<td>CSS nesting</td>
+<td>Aug 2023</td>
+<td>Feb 2026</td>
+<td><strong>Widely available</strong></td>
+</tr>
+<tr>
+<td>Popover</td>
+<td>Jan 2025</td>
+<td>Jul 2027</td>
+<td>Newly available</td>
+</tr>
+</tbody></table>
+<p>This is the single most useful table in the guide. Notice that popover — a feature everyone already treats as safe — is technically still Newly available until 2027.</p>
+<h3 id="13-where-to-check">1.3 Where to check</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it gives you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>webstatus.dev</strong> (Web Platform Status)</td>
+<td>The authority. Feature-level Baseline status, support data, and <strong>Baseline Alerts</strong> — subscribe via GitHub for email/RSS/Slack notifications</td>
+</tr>
+<tr>
+<td><strong>MDN</strong></td>
+<td>Every feature page carries a <code>Baseline 2026 &gt; Newly available</code> banner with the date</td>
+</tr>
+<tr>
+<td><strong>Chrome DevTools → Elements</strong></td>
+<td>Baseline info for CSS properties, inline while you inspect</td>
+</tr>
+<tr>
+<td><strong>web.dev Baseline blog</strong></td>
+<td>Monthly digests of what just moved tiers</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Set up Baseline Alerts once.</strong> Sign in to webstatus.dev with GitHub, save a search (say, all CSS features), and subscribe. It turns &quot;did anything I care about become safe?&quot; from an occasional research task into a notification.</p>
+</blockquote>
+<h3 id="14-the-one-thing-people-get-wrong">1.4 The one thing people get wrong</h3>
+<p><code>:has()</code> being &quot;Newly available since December 2023&quot; and &quot;Widely available since June 2026&quot; are both true statements about the same feature on different dates. When a search result or a blog post says &quot;Newly available,&quot; check <em>when</em> — a 2023 feature described as Newly available is a stale page, and the feature is almost certainly Widely available now.</p>
+<hr>
+</section><section id="part-2--widely-available-delete-the-guards"><h2 id="part-2--widely-available-delete-the-guards">Part 2 — Widely Available: Delete the Guards</h2>
+<p>These are the features where the right action in 2026 is <strong>removal</strong>. If you have scaffolding for any of them, it is now dead weight.</p>
+<h3 id="21-has--the-parent-selector">2.1 <code>:has()</code> — the parent selector</h3>
+<p>Widely available since June 2026. It matches an element if it has a certain descendant or subsequent sibling.</p>
+<p><strong>What it deletes:</strong> a JavaScript <code>MutationObserver</code>, a class toggle, and the CSS that depended on that class.</p>
+<div class="codewrap"><pre data-lang="css"><code>/* was: JS adds .has-error to the field wrapper */
+
+/* now: pure CSS */
+.field:has(input:invalid) {
+  border-color: #b42318;
+}
+
+/* highlight a card that contains a checked input */
+.card:has(input:checked) {
+  outline: 2px solid #1d4ed8;
+}
+
+/* style a heading that is followed by a paragraph */
+h2:has(+ p) {
+  margin-block-end: 0.25rem;
+}</code></pre></div>
+<p>The older technique was to add a class in JavaScript when the child&#39;s state changed, or to lean on a framework for it. That is now unnecessary.</p>
+<blockquote>
+<p><strong>Precision matters here:</strong> <code>:has()</code> is not a &quot;parent selector&quot; in the sense of selecting an ancestor. It matches an element based on whether it <em>has</em> a matching descendant. The selector you write points at the parent, but the condition is about what&#39;s inside it.</p>
+</blockquote>
+<p>If you still keep a guard for a year because of device-locked old iOS Safari, that is a defensible choice — but it is a choice, not a requirement. Widely available means the browsers lacking it are outside mainstream targets.</p>
+<h3 id="22-nesting-including-">2.2 Nesting, including <code>&amp;</code></h3>
+<p>Nesting became Widely available in June 2026, and the <code>&amp;</code> selector along with it. <code>&amp;</code> explicitly anchors a child rule to its parent selector, which is what gives you correct specificity for hover, focus, and pseudo-class states.</p>
+<div class="codewrap"><pre data-lang="css"><code>.card {
+  padding: 1rem;
+
+  &amp; .title {
+    font-weight: 700;
+  }
+
+  &amp;:hover {
+    border-color: #1d4ed8;
+  }
+
+  &amp;:has(input:checked) {
+    background: #eef2ff;
+  }
+}</code></pre></div>
+<p><strong>What it deletes:</strong> a PostCSS nesting plugin you&#39;re keeping &quot;just in case&quot;, and any build step that exists only to flatten nesting for old browsers.</p>
+<h3 id="23-the-rest-of-the-widely-available-workhorses">2.3 The rest of the Widely available workhorses</h3>
+<p>These are safe with no fallback in 2026, in the current and previous major versions of every core browser:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>:has()</code></td>
+<td>Parent-aware styling; see above</td>
+</tr>
+<tr>
+<td>CSS nesting + <code>&amp;</code></td>
+<td>See above</td>
+</tr>
+<tr>
+<td>Size container queries</td>
+<td>Container-relative layout; Widely available since Aug 2025</td>
+</tr>
+<tr>
+<td><code>:focus-visible</code></td>
+<td>Keyboard-only focus styling</td>
+</tr>
+<tr>
+<td><code>@supports selector()</code></td>
+<td>Testing selectors like <code>:has()</code> — for the features that still need it</td>
+</tr>
+<tr>
+<td><code>color-mix()</code></td>
+<td>Blend two colors in a given space at runtime; Widely available since 2023</td>
+</tr>
+<tr>
+<td><code>clamp()</code>, <code>min()</code>, <code>max()</code></td>
+<td>Fluid type and spacing</td>
+</tr>
+<tr>
+<td><code>subgrid</code></td>
+<td>Grid alignment across nested elements</td>
+</tr>
+<tr>
+<td><code>@layer</code></td>
+<td>Cascade control</td>
+</tr>
+<tr>
+<td><code>cap</code>, <code>counter-set</code>, <code>pow()</code>, <code>mask</code></td>
+<td>Went Widely available in June 2026</td>
+</tr>
+<tr>
+<td>Two-value <code>display</code></td>
+<td><code>display: inline flex</code> instead of <code>inline-flex</code></td>
+</tr>
+<tr>
+<td><code>oklch()</code></td>
+<td>Perceptually uniform color; syntax support is complete</td>
+</tr>
+</tbody></table>
+<p>As one 2026 review put it: a stylesheet using <code>subgrid</code>, <code>:has()</code>, <code>clamp()</code>, and <code>oklch()</code> is safe with no fallback, because the first three have aged past the threshold and <code>oklch()</code> is newly available with complete syntax support.</p>
+<hr>
+</section><section id="part-3--newly-available-ship-it-but-guard-it"><h2 id="part-3--newly-available-ship-it-but-guard-it">Part 3 — Newly Available: Ship It, But Guard It</h2>
+<p>These arrived in 2026. They work in current browsers, but the 30-month clock is running, so write a base style that works everywhere and layer the enhancement with <code>@supports</code>.</p>
+<h3 id="31-anchor-positioning--replaces-popperjs-and-floating-ui">3.1 Anchor positioning — replaces Popper.js and Floating UI</h3>
+<p>Newly available in <strong>January 2026</strong>, when Firefox 147 shipped unflagged support and closed the loop. Chrome and Edge led in 2024, Safari joined in 2025.</p>
+<p>Anchor positioning lets you declare <em>in CSS</em> that one element&#39;s position depends on another element&#39;s geometry. The canonical use is a tooltip tethered to its trigger, or a dropdown tethered to a menu item — with the browser handling the flip when there isn&#39;t room.</p>
+<div class="codewrap"><pre data-lang="css"><code>.trigger {
+  anchor-name: --tooltip-anchor;
+}
+
+.tooltip {
+  position: fixed;
+  position-anchor: --tooltip-anchor;
+  position-area: top center;
+  position-try-fallbacks: flip-block;   /* flip when there's no room */
+  margin: 0;                            /* reset popover defaults */
+  inset: auto;                          /* reset popover defaults */
+}</code></pre></div>
+<p>For fine control, the <code>anchor()</code> function positions an element&#39;s edge relative to an anchor&#39;s edge, and composes with <code>calc()</code>:</p>
+<div class="codewrap"><pre data-lang="css"><code>.positionedElement {
+  right: anchor(left);
+  margin-right: 10px;
+}
+
+/* 10px from the anchor's logical block start */
+.positionedElement {
+  inset-block-end: calc(anchor(start) + 10px);
+}</code></pre></div>
+<p><strong>What it deletes:</strong> a positioning library, its bundle weight, its resize/scroll listeners, and its &quot;no room, flip it&quot; logic.</p>
+<blockquote>
+<p><strong>Two gotchas, both from MDN.</strong> First, if you&#39;re positioning a <strong>popover</strong>, its default <code>margin</code> and <code>inset</code> styles will fight you — reset them (<code>margin: 0; inset: auto;</code>). The CSS working group is looking at removing that workaround. Second, <code>anchor()</code> only works in inset properties on absolutely or fixed positioned elements, and the <code>&lt;anchor-side&gt;</code> must be compatible with the inset property&#39;s axis — <code>top: anchor(left)</code> is invalid, because <code>left</code> is horizontal.</p>
+</blockquote>
+<p>Ship it behind <code>@supports</code>:</p>
+<div class="codewrap"><pre data-lang="css"><code>@supports (anchor-name: --x) {
+  /* anchor-positioned tooltip */
+}</code></pre></div>
+<h3 id="32-field-sizing-content--auto-growing-form-fields">3.2 <code>field-sizing: content</code> — auto-growing form fields</h3>
+<p>Newly available in <strong>June 2026</strong>.</p>
+<div class="codewrap"><pre data-lang="css"><code>textarea {
+  field-sizing: content;
+  max-height: 12rem;   /* cap it or it grows forever */
+}</code></pre></div>
+<p>With <code>field-sizing: content</code>, form controls expand and shrink to fit their content instead of holding a fixed default size.</p>
+<p><strong>What it deletes:</strong> the <code>scrollHeight</code> listener, the inline-style height reset on every keystroke, and the debounce around it that you probably got subtly wrong. That is an entire class of bug gone.</p>
+<p>Add <code>max-height</code> (or <code>max-width</code>) or the control grows without bound.</p>
+<h3 id="33-contrast-color--automatic-accessible-text-color">3.3 <code>contrast-color()</code> — automatic accessible text color</h3>
+<p>Newly available since <strong>April 2026</strong>. It returns one of <code>white</code> or <code>black</code>, depending on which has the greater contrast with the input color, and commonly targets WCAG AA.</p>
+<div class="codewrap"><pre data-lang="css"><code>.badge {
+  background: var(--badge-color);
+  color: contrast-color(var(--badge-color));
+}</code></pre></div>
+<p><strong>What it deletes:</strong> maintaining background/text color pairs by hand, and the manual contrast checking that goes with them. Given an arbitrary brand color — from a database, from a user&#39;s theme — you get a readable foreground for free.</p>
+<blockquote>
+<p><strong>Edge case worth knowing:</strong> if white and black have <em>equal</em> contrast with the input, the function returns <code>white</code>. And browsers may use different, better algorithms than a naive luminance check — so don&#39;t treat the output as a spec-exact value you can rely on for pixel tests.</p>
+</blockquote>
+<h3 id="34-scope-and-open">3.4 <code>@scope</code> and <code>:open</code></h3>
+<p><strong><code>@scope</code></strong> is Newly available in 2026. It applies styles with proximity-based specificity and explicit upper and lower bounds — a practical alternative to BEM naming or CSS Modules for component-scoped styles.</p>
+<p><strong><code>:open</code></strong> matches elements that are currently open: expanded <code>&lt;details&gt;</code>, visible dialogs, and showing popovers. It replaces <code>[open]</code> plus a separate set of popover state rules.</p>
+<div class="codewrap"><pre data-lang="css"><code>details:open &gt; summary {
+  font-weight: 700;
+}
+
+dialog:open {
+  border-color: #1d4ed8;
+}</code></pre></div>
+<h3 id="35-also-newly-available-in-2026">3.5 Also Newly available in 2026</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Container <strong>style</strong> queries (<code>@container style()</code>)</td>
+<td>Style by a container&#39;s custom property values — variant styling without JS class toggling. Newly available May 2026</td>
+</tr>
+<tr>
+<td><code>alpha()</code></td>
+<td>Computes a relative color by adjusting opacity</td>
+</tr>
+<tr>
+<td><code>progress()</code></td>
+<td>Returns a 0–1 ratio of one value between two others, for interpolation</td>
+</tr>
+<tr>
+<td><code>light-dark()</code> with images</td>
+<td>Accepts <code>&lt;image&gt;</code> values, not just colors</td>
+</tr>
+<tr>
+<td><code>:active-view-transition</code></td>
+<td>Style the root while a view transition is in progress</td>
+</tr>
+<tr>
+<td><code>sibling-count()</code> / <code>sibling-index()</code></td>
+<td>Count and index siblings without JS</td>
+</tr>
+<tr>
+<td><code>shape()</code></td>
+<td>A responsive basic shape</td>
+</tr>
+<tr>
+<td><code>&lt;rcap&gt;</code>, <code>&lt;rch&gt;</code>, <code>&lt;rex&gt;</code>, <code>&lt;ric&gt;</code></td>
+<td>Root-relative font units — useful for vertical rhythm and CJK layouts</td>
+</tr>
+<tr>
+<td><code>baseline-shift</code></td>
+<td>Position an element relative to its dominant baseline</td>
+</tr>
+<tr>
+<td>Custom highlights (<code>::highlight</code>)</td>
+<td>Style arbitrary text ranges without extra DOM</td>
+</tr>
+<tr>
+<td><code>text-decoration-line: spelling-error</code></td>
+<td>Browser-native spell-check underlines</td>
+</tr>
+<tr>
+<td><code>image-rendering: crisp-edges</code></td>
+<td>Scale images without blurring</td>
+</tr>
+</tbody></table>
+<h3 id="36-still-not-safe-text-wrap-style-pretty">3.6 Still not safe: <code>text-wrap-style: pretty</code></h3>
+<p>The <code>text-wrap-style</code> property is Baseline, but the <strong><code>pretty</code> value has not shipped in Firefox yet</strong>. <code>pretty</code> cleans up orphan words on the last line of long-form copy — a genuinely nice upgrade for article typography.</p>
+<div class="codewrap"><pre data-lang="css"><code>/* progressive enhancement only */
+p {
+  text-wrap: pretty;
+}</code></pre></div>
+<p>Because it&#39;s a declaration that browsers can simply ignore, you don&#39;t even need <code>@supports</code> — an unsupported value is dropped, and the paragraph renders normally. Ship it as an enhancement, never as something the layout depends on.</p>
+<hr>
+</section><section id="part-4--scroll-driven-animations-the-honest-status"><h2 id="part-4--scroll-driven-animations-the-honest-status">Part 4 — Scroll-Driven Animations: The Honest Status</h2>
+<p>This is the feature everyone wants and the one with the murkiest support, so it gets its own part.</p>
+<h3 id="41-what-it-does">4.1 What it does</h3>
+<p>CSS scroll-driven animations link a keyframe animation to scroll position instead of time. Scrolling forward plays it forward; scrolling back plays it backwards; pausing scroll pauses the animation — as if <code>animation-play-state</code> were <code>pause</code>.</p>
+<p>There are two kinds of timeline:</p>
+<table>
+<thead>
+<tr>
+<th>Timeline</th>
+<th>Based on</th>
+<th>Start → end</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Scroll progress</strong> (<code>scroll()</code>)</td>
+<td>How far a scroll container has scrolled</td>
+<td>Top of page 0% → bottom 100%</td>
+</tr>
+<tr>
+<td><strong>View progress</strong> (<code>view()</code>)</td>
+<td>How an element passes through the viewport</td>
+<td>Element enters 0% → element exits 100%</td>
+</tr>
+</tbody></table>
+<p>The properties themselves are unchanged CSS animation; you only change <em>what counts as progress</em>.</p>
+<div class="codewrap"><pre data-lang="css"><code>.reveal {
+  animation: fade-in linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 100%;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}</code></pre></div>
+<p><strong>What it deletes:</strong> <code>scroll</code> event listeners, <code>IntersectionObserver</code>, and JavaScript running on every frame to compute positions. The browser knows the correspondence between scroll and progress directly, so nothing has to be handed across the main thread.</p>
+<blockquote>
+<p><strong>Order matters:</strong> the <code>animation</code> shorthand resets <code>animation-timeline</code> to its default <code>auto</code>, and cannot set it. So always declare <code>animation-timeline</code> <em>after</em> any <code>animation</code> shorthand, or your scroll timeline silently becomes a time-based one.</p>
+</blockquote>
+<h3 id="42-the-support-reality">4.2 The support reality</h3>
+<p>Chromium shipped <code>animation-timeline: scroll()</code> from Chrome 115. Safari followed. <strong>Firefox had not shipped it as of a 2026-09-16 check</strong>, which is why scroll-driven animations are still not Baseline.</p>
+<p>They <em>are</em> an <strong>Interop 2026 focus area</strong>, which is the strongest available signal that support is converging: vendors run a shared test suite and close implementation differences. Baseline status is expected once Firefox and Safari both ship full support without prefixes.</p>
+<h3 id="43-how-to-ship-it-today">4.3 How to ship it today</h3>
+<p>Guard it, and give the fallback a real (simpler) animation:</p>
+<div class="codewrap"><pre data-lang="css"><code>/* base: works everywhere — a plain time-based fade */
+.reveal {
+  animation: fade-in 0.6s ease both;
+}
+
+/* enhancement: tie progress to scroll */
+@supports (animation-timeline: scroll()) {
+  .reveal {
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+}</code></pre></div>
+<p>That structure gives every browser a working animation, and the capable ones get the scroll-linked version.</p>
+<h3 id="44-scroll-triggered-animations-the-next-chapter">4.4 Scroll-<em>triggered</em> animations (the next chapter)</h3>
+<p>Don&#39;t confuse this with what&#39;s coming. <strong>Scroll-driven</strong> animations advance <em>with</em> scrolling. <strong>Scroll-triggered</strong> animations are time-based animations that <em>fire</em> when you cross a scroll offset — the <code>IntersectionObserver</code> pattern.</p>
+<p>Chrome 145 is landing <code>animation-trigger</code> for this:</p>
+<div class="codewrap"><pre data-lang="css"><code>animation: unclip 0.35s ease-in-out both;
+animation-trigger: --t play-forwards play-backwards;
+
+/* the trigger, backed by a view timeline */
+timeline-trigger-name: --t;
+timeline-trigger-source: view();</code></pre></div>
+<p>That&#39;s Chromium-only for now, and it&#39;s the declarative replacement for the &quot;animate in when it enters the viewport&quot; snippet. Watch it; don&#39;t ship it yet.</p>
+<h3 id="45-one-more-not-ready-feature">4.5 One more not-ready feature</h3>
+<p><strong>CSS Grid Lanes</strong> — native masonry via <code>display: grid-lanes</code> — ships in Safari 26.4, but Chrome, Edge, and Firefox still keep it behind a flag. It replaces Masonry.js and the older <code>display: masonry</code> / <code>grid-template-rows: masonry</code> prototypes. Not Baseline; don&#39;t plan around it.</p>
+<hr>
+</section><section id="part-5--the-audit-delete-what-you-no-longer-need"><h2 id="part-5--the-audit-delete-what-you-no-longer-need">Part 5 — The Audit: Delete What You No Longer Need</h2>
+<p>This is the highest-value hour you can spend on CSS in 2026. You are not adding features; you are removing scaffolding.</p>
+<h3 id="51-what-to-search-for">5.1 What to search for</h3>
+<div class="codewrap"><pre data-lang="bash"><code># @supports guards for now-Widely-available features
+rg -n &quot;@supports.*:has\(|@supports.*selector\(:has&quot; .
+rg -n &quot;@supports.*nesting|postcss-nesting|postcss-nested&quot; .
+rg -n &quot;@supports.*container|@supports.*color-mix|@supports.*oklch&quot; .
+
+# vendor prefixes on stable features
+rg -n &quot;-webkit-(border-radius|box-shadow|transform|transition|animation)&quot; .
+rg -n &quot;-ms-&quot; .
+
+# polyfills and shims
+rg -n &quot;focus-visible|clamp\(|color-mix&quot; package.json</code></pre></div>
+<h3 id="52-the-decision-for-each-hit">5.2 The decision for each hit</h3>
+<table>
+<thead>
+<tr>
+<th>You find</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>@supports</code> guard on a <strong>Widely available</strong> feature</td>
+<td><strong>Delete it.</strong> Ship the feature raw</td>
+</tr>
+<tr>
+<td><code>@supports</code> guard on a <strong>Newly available</strong> feature</td>
+<td><strong>Keep it.</strong> That&#39;s the correct pattern</td>
+</tr>
+<tr>
+<td>Vendor prefix on a <strong>Widely available</strong> feature</td>
+<td><strong>Delete it.</strong> Browsers haven&#39;t needed it for years</td>
+</tr>
+<tr>
+<td>Polyfill for a <strong>Widely available</strong> feature</td>
+<td><strong>Remove the dependency</strong> and the import</td>
+</tr>
+<tr>
+<td>PostCSS plugin whose only job is flattening <strong>nesting</strong></td>
+<td><strong>Remove it</strong></td>
+</tr>
+<tr>
+<td><code>@supports</code> guard for scroll-driven animations</td>
+<td><strong>Keep it.</strong> Firefox hasn&#39;t shipped</td>
+</tr>
+</tbody></table>
+<h3 id="53-what-dead-weight-actually-costs">5.3 What &quot;dead weight&quot; actually costs</h3>
+<p>A stale <code>@supports</code> guard is not free. It duplicates every rule it wraps, so a change has to be made in two places. It lies to the next reader about what the browser support actually is. And it outlives the person who added it — which is exactly why this audit is worth doing on a schedule rather than once.</p>
+<h3 id="54-the-three-step-rewrite">5.4 The three-step rewrite</h3>
+<p>The pattern for every newly available feature is the same:</p>
+<div class="codewrap"><pre data-lang="css"><code>/* 1. base style that works everywhere */
+.tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+/* 2. the enhancement, layered on top */
+@supports (anchor-name: --x) {
+  .tooltip {
+    position: fixed;
+    position-anchor: --trigger;
+    top: anchor(bottom);
+    left: anchor(left);
+  }
+}</code></pre></div>
+<p>Base style first, enhancement second, one <code>@supports</code> between them. No polyfill, no library, and a working result in every browser.</p>
+<hr>
+</section><section id="part-6--applying-it-here-this-sites-own-css"><h2 id="part-6--applying-it-here-this-sites-own-css">Part 6 — Applying It Here: This Site&#39;s Own CSS</h2>
+<p>I promised the fastest payback, so here is the audit applied to the Learning Center&#39;s own stylesheet (<code>build/assets/base.css</code>), which is a good stand-in for any small design system.</p>
+<h3 id="61-what-the-theme-already-gets-right">6.1 What the theme already gets right</h3>
+<p>The site&#39;s design tokens are a single restrained palette with light and dark variants. In 2026 that maps onto modern color features well:</p>
+<div class="codewrap"><pre data-lang="css"><code>:root {
+  color-scheme: light dark;
+  --paper: oklch(0.98 0.003 264);
+  --ink: oklch(0.17 0.012 264);
+  --accent: oklch(0.55 0.19 264);
+}</code></pre></div>
+<p><code>oklch()</code> is safe with no fallback — perceptually uniform, so a palette built in it keeps consistent lightness across hues, which is why &quot;off-white with a single blue&quot; reads cleanly.</p>
+<h3 id="62-three-changes-worth-making">6.2 Three changes worth making</h3>
+<p><strong>One — replace any state-class toggling with <code>:has()</code>.</strong> The dashboard already has cards with a category, a &quot;Read more&quot; button, and an expanded state. Expanded state is managed in JS today. The parts that are purely visual could move to CSS:</p>
+<div class="codewrap"><pre data-lang="css"><code>/* base.css — no JS class needed for the visual part */
+.card:has(.readmore:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* a card whose checklist has unchecked items */
+.card:has(input[type=&quot;checkbox&quot;]:not(:checked)) {
+  border-inline-start: 3px solid var(--accent);
+}</code></pre></div>
+<p><strong>Two — let the search field size itself.</strong> If the guide search ever becomes a <code>&lt;textarea&gt;</code> (or for any comment box), delete the JS:</p>
+<div class="codewrap"><pre data-lang="css"><code>textarea {
+  field-sizing: content;
+  min-height: 3rem;
+  max-height: 14rem;
+}</code></pre></div>
+<p><strong>Three — drop the manual <code>prefers-color-scheme</code> duplication where <code>light-dark()</code> fits.</strong> The theme already toggles via <code>data-theme</code>, so this is optional — but for the tokens that only flip on the OS setting, <code>light-dark()</code> removes a duplicated block:</p>
+<div class="codewrap"><pre data-lang="css"><code>:root {
+  color-scheme: light dark;
+  --panel: light-dark(#ffffff, #14171d);
+  --text:  light-dark(#0e1116, #e7eaf0);
+}</code></pre></div>
+<p>Keep the explicit <code>data-theme</code> toggle if users need to override the OS — which this site does, so the practical win here is smaller than it looks. Honest assessment: <code>light-dark()</code> is a win for sites that <em>only</em> follow the OS setting.</p>
+<h3 id="63-the-guard-pattern-for-a-tooltip">6.3 The guard pattern for a tooltip</h3>
+<p>If the site grows a glossary tooltip (it has a Glossary section, so this is plausible), ship it base-first:</p>
+<div class="codewrap"><pre data-lang="css"><code>.glossary-term {
+  border-bottom: 1px dotted var(--hairline-strong);
+}
+
+.glossary-tip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  max-width: 18rem;
+}
+
+@supports (anchor-name: --x) {
+  .glossary-term { anchor-name: --term; }
+  .glossary-tip {
+    position: fixed;
+    position-anchor: --term;
+    position-area: top center;
+    position-try-fallbacks: flip-block;
+    margin: 0;
+    inset: auto;
+  }
+}</code></pre></div>
+<p>No library, a working fallback, and the flip handled by the browser where supported.</p>
+<h3 id="64-what-i-would-not-change-here">6.4 What I would <em>not</em> change here</h3>
+<ul>
+<li><strong>No scroll-driven animations.</strong> The guide pages have a read-progress bar, which would be a lovely fit — but Firefox hasn&#39;t shipped, and the site&#39;s whole point is reading in whatever browser you have. Keep the JS bar, or guard the CSS version carefully.</li>
+<li><strong>No Grid Lanes.</strong> Safari-only.</li>
+<li><strong>No <code>text-wrap-style: pretty</code> dependency.</strong> Add it as a bare enhancement if you like how it looks; never build a layout that assumes it.</li>
+</ul>
+<blockquote>
+<p><strong>The general lesson from this section:</strong> on a small content site, modern CSS buys you <em>less JavaScript</em> and <em>fewer duplicated rules</em>. It rarely buys a dramatic visual change — the visual language was already fine. The win is maintenance, not looks.</p>
+</blockquote>
+<hr>
+</section><section id="cheat-sheet"><h2 id="cheat-sheet">Cheat Sheet</h2>
+<div class="codewrap"><pre data-lang="css"><code>/* :has() — Widely available. Ship raw. */
+.field:has(input:invalid) { border-color: red; }
+
+/* nesting — Widely available. Ship raw. */
+.card { &amp; .title { font-weight: 700; } &amp;:hover { color: blue; } }
+
+/* anchor positioning — Newly available. Guard it. */
+@supports (anchor-name: --x) {
+  .tip { position-anchor: --trigger; top: anchor(bottom); }
+}
+
+/* field-sizing — Newly available. Guard it if the field must work old. */
+textarea { field-sizing: content; max-height: 12rem; }
+
+/* contrast-color() — Newly available. */
+.badge { background: var(--c); color: contrast-color(var(--c)); }
+
+/* :open — Newly available. */
+details:open &gt; summary { font-weight: 700; }
+
+/* scroll-driven — NOT Baseline (no Firefox). Always guard. */
+@supports (animation-timeline: scroll()) {
+  .reveal { animation-timeline: view(); animation-range: entry 0% entry 100%; }
+}</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Tier</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>:has()</code></td>
+<td>Widely available (Jun 2026)</td>
+<td>Ship raw, delete guard and JS toggle</td>
+</tr>
+<tr>
+<td>Nesting + <code>&amp;</code></td>
+<td>Widely available (Jun 2026)</td>
+<td>Ship raw, remove PostCSS plugin</td>
+</tr>
+<tr>
+<td>Size container queries</td>
+<td>Widely available (Aug 2025)</td>
+<td>Ship raw</td>
+</tr>
+<tr>
+<td><code>color-mix()</code>, <code>clamp()</code>, <code>oklch()</code>, <code>subgrid</code>, <code>@layer</code></td>
+<td>Widely available</td>
+<td>Ship raw</td>
+</tr>
+<tr>
+<td>Popover</td>
+<td>Newly available (Jan 2025)</td>
+<td>Ship with a guard until ~Jul 2027</td>
+</tr>
+<tr>
+<td>Anchor positioning</td>
+<td>Newly available (Jan 2026)</td>
+<td>Ship with <code>@supports</code></td>
+</tr>
+<tr>
+<td><code>field-sizing</code></td>
+<td>Newly available (Jun 2026)</td>
+<td>Ship with <code>@supports</code></td>
+</tr>
+<tr>
+<td><code>contrast-color()</code></td>
+<td>Newly available (Apr 2026)</td>
+<td>Ship with <code>@supports</code></td>
+</tr>
+<tr>
+<td><code>@scope</code>, <code>:open</code>, container style queries</td>
+<td>Newly available (2026)</td>
+<td>Ship with <code>@supports</code></td>
+</tr>
+<tr>
+<td>Scroll-driven animations</td>
+<td><strong>Limited</strong> in Firefox</td>
+<td>Always guard</td>
+</tr>
+<tr>
+<td><code>text-wrap-style: pretty</code> value</td>
+<td><strong>Limited</strong> in Firefox</td>
+<td>Bare enhancement only</td>
+</tr>
+<tr>
+<td>Scroll-<em>triggered</em> (<code>animation-trigger</code>)</td>
+<td>Chrome 145 only</td>
+<td>Watch, don&#39;t ship</td>
+</tr>
+<tr>
+<td>Grid Lanes (<code>display: grid-lanes</code>)</td>
+<td>Safari only</td>
+<td>Watch, don&#39;t ship</td>
+</tr>
+</tbody></table>
+<div class="codewrap"><pre data-lang="bash"><code># audit your own stylesheet
+rg -n &quot;@supports&quot; src/ | rg &quot;:has|nesting|container|color-mix|oklch&quot;
+rg -n &quot;\-webkit-|\-ms-&quot; src/
+rg -n &quot;postcss-nesting|postcss-nested|focus-visible&quot; package.json</code></pre></div>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>:has()</code> &quot;doesn&#39;t work&quot; on an old device</td>
+<td>Device-locked old iOS Safari</td>
+<td>It&#39;s Widely available but not universal; drop the guard only if your target set allows</td>
+</tr>
+<tr>
+<td>Anchor-positioned tooltip in the wrong place</td>
+<td>Popover default <code>margin</code>/<code>inset</code></td>
+<td><code>margin: 0; inset: auto;</code> on the positioned element</td>
+</tr>
+<tr>
+<td><code>top: anchor(left)</code> is invalid</td>
+<td>Axis mismatch</td>
+<td>Use a side on the same axis, or a logical value like <code>start</code></td>
+</tr>
+<tr>
+<td>Fallback value used unexpectedly</td>
+<td>No anchor associated</td>
+<td><code>position-anchor</code> (or the <code>anchor</code> HTML attribute) is still required to associate</td>
+</tr>
+<tr>
+<td><code>textarea</code> grows forever</td>
+<td>No cap</td>
+<td>Add <code>max-height</code></td>
+</tr>
+<tr>
+<td>Scroll animation runs on load, ignoring scroll</td>
+<td><code>animation</code> shorthand declared after <code>animation-timeline</code></td>
+<td>Declare <code>animation-timeline</code> <em>after</em> the shorthand</td>
+</tr>
+<tr>
+<td>Scroll animation doesn&#39;t run at all in one browser</td>
+<td>Firefox hasn&#39;t shipped</td>
+<td>Keep the <code>@supports</code> guard; the base animation should still play</td>
+</tr>
+<tr>
+<td><code>contrast-color()</code> gives an unexpected value</td>
+<td>Browser algorithm differs; ties return white</td>
+<td>Don&#39;t assert exact output in pixel tests</td>
+</tr>
+<tr>
+<td><code>text-wrap: pretty</code> has no effect</td>
+<td>Firefox hasn&#39;t shipped the <code>pretty</code> value</td>
+<td>Expected; it&#39;s an enhancement</td>
+</tr>
+<tr>
+<td>Guard deletion broke something</td>
+<td>The feature was Newly, not Widely, available</td>
+<td>Re-check the tier and the date on webstatus.dev</td>
+</tr>
+<tr>
+<td>Baseline status changed under you</td>
+<td>Features move tiers; you don&#39;t</td>
+<td>Subscribe to Baseline Alerts</td>
+</tr>
+<tr>
+<td>CSS nesting behaves oddly in a build</td>
+<td>A PostCSS plugin is flattening it</td>
+<td>Remove the plugin and let the browser handle nesting</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>YouTube <strong>search</strong> links only — browser-support videos date badly.</p>
+<table>
+<thead>
+<tr>
+<th>Search</th>
+<th>What you&#39;ll find</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://www.youtube.com/results?search_query=CSS+has+selector+tutorial" target="_blank" rel="noopener">CSS :has() tutorial</a></td>
+<td>The parent selector in practice</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=CSS+anchor+positioning+tutorial" target="_blank" rel="noopener">CSS anchor positioning tutorial</a></td>
+<td>Tooltips and dropdowns without JS</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=CSS+Baseline+explained" target="_blank" rel="noopener">CSS Baseline explained</a></td>
+<td>How to read the tiers</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=CSS+supports+progressive+enhancement" target="_blank" rel="noopener">CSS @supports progressive enhancement</a></td>
+<td>The guard pattern</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=CSS+scroll-driven+animations" target="_blank" rel="noopener">CSS scroll-driven animations</a></td>
+<td><code>animation-timeline</code> in depth</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=CSS+container+queries" target="_blank" rel="noopener">CSS container queries</a></td>
+<td>Size and style queries</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=CSS+nesting+tutorial" target="_blank" rel="noopener">CSS nesting tutorial</a></td>
+<td>Native nesting and <code>&amp;</code></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=field-sizing+CSS" target="_blank" rel="noopener">field-sizing CSS</a></td>
+<td>Auto-growing form fields</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=oklch+color+CSS" target="_blank" rel="noopener">oklch color CSS</a></td>
+<td>Modern color spaces</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Interop+2026" target="_blank" rel="noopener">Interop 2026</a></td>
+<td>What vendors are converging on</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--docs"><h2 id="written-references--docs">Written References &amp; Docs</h2>
+<p>web.dev, MDN, and webstatus.dev first — these are the authorities Baseline names.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Baseline overview</td>
+<td><code>https://web.dev/baseline</code></td>
+</tr>
+<tr>
+<td>How to use Baseline</td>
+<td><code>https://web.dev/how-to-use-baseline</code></td>
+</tr>
+<tr>
+<td>Web Platform Status dashboard</td>
+<td><code>https://webstatus.dev/</code></td>
+</tr>
+<tr>
+<td>Baseline Alerts</td>
+<td><code>https://web.dev/blog/baseline-alerts</code></td>
+</tr>
+<tr>
+<td>Baseline monthly digests</td>
+<td><code>https://web.dev/blog</code></td>
+</tr>
+<tr>
+<td>June 2026 digest (<code>field-sizing</code>, <code>:has()</code> widely available)</td>
+<td><code>https://web.dev/blog/baseline-digest-jun-2026</code></td>
+</tr>
+<tr>
+<td>January 2026 digest (root font units, Navigation API)</td>
+<td><code>https://web.dev/blog/baseline-digest-jan-2026</code></td>
+</tr>
+<tr>
+<td>web-features (the data behind Baseline)</td>
+<td><code>https://github.com/web-platform-dx/web-features</code></td>
+</tr>
+<tr>
+<td>MDN — Baseline compatibility glossary</td>
+<td><code>https://developer.mozilla.org/en-US/docs/Glossary/Baseline/Compatibility</code></td>
+</tr>
+<tr>
+<td>MDN — <code>:has()</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/:has</code></td>
+</tr>
+<tr>
+<td>MDN — <code>anchor()</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/anchor</code></td>
+</tr>
+<tr>
+<td>MDN — using anchor positioning</td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Anchor_positioning/Using</code></td>
+</tr>
+<tr>
+<td>MDN — <code>field-sizing</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/field-sizing</code></td>
+</tr>
+<tr>
+<td>MDN — <code>contrast-color()</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/contrast-color</code></td>
+</tr>
+<tr>
+<td>MDN — scroll-driven animations guide</td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Scroll-driven_animations</code></td>
+</tr>
+<tr>
+<td>MDN — scroll-driven timelines</td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Scroll-driven_animations/Timelines</code></td>
+</tr>
+<tr>
+<td>MDN — nesting selector</td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/Nesting_selector</code></td>
+</tr>
+<tr>
+<td>MDN — <code>@supports</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@supports</code></td>
+</tr>
+<tr>
+<td>Chrome for Developers — scroll-triggered animations</td>
+<td><code>https://developer.chrome.com/blog/scroll-triggered-animations</code></td>
+</tr>
+<tr>
+<td>Interop 2026</td>
+<td><code>https://web.dev/interop-2026/</code></td>
+</tr>
+<tr>
+<td>CSS anchor positioning spec</td>
+<td><code>https://drafts.csswg.org/css-anchor-position-1/</code></td>
+</tr>
+<tr>
+<td>CSS Values and Units Level 4</td>
+<td><code>https://drafts.csswg.org/css-values-4/</code></td>
+</tr>
+<tr>
+<td>CSS Working Group drafts</td>
+<td><code>https://github.com/w3c/csswg-drafts</code></td>
+</tr>
+</tbody></table>
+<p><strong>Third-party trackers and summaries (useful, but verify against the above):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>modern-css.com</td>
+<td>Feature-by-feature Baseline status and snippets; refreshes from web-features</td>
+</tr>
+<tr>
+<td>handoff.design modern CSS guide</td>
+<td>Good on the &quot;what still needs a backup&quot; question; third-party analysis</td>
+</tr>
+<tr>
+<td>caniuse.com</td>
+<td>Still useful for granular version data; Baseline is the higher-level label</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Verification tip:</strong> Baseline status changes monthly. If a page and a dashboard disagree, the dashboard wins. Check <code>webstatus.dev</code> for the feature by name.</p>
+</blockquote>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English definition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Baseline</td>
+<td>The compatibility label: is this feature supported across core browsers?</td>
+</tr>
+<tr>
+<td>Core browser set</td>
+<td>Chrome, Edge, Firefox, Safari, desktop and mobile</td>
+</tr>
+<tr>
+<td>Limited availability</td>
+<td>Not supported in all core browsers yet</td>
+</tr>
+<tr>
+<td>Newly available</td>
+<td>Interoperable now; the 30-month clock is running</td>
+</tr>
+<tr>
+<td>Widely available</td>
+<td>Interoperable for 30 months; safe without a fallback</td>
+</tr>
+<tr>
+<td>Baseline 2026</td>
+<td>Features that became Newly available during 2026</td>
+</tr>
+<tr>
+<td><code>@supports</code></td>
+<td>An at-rule that applies styles only if the browser supports a declaration</td>
+</tr>
+<tr>
+<td><code>@supports selector()</code></td>
+<td>Tests support for a selector, e.g. <code>:has()</code></td>
+</tr>
+<tr>
+<td>Progressive enhancement</td>
+<td>Base style works everywhere; the good stuff is layered on</td>
+</tr>
+<tr>
+<td>Graceful degradation</td>
+<td>Works minus the flourish</td>
+</tr>
+<tr>
+<td>Dead weight</td>
+<td>Fallbacks and prefixes for features that no longer need them</td>
+</tr>
+<tr>
+<td>Interop</td>
+<td>Vendors running a shared test suite to close implementation gaps</td>
+</tr>
+<tr>
+<td>Core Web Vitals</td>
+<td>Google&#39;s user-experience metrics (LCP, INP, CLS)</td>
+</tr>
+<tr>
+<td>Anchor positioning</td>
+<td>Tethering one element&#39;s position to another element&#39;s geometry</td>
+</tr>
+<tr>
+<td><code>anchor-name</code> / <code>position-anchor</code></td>
+<td>The name on the anchor / the association on the positioned element</td>
+</tr>
+<tr>
+<td><code>anchor()</code> / <code>position-area</code></td>
+<td>Position an edge relative to an anchor / place an element in an area around it</td>
+</tr>
+<tr>
+<td>Scroll progress timeline</td>
+<td>Progress tied to how far a container has scrolled</td>
+</tr>
+<tr>
+<td>View progress timeline</td>
+<td>Progress tied to how an element passes through the viewport</td>
+</tr>
+<tr>
+<td>Scroll-<em>driven</em> vs scroll-<em>triggered</em></td>
+<td>Advances with scrolling vs fires on crossing an offset</td>
+</tr>
+<tr>
+<td>Grid Lanes</td>
+<td>Native masonry layout; Safari 26.4 only for now</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>What does &quot;Baseline&quot; actually promise?</strong> That a feature is supported by the core browser set (Chrome, Edge, Firefox, Safari on desktop and mobile). Newly available means interoperable now; Widely available means it has been for 30 months. It is a compatibility signal, not a guarantee about every old browser or embedded WebView.</p>
+<p><strong>Is <code>:has()</code> safe without a fallback?</strong> Yes, in 2026. It went Widely available in June 2026. The one case that still warrants a guard is a device-locked old Safari version you have to support — a business decision, not a Baseline one.</p>
+<p><strong>Do I still need Popper.js or Floating UI?</strong> For simple tooltips and dropdowns, no — anchor positioning replaces them, behind a <code>@supports</code> guard. Keep the library if you need behaviour it provides beyond positioning.</p>
+<p><strong>Can I delete my <code>@supports</code> guards?</strong> Only for Widely available features. For Newly available ones, the guard <em>is</em> the correct pattern. The audit in Part 5 tells you which is which.</p>
+<p><strong>Why do scroll-driven animations still need a guard?</strong> Firefox hadn&#39;t shipped <code>animation-timeline</code> as of the September 2026 check. It&#39;s an Interop 2026 focus area, so expect that to change.</p>
+<p><strong>What&#39;s the difference between scroll-driven and scroll-triggered?</strong> Driven advances <em>with</em> scroll position; triggered <em>fires</em> a time-based animation when crossing an offset. The second is Chrome 145 territory.</p>
+<p><strong>Is <code>text-wrap: pretty</code> safe?</strong> The property is Baseline; the <code>pretty</code> value is not shipped in Firefox. Use it as a bare enhancement — unsupported browsers just ignore it.</p>
+<p><strong>Where should I check support?</strong> <code>webstatus.dev</code> for the tier, MDN for the detail and the exact date, and Chrome DevTools for a quick check while inspecting an element.</p>
+<p><strong>What&#39;s the highest-value thing I can do this week?</strong> Run the audit. Delete guards and prefixes for Widely available features, and remove the polyfills and PostCSS plugins whose only job has been done.</p>
+<h3 id="next-steps-in-order">Next steps, in order</h3>
+<ol>
+<li><strong>Today:</strong> subscribe to Baseline Alerts on <code>webstatus.dev</code> for CSS features.</li>
+<li><strong>This week:</strong> run the audit commands in Part 5 against your stylesheet. Delete guards for <code>:has()</code>, nesting, container queries, and color functions.</li>
+<li><strong>Next week:</strong> convert one JS state toggle to <code>:has()</code> and delete the JS.</li>
+<li><strong>Week 3:</strong> take <code>field-sizing</code> for one form field and delete the auto-resize script.</li>
+<li><strong>Week 4:</strong> build one anchor-positioned tooltip base-first with a guard, and delete a positioning library if you have one.</li>
+<li><strong>Month 2:</strong> revisit scroll-driven animations — check whether Firefox has shipped, and adopt behind the guard when it&#39;s worth it.</li>
+</ol>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p><strong>Verified as of September 2026 from web.dev, MDN, and webstatus.dev:</strong></p>
+<ul>
+<li><strong>Baseline definition:</strong> Newly available = supported by all core browsers (Chrome desktop + Android, Edge, Firefox desktop + Android, Safari macOS + iOS). Widely available = 30 months have passed since that date. Before Newly available, a feature has Limited availability. Baseline 2026 is the 2026 newly-available set (<code>web.dev/baseline</code>).</li>
+<li><strong><code>:has()</code>:</strong> moved to Baseline <strong>Widely available in June 2026</strong> (<code>web.dev/blog/baseline-digest-jun-2026</code>).</li>
+<li><strong>CSS nesting and the <code>&amp;</code> selector:</strong> Baseline <strong>Widely available in June 2026</strong>; the two-value <code>display</code> property also went Widely available (<code>web.dev/blog/baseline-digest-jun-2026</code>; <code>modern-css.com/changelog</code>).</li>
+<li><strong>Anchor positioning / <code>anchor()</code>:</strong> Baseline <strong>Newly available since January 2026</strong>, when Firefox 147 shipped unflagged support (<code>developer.mozilla.org</code> anchor() page: &quot;Since January 2026&quot;). Chrome/Edge shipped in 2024, Safari in 2025.</li>
+<li><strong><code>field-sizing</code>:</strong> Baseline <strong>Newly available in June 2026</strong> (<code>web.dev/blog/baseline-digest-jun-2026</code>; MDN: &quot;Since June 2026&quot;).</li>
+<li><strong><code>contrast-color()</code>:</strong> Baseline <strong>Newly available since April 2026</strong>; returns <code>white</code> or <code>black</code>; ties return white; browsers may use different algorithms (MDN).</li>
+<li><strong><code>@scope</code>, <code>:open</code>, container style queries, <code>alpha()</code>, <code>progress()</code>, <code>light-dark()</code> with images, <code>sibling-count()</code>/<code>sibling-index()</code>, <code>shape()</code>:</strong> Baseline Newly available during 2026 per MDN/Web Platform Status listings (<code>web-platform-dx</code> web-features explorer; <code>modern-css.com</code>).</li>
+<li><strong>Scroll-driven animations:</strong> <code>animation-timeline: scroll()</code>/<code>view()</code> support from Chrome 115 and Safari 18/26; <strong>Firefox had not shipped it as of a 2026-09-16 check</strong>, so it is not Baseline. It is an <strong>Interop 2026 focus area</strong> (MDN scroll-driven animations guide; Chrome for Developers; third-party status summaries).</li>
+<li><strong>Scroll-triggered animations:</strong> <code>animation-trigger</code> landing in <strong>Chrome 145</strong>, Chromium-only (Chrome for Developers blog, published 2025-12-12).</li>
+<li><strong><code>text-wrap-style: pretty</code>:</strong> the property is Baseline Newly available (2024) but the <strong><code>pretty</code> value has not shipped in Firefox</strong> — progressive enhancement only (<code>modern-css.com/changelog</code>).</li>
+<li><strong>Grid Lanes (<code>display: grid-lanes</code>):</strong> Safari 26.4 only; Chrome, Edge, and Firefox behind a flag (<code>modern-css.com/changelog</code>).</li>
+<li><strong>Chrome DevTools</strong> shows Baseline information for CSS properties in the Elements panel (<code>web.dev/baseline</code>).</li>
+<li><strong>Baseline Alerts</strong> on webstatus.dev: subscribe via GitHub for email/RSS/Slack notifications (<code>web.dev/blog/baseline-alerts</code>).</li>
+</ul>
+<p><strong>Where I am relying on third-party analysis rather than a primary source:</strong> the specific <code>@supports</code> recommendations (which features need a guard and which don&#39;t) follow from the Baseline tiers, but the tier-to-guard mapping is my synthesis, informed by community write-ups. The tier dates are primary; the guidance is judgement.</p>
+<p><strong>Vendor and third-party claims, not independently verified:</strong> <code>modern-css.com</code>&#39;s browser-version tables, and any community article&#39;s characterisation of &quot;safe to use.&quot; Use them to find the feature, then confirm the tier on webstatus.dev.</p>
+<p><strong>Changes fast:</strong> Baseline tier transitions happen monthly; Firefox shipping scroll-driven animations will move a whole category; experimental features (scroll-triggered animations, Grid Lanes) may ship widely at any time. Re-check webstatus.dev before depending on any status in this guide.</p>
+<p><strong>Not legal or accessibility advice.</strong> <code>contrast-color()</code> targets WCAG AA, but automated contrast checks do not replace testing with real users and assistive technology.</p>
+<hr>
+</section><section id="your-setup-notes-mac--vs-code--opencode"><h2 id="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</h2>
+<p><strong>How I&#39;d work this into my own stack.</strong></p>
+<table>
+<thead>
+<tr>
+<th>In my workspace</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A hand-authored CSS design system with tokens</td>
+<td>Modern color + <code>:has()</code> + nesting are the wins; no framework needed</td>
+</tr>
+<tr>
+<td>Light/dark theme toggled by the user</td>
+<td>Keep the explicit toggle; <code>light-dark()</code> only helps OS-only theming</td>
+</tr>
+<tr>
+<td>A small amount of vanilla JS on the front end</td>
+<td><code>:has()</code> and <code>field-sizing</code> are the two biggest JS deletions</td>
+</tr>
+<tr>
+<td>A build step with PostCSS</td>
+<td>Check whether nesting is the only reason it exists</td>
+</tr>
+<tr>
+<td>No browser matrix documented</td>
+<td>Write down your floor; Baseline assumes a mainstream one</td>
+</tr>
+</tbody></table>
+<p><strong>Recommended setup:</strong></p>
+<ul>
+<li><strong>Check support in DevTools.</strong> Select an element, inspect a property, and read the Baseline banner. Fastest loop there is.</li>
+<li><strong>Subscribe to Baseline Alerts.</strong> Pick &quot;CSS&quot; and get notified when a tier changes. This is the whole maintenance strategy in one subscription.</li>
+<li><strong>Editor linting.</strong> If your setup supports it, a Baseline-aware linter flags newly available features you haven&#39;t guarded.</li>
+<li><strong><code>@supports</code> as a code review item.</strong> One guard per enhancement, base style always present. A reviewer should be able to see the fallback.</li>
+<li><strong>A deletion habit.</strong> When a tier moves to Widely available, that&#39;s a follow-up ticket to delete the guard — not a nice-to-have.</li>
+<li><strong>Test in two engines at minimum.</strong> Safari + Chrome on your Mac covers WebKit and Blink. Add Firefox before shipping anything that leans on a Newly available feature, because Firefox is the usual laggard and the usual reason a feature stays Newly available.</li>
+<li><strong>What I would not do:</strong> adopt a feature just because it&#39;s new. Baseline tells you what&#39;s <em>safe</em>, not what&#39;s <em>worth it</em>. Anchor positioning earns its keep by deleting a library; Grid Lanes would earn it by deleting a masonry shim that doesn&#39;t exist yet.</li>
+</ul>
+<p><strong>Smoke test for the first session, in order:</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code># 1. what guards do I have?
+rg -n &quot;@supports&quot; src/
+
+# 2. what prefixes and polyfills?
+rg -n &quot;\-webkit-|\-ms-&quot; src/
+rg -n &quot;postcss-nesting|postcss-nested|focus-visible&quot; package.json
+
+# 3. check the tier for anything you find (webstatus.dev), then delete or keep</code></pre></div>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Web Platform</span> · 6 parts · ~24 min · Generated from <code>markdown_docs/14-modern-css-2026.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>

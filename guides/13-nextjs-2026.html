@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Next.js in 2026 — Learning Center</title>
+<meta name="description" content="Next.js 16 finished a year-long retreat from hidden caching. Turbopack is the default bundler, 'use cache' is the new caching primitive, and navigations are becoming instant. Here is what actually changed, and how to upgrade without breaking anything.">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="13-nextjs-2026">
+<header class="topbar">
+  <a class="homebtn" href="../index.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/></svg>Home</a>
+  <span class="brand">Next.js in 2026</span>
+  <button id="themeToggle" title="Toggle dark / light" aria-label="Toggle dark and light theme">
+    <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <span id="themeLabel">Dark</span>
+  </button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<details id="toc" class="toc" open>
+<summary class="tocsum">Contents<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#the-analogy-table" data-sec="the-analogy-table" class="sub">The analogy table</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--what-actually-shipped-160--163" data-sec="part-1--what-actually-shipped-160--163">Part 1 — What Actually Shipped: 16.0 → 16.3</a><a href="#11-the-three-things-that-matter-in-163" data-sec="11-the-three-things-that-matter-in-163" class="sub">1.1 The three things that matter in 16.3</a><a href="#12-smaller-wins-worth-knowing" data-sec="12-smaller-wins-worth-knowing" class="sub">1.2 Smaller wins worth knowing</a><a href="#13-experimental-opt-in" data-sec="13-experimental-opt-in" class="sub">1.3 Experimental, opt-in</a><a href="#part-2--upgrading-the-order-that-actually-works" data-sec="part-2--upgrading-the-order-that-actually-works">Part 2 — Upgrading: The Order That Actually Works</a><a href="#21-step-0--let-your-agent-read-the-version-matched-docs" data-sec="21-step-0--let-your-agent-read-the-version-matched-docs" class="sub">2.1 Step 0 — let your agent read the version-matched docs</a><a href="#22-step-1--run-the-codemod" data-sec="22-step-1--run-the-codemod" class="sub">2.2 Step 1 — run the codemod</a><a href="#23-step-2--the-breaking-changes-in-the-order-theyll-bite" data-sec="23-step-2--the-breaking-changes-in-the-order-theyll-bite" class="sub">2.3 Step 2 — the breaking changes, in the order they&#39;ll bite</a><a href="#24-step-3--verify" data-sec="24-step-3--verify" class="sub">2.4 Step 3 — verify</a><a href="#part-3--the-new-caching-model-properly" data-sec="part-3--the-new-caching-model-properly">Part 3 — The New Caching Model, Properly</a><a href="#31-the-one-table-you-need" data-sec="31-the-one-table-you-need" class="sub">3.1 The one table you need</a><a href="#32-the-shape-of-a-cached-function" data-sec="32-the-shape-of-a-cached-function" class="sub">3.2 The shape of a cached function</a><a href="#33-streaming-instead-of-blocking" data-sec="33-streaming-instead-of-blocking" class="sub">3.3 Streaming instead of blocking</a><a href="#34-invalidation-three-functions-three-feelings" data-sec="34-invalidation-three-functions-three-feelings" class="sub">3.4 Invalidation: three functions, three feelings</a><a href="#35-migrating-incrementally-the-sane-path" data-sec="35-migrating-incrementally-the-sane-path" class="sub">3.5 Migrating incrementally (the sane path)</a><a href="#36-the-side-effect-nobody-mentions" data-sec="36-the-side-effect-nobody-mentions" class="sub">3.6 The side effect nobody mentions</a><a href="#part-4--instant-navigations" data-sec="part-4--instant-navigations">Part 4 — Instant Navigations</a><a href="#41-the-four-tools" data-sec="41-the-four-tools" class="sub">4.1 The four tools</a><a href="#42-streaming-caching-or-blocking" data-sec="42-streaming-caching-or-blocking" class="sub">4.2 Streaming, caching, or blocking</a><a href="#43-the-regression-test-that-keeps-it-fast" data-sec="43-the-regression-test-that-keeps-it-fast" class="sub">4.3 The regression test that keeps it fast</a><a href="#44-network-resilience-experimental" data-sec="44-network-resilience-experimental" class="sub">4.4 Network resilience (experimental)</a><a href="#part-5--turbopack-and-the-webpack-decision" data-sec="part-5--turbopack-and-the-webpack-decision">Part 5 — Turbopack, and the Webpack Decision</a><a href="#part-6--the-ai-agent-story-why-this-release-is-different" data-sec="part-6--the-ai-agent-story-why-this-release-is-different">Part 6 — The AI-Agent Story (Why This Release Is Different)</a><a href="#61-versioned-docs-through-agentsmd" data-sec="61-versioned-docs-through-agentsmd" class="sub">6.1 Versioned docs through <code>AGENTS.md</code></a><a href="#62-docs-as-markdown" data-sec="62-docs-as-markdown" class="sub">6.2 Docs as Markdown</a><a href="#63-first-party-skills" data-sec="63-first-party-skills" class="sub">6.3 First-party skills</a><a href="#64-the-upgrade-prompt" data-sec="64-the-upgrade-prompt" class="sub">6.4 The upgrade prompt</a><a href="#part-7--a-worked-upgrade-on-a-solo-saas" data-sec="part-7--a-worked-upgrade-on-a-solo-saas">Part 7 — A Worked Upgrade on a Solo SaaS</a><a href="#71-the-checklist" data-sec="71-the-checklist" class="sub">7.1 The checklist</a><a href="#72-reading-a-real-diff" data-sec="72-reading-a-real-diff" class="sub">7.2 Reading a real diff</a><a href="#73-a-webhook-that-invalidates-correctly" data-sec="73-a-webhook-that-invalidates-correctly" class="sub">7.3 A webhook that invalidates, correctly</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheet" data-sec="cheat-sheet">Cheat Sheet</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--docs" data-sec="written-references--docs">Written References &amp; Docs</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#next-steps-in-order" data-sec="next-steps-in-order" class="sub">Next steps, in order</a><a href="#verification-note" data-sec="verification-note">Verification Note</a><a href="#your-setup-notes-mac--vs-code--opencode" data-sec="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</a></div>
+</nav>
+</details>
+<main>
+<h1>Next.js in 2026</h1>
+<div class="callout lede">Next.js 16 finished a year-long retreat from hidden caching. Turbopack is the default bundler, <code>&#39;use cache&#39;</code> is the new caching primitive, and navigations are becoming instant. Here is what actually changed, and how to upgrade without breaking anything.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>For three years the loudest complaint about Next.js was the same one: <em>caching was magic and the magic was wrong</em>. You would ship, something would be stale, and the fix was a route segment config you copy-pasted from a GitHub issue. Next.js 16 is the answer to that complaint, and the answer is not &quot;better magic&quot; — it is <strong>no magic</strong>.</p>
+<p>The whole framework now has one caching primitive, <code>&#39;use cache&#39;</code>, that you place explicitly, and a default posture of <strong>dynamic by default</strong>. Nothing is cached unless you say so. That single change explains almost everything else in this release: the new <code>cacheComponents</code> model, Instant Navigations, the changes to <code>revalidateTag</code>, and the removal of a pile of older flags.</p>
+<div class="codewrap"><pre data-lang=""><code>   YOUR ROUTE (app/products/[slug]/page.tsx)
+   │
+   ├── static shell — prerendered at build, served instantly
+   │   ┌──────────────────────────────────────────┐
+   │   │ &lt;header&gt;, layout, cached parts of page   │
+   │   └──────────────────────────────────────────┘
+   │
+   └── dynamic holes — streamed at request time
+       ┌──────────────────────────────────────────┐
+       │ &lt;Suspense&gt; around cookies()/headers()    │
+       │ &lt;Suspense&gt; around searchParams           │
+       └──────────────────────────────────────────┘
+
+   HOW DATA GETS CACHED — one directive, two axes
+
+   async function getProducts() {
+     'use cache'            ← opt THIS function into caching
+     cacheLife('hours')     ← how long it stays fresh
+     cacheTag('products')   ← what invalidates it
+     return db.query(...)
+   }
+
+   HOW YOU INVALIDATE
+   updateTag('products')          Server Action → user sees own write now
+   revalidateTag('products','max') anywhere else → stale-while-revalidate
+   refresh()                       re-render the client router
+
+   HOW YOU OPT OUT OF INSTANT-NAV VALIDATION (temporarily)
+   export const instant = false   on a page / layout / slot</code></pre></div>
+<p>The single most important idea: <strong><code>use cache</code> replaced a family of configs, and <code>dynamic = &#39;force-dynamic&#39;</code> is now a no-op because everything is dynamic already.</strong> If you understand that one sentence, the migration is mostly deletion.</p>
+<h3 id="the-analogy-table">The analogy table</h3>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English analogy</th>
+<th>Why it matters to you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Turbopack</strong></td>
+<td>A faster engine, now the only one in the car</td>
+<td>Default for <code>next dev</code> and <code>next build</code>; your webpack config may block the build</td>
+</tr>
+<tr>
+<td><strong><code>&#39;use cache&#39;</code></strong></td>
+<td>A sticky note on a function: &quot;keep this answer&quot;</td>
+<td>The one caching primitive; replaces <code>unstable_cache</code>, <code>fetch</code> cache options, and route segment configs</td>
+</tr>
+<tr>
+<td><strong><code>cacheLife</code></strong></td>
+<td>A sell-by date</td>
+<td>How long a cached value stays fresh; built-in profiles or your own</td>
+</tr>
+<tr>
+<td><strong><code>cacheTag</code></strong></td>
+<td>A label on the jar</td>
+<td>What you name to invalidate later</td>
+</tr>
+<tr>
+<td><strong><code>updateTag</code></strong></td>
+<td>&quot;Change it and show me now&quot;</td>
+<td>Read-your-own-writes after a mutation; Server Actions only</td>
+</tr>
+<tr>
+<td><strong><code>revalidateTag</code></strong></td>
+<td>&quot;Change it, I can wait&quot;</td>
+<td>Stale-while-revalidate; now requires a cache profile argument</td>
+</tr>
+<tr>
+<td><strong>Static shell</strong></td>
+<td>The shopfront that was built last week</td>
+<td>Prerendered HTML served instantly, before any data arrives</td>
+</tr>
+<tr>
+<td><strong><code>instant = false</code></strong></td>
+<td>A &quot;not ready&quot; sticker</td>
+<td>Lets one route opt out of instant-navigation validation while you migrate</td>
+</tr>
+<tr>
+<td><strong>Instant Navigations</strong></td>
+<td>SPA reflexes on a server-driven app</td>
+<td>Prefetched shells so a click renders immediately</td>
+</tr>
+<tr>
+<td><strong>Partial Prefetching</strong></td>
+<td>Loading just the first screen of the next page</td>
+<td>Per-link control over how much gets fetched ahead</td>
+</tr>
+<tr>
+<td><strong><code>proxy.ts</code></strong></td>
+<td><code>middleware.ts</code> with a clearer name</td>
+<td>Renamed in 16; Node.js runtime only</td>
+</tr>
+<tr>
+<td><strong>Root params</strong></td>
+<td>A global the whole tree can read</td>
+<td><code>[lang]</code> accessible anywhere via <code>next/root-params</code></td>
+</tr>
+<tr>
+<td><strong><code>AGENTS.md</code></strong></td>
+<td>A note to your coding agent, version-matched</td>
+<td><code>next dev</code> writes and maintains it; points at the bundled docs</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The one-sentence version:</strong> upgrade to 16.3 for real speed wins with zero code changes, then adopt <code>cacheComponents</code> on your own schedule — because the new caching model is opt-in, and the old one still works while you migrate.</p>
+</blockquote>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>Latest stable is 16.3.6</strong> (as of September 2026). <code>16.3.x</code> is the Active LTS line; <code>15.5.x</code> is Maintenance LTS.</li>
+<li><strong>Upgrade now, even if you change nothing else.</strong> 16.3 gives up to 90% less dev memory, faster builds, and ~22% more SSR throughput with <strong>zero application code changes</strong>.</li>
+<li><strong>Upgrade to 16.3.6 or later for security.</strong> A scheduled release on <strong>September 30, 2026</strong> (16.3.7 / 15.5.27) addresses <strong>nine vulnerabilities: one critical, two high, five medium, one low</strong>.</li>
+<li><strong>Turbopack is the default bundler.</strong> A custom <code>webpack</code> config now <strong>fails your build</strong> unless you opt out with <code>--webpack</code> or migrate.</li>
+<li><strong>Async request APIs are fully async now.</strong> <code>cookies()</code>, <code>headers()</code>, <code>draftMode()</code>, <code>params</code>, <code>searchParams</code> — the synchronous compatibility period is over.</li>
+<li><strong><code>middleware.ts</code> is now <code>proxy.ts</code>.</strong> Rename the file and the exported function. The <code>edge</code> runtime is not supported in <code>proxy</code>.</li>
+<li><strong><code>revalidateTag</code> needs a second argument</strong> — a cache profile like <code>&#39;max&#39;</code>. The single-argument form is deprecated and errors in TypeScript.</li>
+<li><strong>New caching model is opt-in</strong> via <code>cacheComponents: true</code>. <code>&#39;use cache&#39;</code> replaces <code>unstable_cache</code>, <code>fetch</code> cache options, <code>dynamic</code>, <code>revalidate</code>, and <code>fetchCache</code>.</li>
+<li><strong>The dev server writes <code>AGENTS.md</code></strong> with a version-matched docs pointer, so your coding agent stops using stale knowledge.</li>
+<li><strong>Node 20.9+, TypeScript 5.1+, Chrome/Edge/Firefox 111+, Safari 16.4+.</strong> Check these before anything else.</li>
+</ol>
+<p>If you read nothing else, read <strong>Part 2 (upgrading)</strong> and <strong>Part 3 (the caching model)</strong>.</p>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Minimum</th>
+<th>How to check</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Node.js</td>
+<td><strong>20.9.0 (LTS)</strong></td>
+<td><code>node --version</code></td>
+</tr>
+<tr>
+<td>TypeScript</td>
+<td><strong>5.1.0</strong></td>
+<td><code>npx tsc --version</code></td>
+</tr>
+<tr>
+<td>Browsers</td>
+<td>Chrome/Edge/Firefox <strong>111+</strong>, Safari <strong>16.4+</strong></td>
+<td>Your support matrix</td>
+</tr>
+<tr>
+<td>A Git working tree</td>
+<td>—</td>
+<td>Commit before upgrading; this touches a lot of files</td>
+</tr>
+<tr>
+<td>An AI coding agent (recommended)</td>
+<td>—</td>
+<td>Next.js ships an upgrade prompt for it</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Before you start:</strong> on a solo SaaS, the upgrade is the risky part, not the features. Commit, branch, and upgrade on the branch. If a deploy breaks, <code>git revert</code> beats debugging in production.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--what-actually-shipped-160--163"><h2 id="part-1--what-actually-shipped-160--163">Part 1 — What Actually Shipped: 16.0 → 16.3</h2>
+<p>You do not need to follow every release, but knowing the arc tells you what is stable and what is still moving.</p>
+<table>
+<thead>
+<tr>
+<th>Release</th>
+<th>Date</th>
+<th>The headline</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>16.0</strong></td>
+<td>October 2025</td>
+<td><code>cacheComponents</code>, <code>use cache</code>, Turbopack stable and default, React Compiler support, caching API overhaul, React 19.2</td>
+</tr>
+<tr>
+<td>16.2</td>
+<td>March 2026</td>
+<td>~400% faster <code>next dev</code> startup, ~50% faster rendering, stable Adapter API, AI improvements</td>
+</tr>
+<tr>
+<td><strong>16.3</strong></td>
+<td>August 2026</td>
+<td><strong>Instant Navigations</strong>, memory eviction (up to 90% less dev RAM), build FS caching, TypeScript 7 support, root params</td>
+</tr>
+</tbody></table>
+<h3 id="11-the-three-things-that-matter-in-163">1.1 The three things that matter in 16.3</h3>
+<p><strong>Less memory in dev.</strong> Turbopack uses up to 90% less memory in <code>next dev</code>, via disk caching and memory eviction, both on by default. Vercel&#39;s own dashboard went from 21.5 GB to 2 GB after compiling 50 routes; <code>nextjs.org</code> went from 4,600 MB to 840 MB. If you have ever restarted your dev server because the laptop was hot, this is your release.</p>
+<p><strong>Faster builds.</strong> The disk cache now works for <code>next build</code> too. Cold vs cached: <code>nextjs.org</code> 21s → 9.2s (~2.3×), <code>vercel.com/geist</code> 30s → 5.5s (~5.5×).</p>
+<p><strong>Instant Navigations</strong> (opt-in). A suite of tools that makes a server-rendered app feel like an SPA: prefetched loading shells, per-link prefetch control, better ISR for unlisted paths, and a Playwright helper to stop a refactor from making navigation slow again.</p>
+<blockquote>
+<p><strong>These are vendor benchmarks</strong> run on Vercel&#39;s own properties. Your mileage will differ with app size and route count. The direction — less memory, faster repeat builds — is the reliable takeaway.</p>
+</blockquote>
+<h3 id="12-smaller-wins-worth-knowing">1.2 Smaller wins worth knowing</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>What it gives you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>catchError</code></td>
+<td>Custom error boundaries that don&#39;t interfere with <code>notFound()</code>/<code>redirect()</code>, plus a <code>retry()</code> to refetch Server Components</td>
+</tr>
+<tr>
+<td><code>import.meta.glob</code></td>
+<td>Vite-compatible glob imports in Turbopack; HMR for Server Components reading local files</td>
+</tr>
+<tr>
+<td>Root params</td>
+<td><code>import { lang } from &#39;next/root-params&#39;</code> — read <code>[lang]</code> from any Server Component, no prop-drilling</td>
+</tr>
+<tr>
+<td>TypeScript 7</td>
+<td>Bump your local <code>typescript</code> to <code>^7</code> for a much faster <code>next build</code> type check</td>
+</tr>
+<tr>
+<td>Immutable static assets</td>
+<td>Optionally reuse immutable assets across deploys (they can&#39;t suffer skew)</td>
+</tr>
+<tr>
+<td>Fewer prefetch requests</td>
+<td>Small prefetches are bundled; big shared segments stay separate and reusable</td>
+</tr>
+</tbody></table>
+<h3 id="13-experimental-opt-in">1.3 Experimental, opt-in</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>reactCompiler: true</code> + <code>experimental.turbopackRustReactCompiler</code></td>
+<td>React Compiler through Rust inside Turbopack. On <code>v0</code>: 34% faster cold, 46% faster warm to a ready page</td>
+</tr>
+<tr>
+<td><code>experimental.useOffline</code> + <code>useOffline()</code> hook</td>
+<td>Keeps a navigation or fetch pending through a network drop, retries on reconnect</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="part-2--upgrading-the-order-that-actually-works"><h2 id="part-2--upgrading-the-order-that-actually-works">Part 2 — Upgrading: The Order That Actually Works</h2>
+<h3 id="21-step-0--let-your-agent-read-the-version-matched-docs">2.1 Step 0 — let your agent read the version-matched docs</h3>
+<p>Next.js 16.3&#39;s own answer to &quot;my agent keeps using Next 13 patterns&quot; is <code>AGENTS.md</code>. <code>next dev</code> writes and maintains a block that points at the docs bundled in your installed version:</p>
+<div class="codewrap"><pre data-lang="bash"><code>npx @next/codemod@canary agents-md</code></pre></div>
+<p>The managed block lands in <code>AGENTS.md</code> and looks like this:</p>
+<div class="codewrap"><pre data-lang="md"><code>&lt;!-- BEGIN:nextjs-agent-rules --&gt;
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ
+from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before
+writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev`.
+
+&lt;!-- END:nextjs-agent-rules --&gt;</code></pre></div>
+<blockquote>
+<p><strong>Why this matters more than it sounds:</strong> your coding agent&#39;s training data is older than your installed version. Pointing it at the bundled docs is the difference between a correct codemod-driven upgrade and a confident hallucination of a Next 14 API.</p>
+</blockquote>
+<h3 id="22-step-1--run-the-codemod">2.2 Step 1 — run the codemod</h3>
+<p>Next.js ships an upgrade codemod, and 16.0+ ships a <code>next upgrade</code> command:</p>
+<div class="codewrap"><pre data-lang="bash"><code># on 16.1+, the friendly path
+npx next upgrade
+
+# the codemod, explicit
+npx @next/codemod@canary upgrade latest</code></pre></div>
+<p>The codemod handles:</p>
+<ul>
+<li><code>next.config.js</code> → new <code>turbopack</code> configuration</li>
+<li><code>next lint</code> → ESLint CLI</li>
+<li><code>middleware</code> → <code>proxy</code> rename</li>
+<li>removing <code>unstable_</code> prefixes from stabilized APIs</li>
+<li>removing <code>experimental_ppr</code> route segment config</li>
+</ul>
+<p>It does <strong>not</strong> do everything. If you still use synchronous <code>params</code>, <code>searchParams</code>, <code>cookies()</code>, <code>headers()</code>, or <code>draftMode()</code>, run the async migration too:</p>
+<div class="codewrap"><pre data-lang="bash"><code>npx @next/codemod@canary next-async-request-api .</code></pre></div>
+<p>Or upgrade packages by hand:</p>
+<div class="codewrap"><pre data-lang="bash"><code>npm install next@latest react@latest react-dom@latest
+npm install -D @types/react@latest @types/react-dom@latest</code></pre></div>
+<h3 id="23-step-2--the-breaking-changes-in-the-order-theyll-bite">2.3 Step 2 — the breaking changes, in the order they&#39;ll bite</h3>
+<p><strong>Turbopack is the default.</strong> If you have a custom <code>webpack</code> config, <code>next build</code> now <strong>fails on purpose</strong>. Three options:</p>
+<div class="codewrap"><pre data-lang="json"><code>// keep Turbopack, ignore the webpack config
+{ &quot;scripts&quot;: { &quot;build&quot;: &quot;next build --turbopack&quot; } }</code></pre></div>
+<div class="codewrap"><pre data-lang="json"><code>// keep Webpack — opt out
+{ &quot;scripts&quot;: { &quot;build&quot;: &quot;next build --webpack&quot; } }</code></pre></div>
+<p>Or migrate the config to <code>turbopack</code> options. The <code>experimental.turbopack</code> key is now top-level <code>turbopack</code>.</p>
+<p><strong>Async request APIs are fully async.</strong> The Next 15 compatibility window is closed:</p>
+<div class="codewrap"><pre data-lang="tsx"><code>// Next 16 — params is a Promise
+export default async function Page(props: PageProps&lt;'/blog/[slug]'&gt;) {
+  const { slug } = await props.params;
+  const query = await props.searchParams;
+  return &lt;h1&gt;{slug}&lt;/h1&gt;;
+}</code></pre></div>
+<p>Run <code>npx next typegen</code> to generate <code>PageProps</code>, <code>LayoutProps</code>, and <code>RouteContext</code> helpers, and the migration becomes type-checked rather than guesswork.</p>
+<p><strong><code>middleware.ts</code> → <code>proxy.ts</code>.</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code>mv middleware.ts proxy.ts</code></pre></div>
+<div class="codewrap"><pre data-lang="ts"><code>// rename the export too
+export function proxy(request: Request) {}</code></pre></div>
+<p>The <code>proxy</code> runtime is <strong>Node.js only and not configurable</strong>. The <code>edge</code> runtime is not supported there — if you need edge, stay on <code>middleware</code> for now. Flag names follow: <code>skipMiddlewareUrlNormalize</code> → <code>skipProxyUrlNormalize</code>.</p>
+<p><strong><code>revalidateTag</code> takes two arguments.</strong></p>
+<div class="codewrap"><pre data-lang="ts"><code>// before
+revalidateTag('posts');
+// after
+revalidateTag('posts', 'max');</code></pre></div>
+<p>If you need immediate expiry, <code>updateTag</code> is the new Server-Action-only API (Part 3.4).</p>
+<p><strong><code>next/image</code> defaults changed.</strong> Several at once:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>New default</th>
+<th>If you need the old behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>minimumCacheTTL</code></td>
+<td>4 hours (was 60s)</td>
+<td><code>images.minimumCacheTTL: 60</code></td>
+</tr>
+<tr>
+<td><code>imageSizes</code></td>
+<td><code>16</code> removed</td>
+<td>Add it back explicitly</td>
+</tr>
+<tr>
+<td><code>qualities</code></td>
+<td><code>[75]</code> only</td>
+<td><code>images.qualities: [50, 75, 100]</code></td>
+</tr>
+<tr>
+<td><code>maximumRedirects</code></td>
+<td>3 (was unlimited)</td>
+<td>Raise it</td>
+</tr>
+<tr>
+<td>Local images with query strings</td>
+<td>Require <code>images.localPatterns.search</code></td>
+<td>Add the pattern</td>
+</tr>
+<tr>
+<td>Local IP optimization</td>
+<td>Blocked</td>
+<td><code>images.dangerouslyAllowLocalIP: true</code> (understand the SSRF risk)</td>
+</tr>
+</tbody></table>
+<p><strong>Parallel routes need <code>default.js</code>.</strong> Every slot now requires one; builds fail without it.</p>
+<div class="codewrap"><pre data-lang="tsx"><code>// app/@modal/default.tsx
+export default function Default() {
+  return null;
+}</code></pre></div>
+<p><strong>Scroll behavior is no longer overridden.</strong> If you relied on Next forcing an instant scroll-to-top during navigation while you had <code>scroll-behavior: smooth</code> set, opt back in:</p>
+<div class="codewrap"><pre data-lang="tsx"><code>&lt;html lang=&quot;en&quot; data-scroll-behavior=&quot;smooth&quot;&gt;</code></pre></div>
+<p><strong>Removed outright:</strong> AMP support, the <code>next lint</code> command (use ESLint or Biome directly; <code>next build</code> no longer lints), <code>serverRuntimeConfig</code>/<code>publicRuntimeConfig</code> (use env vars), some <code>devIndicators</code> options, <code>experimental.dynamicIO</code> and <code>experimental.useCache</code> (fold into <code>cacheComponents</code>), and <code>unstable_rootParams</code>.</p>
+<h3 id="24-step-3--verify">2.4 Step 3 — verify</h3>
+<p>Per the official guide, verification is about the <em>interactive</em> states, not just a green build. Open the key flows, check the Next.js dev indicator, and read the browser and server logs. If a 16.3+ app is on Turbopack and the <code>next-dev-loop</code> skill is available to your agent, use it — it inspects the running app, makes an edit, and verifies the result.</p>
+<p>If you are on Next.js 15 or earlier, work up through the version guides one major at a time: 14 → 15 → 16.</p>
+<hr>
+</section><section id="part-3--the-new-caching-model-properly"><h2 id="part-3--the-new-caching-model-properly">Part 3 — The New Caching Model, Properly</h2>
+<p>This is the part of Next.js 16 that changes how you <em>think</em>, not just what compiles. It is opt-in, per project, via one flag:</p>
+<div class="codewrap"><pre data-lang="ts"><code>// next.config.ts
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  cacheComponents: true,
+};
+
+export default nextConfig;</code></pre></div>
+<p>Once enabled, <code>dynamic</code>, <code>revalidate</code>, and <code>fetchCache</code> route segment configs <strong>error</strong> if they&#39;re still exported. Here is what replaces each of them.</p>
+<h3 id="31-the-one-table-you-need">3.1 The one table you need</h3>
+<table>
+<thead>
+<tr>
+<th>You used to write</th>
+<th>Write this instead</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>export const dynamic = &#39;force-dynamic&#39;</code></td>
+<td><strong>Delete it.</strong> Everything is dynamic by default</td>
+</tr>
+<tr>
+<td><code>export const dynamic = &#39;force-static&#39;</code></td>
+<td>Delete it, then add <code>&#39;use cache&#39;</code> + <code>cacheLife(&#39;max&#39;)</code> where you want caching</td>
+</tr>
+<tr>
+<td><code>export const revalidate = 3600</code></td>
+<td><code>&#39;use cache&#39;</code> then <code>cacheLife(&#39;hours&#39;)</code></td>
+</tr>
+<tr>
+<td><code>export const fetchCache = &#39;force-cache&#39;</code></td>
+<td><code>&#39;use cache&#39;</code> — fetches inside a cached scope are cached automatically</td>
+</tr>
+<tr>
+<td><code>fetch(url, { cache: &#39;force-cache&#39;, next: { revalidate, tags } })</code></td>
+<td><code>&#39;use cache&#39;</code> + <code>cacheLife(...)</code> + <code>cacheTag(...)</code> in a wrapper function</td>
+</tr>
+<tr>
+<td><code>unstable_cache(fn, keys, { tags, revalidate })</code></td>
+<td>A plain async function with <code>&#39;use cache&#39;</code>, <code>cacheTag</code>, <code>cacheLife</code></td>
+</tr>
+<tr>
+<td><code>unstable_noStore()</code> / <code>noStore()</code></td>
+<td><strong>Delete it.</strong> Nothing is cached unless you opt in</td>
+</tr>
+<tr>
+<td><code>experimental.ppr = true</code> / <code>experimental_ppr</code></td>
+<td>Remove; <code>cacheComponents</code> <em>is</em> Partial Prerendering now</td>
+</tr>
+<tr>
+<td><code>runtime = &#39;edge&#39;</code></td>
+<td>Not supported here. Use Proxy for edge-specific routing</td>
+</tr>
+</tbody></table>
+<h3 id="32-the-shape-of-a-cached-function">3.2 The shape of a cached function</h3>
+<div class="codewrap"><pre data-lang="ts"><code>import { cacheLife, cacheTag } from 'next/cache';
+import { db } from '@/lib/db';
+
+export async function getProducts() {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('products');
+  return db.query('SELECT * FROM products');
+}</code></pre></div>
+<p>Three things to internalise:</p>
+<ul>
+<li><strong>The cache key is derived from the arguments.</strong> No more key-parts array.</li>
+<li><strong><code>cacheLife</code> profiles</strong> are <code>&#39;seconds&#39;</code>, <code>&#39;minutes&#39;</code>, <code>&#39;hours&#39;</code>, <code>&#39;days&#39;</code>, <code>&#39;weeks&#39;</code>, <code>&#39;max&#39;</code>. You can define custom profiles or override the built-ins, including <code>default</code>.</li>
+<li><strong><code>use cache</code> is in-memory by default.</strong> The old <code>fetch</code> Data Cache and <code>unstable_cache</code> persisted across deployments and serverless instances; <code>use cache</code> does not. Use <code>use cache: remote</code> or a cache handler if you need durability. Even then, expect values to recompute after a new deployment.</li>
+</ul>
+<blockquote>
+<p><strong>This is the single biggest behavioural difference from the old model, and the easiest to miss.</strong> If you migrate <code>unstable_cache</code> to <code>use cache</code> and assume persistence, your cache hit rate quietly drops on serverless.</p>
+</blockquote>
+<h3 id="33-streaming-instead-of-blocking">3.3 Streaming instead of blocking</h3>
+<p>Under <code>cacheComponents</code>, runtime data access outside a <code>&lt;Suspense&gt;</code> boundary raises an insight. The fix is always the same: <strong>push the dynamic read down into its own component and wrap it.</strong></p>
+<div class="codewrap"><pre data-lang="tsx"><code>import { cookies } from 'next/headers';
+import { Suspense } from 'react';
+
+// the page prerenders; only Dashboard streams at request time
+export default function Page() {
+  return (
+    &lt;Suspense fallback={&lt;p&gt;Loading...&lt;/p&gt;}&gt;
+      &lt;Dashboard /&gt;
+    &lt;/Suspense&gt;
+  );
+}
+
+async function Dashboard() {
+  const theme = (await cookies()).get('theme')?.value;
+  // ...
+}</code></pre></div>
+<p>The same applies to <code>searchParams</code>:</p>
+<div class="codewrap"><pre data-lang="tsx"><code>export default function Page({ searchParams }: PageProps&lt;'/'&gt;) {
+  return (
+    &lt;Suspense fallback={&lt;p&gt;Loading...&lt;/p&gt;}&gt;
+      &lt;Results searchParams={searchParams} /&gt;
+    &lt;/Suspense&gt;
+  );
+}
+
+async function Results({ searchParams }: Pick&lt;PageProps&lt;'/'&gt;, 'searchParams'&gt;) {
+  const { query } = await searchParams;
+  // ...
+}</code></pre></div>
+<blockquote>
+<p><strong><code>useSearchParams</code> always needs a <code>&lt;Suspense&gt;</code> boundary</strong> — search params are only known at request time. Client router hooks (<code>usePathname</code>, <code>useParams</code>, <code>useSelectedLayoutSegment(s)</code>) suspend only when the path depends on dynamic params not yet known.</p>
+</blockquote>
+<h3 id="34-invalidation-three-functions-three-feelings">3.4 Invalidation: three functions, three feelings</h3>
+<div class="codewrap"><pre data-lang="ts"><code>'use server';
+import { updateTag, revalidateTag, refresh } from 'next/cache';
+
+// user made a change and must SEE it immediately (read-your-own-writes)
+await db.users.update(userId, profile);
+updateTag(`user-${userId}`);
+
+// elsewhere (webhooks, route handlers) — stale-while-revalidate
+revalidateTag('posts', 'max');
+
+// after an action, re-render the client router
+refresh();</code></pre></div>
+<p><code>updateTag</code> only works inside a Server Action; calling it elsewhere throws. <code>revalidatePath</code> is unchanged from the old model.</p>
+<h3 id="35-migrating-incrementally-the-sane-path">3.5 Migrating incrementally (the sane path)</h3>
+<p>You do not have to convert every route at once. The documented flow:</p>
+<ol>
+<li><strong>Enable the flag, fix the segment configs.</strong> Convert <code>dynamic</code>, <code>revalidate</code>, <code>fetchCache</code> per the table above. Routes that already render instantly need nothing more.</li>
+<li><strong>Opt out the routes that aren&#39;t ready.</strong> One codemod adds <code>export const instant = false</code> to every page, layout, and slot:<div class="codewrap"><pre data-lang="bash"><code>npx @next/codemod@canary cache-components-instant-false ./app
+# in a src/ project: ./src/app</code></pre></div>
+Check the reported file count — a wrong path silently reports <code>0 ok</code>.</li>
+<li><strong>Fix synchronous IO. It cannot be deferred.</strong> <code>new Date()</code>, <code>Date.now()</code>, <code>Math.random()</code>, <code>crypto.randomUUID()</code> during prerender are <strong>build errors that <code>instant = false</code> does not clear</strong>. Wrap the part that needs them in <code>&lt;Suspense&gt;</code> and call <code>connection()</code> first, or move it to a Client Component.</li>
+<li><strong>Convert one route at a time.</strong> Remove <code>instant = false</code>, resolve the insights, repeat.</li>
+</ol>
+<p>There&#39;s also a skill that drives the whole migration with an agent, one feature at a time:</p>
+<div class="codewrap"><pre data-lang="bash"><code>npx skills add vercel/next.js --skill next-cache-components-adoption</code></pre></div>
+<h3 id="36-the-side-effect-nobody-mentions">3.6 The side effect nobody mentions</h3>
+<p>With Cache Components, Next.js preserves routes using React&#39;s <code>&lt;Activity&gt;</code> in <code>&quot;hidden&quot;</code> mode instead of unmounting them. <code>useState</code> values, form inputs, and scroll position <strong>survive navigation</strong>. Effects still clean up and re-run.</p>
+<p>If your code relied on unmounting to reset state, you now need explicit resets:</p>
+<ul>
+<li><strong>Dropdowns and popovers</strong> stay open when you navigate back — close them in a <code>useLayoutEffect</code> cleanup.</li>
+<li><strong>Dialogs</strong> with initialisation effects won&#39;t re-fire if state was preserved — derive state from the URL instead.</li>
+<li><strong>Forms</strong> keep values and <code>useActionState</code> results after submission — reset in the submit handler.</li>
+</ul>
+<hr>
+</section><section id="part-4--instant-navigations"><h2 id="part-4--instant-navigations">Part 4 — Instant Navigations</h2>
+<p>This is 16.3&#39;s headline feature and it is <strong>opt-in</strong>, behind two flags:</p>
+<div class="codewrap"><pre data-lang="ts"><code>// next.config.ts
+const nextConfig: NextConfig = {
+  cacheComponents: true,
+  partialPrefetching: true,
+};</code></pre></div>
+<p>The problem it solves is the one Server Components created: less client JavaScript and fewer waterfalls, but navigations that feel slower than an SPA, because the app had to fetch before it could show anything. The fix is to make the <em>shell</em> available before the click.</p>
+<h3 id="41-the-four-tools">4.1 The four tools</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Instant Insights</strong></td>
+<td>A devtool that automatically surfaces any navigation that is <em>not</em> instant, with a prompt that teaches your agent the fix</td>
+</tr>
+<tr>
+<td><strong>Partial Prefetching</strong></td>
+<td>Extract reusable loading shells from any route; per-link control over how much is prefetched</td>
+</tr>
+<tr>
+<td><strong>Better ISR</strong></td>
+<td>An unlisted dynamic path serves an instant shell on first visit, then upgrades to the fully prerendered page in the background</td>
+</tr>
+<tr>
+<td><strong>Navigation Inspector</strong></td>
+<td>Pause page loads and navigations at the shell to see exactly what the user would see</td>
+</tr>
+</tbody></table>
+<h3 id="42-streaming-caching-or-blocking">4.2 Streaming, caching, or blocking</h3>
+<p>Internally the model has three outcomes for a route&#39;s UI:</p>
+<ul>
+<li><strong>Stream</strong> — wrap dynamic UI in <code>&lt;Suspense&gt;</code> and it can be shipped ahead as a shell.</li>
+<li><strong>Cache</strong> — mark part of the UI <code>&#39;use cache&#39;</code> so it can be prerendered and prefetched.</li>
+<li><strong>Block</strong> — set <code>instant = false</code> and accept the wait.</li>
+</ul>
+<p>The default is Stream or Cache. Blocking is the exception you choose deliberately.</p>
+<h3 id="43-the-regression-test-that-keeps-it-fast">4.3 The regression test that keeps it fast</h3>
+<p>The failure mode this fixes is subtle: a page navigates instantly today, then someone adds a <code>cookies()</code> read to a shared header and the route de-opts to request time. Or a <code>&lt;Suspense&gt;</code> boundary moves in a refactor and part of the page starts blocking.</p>
+<p><code>instant()</code> from <code>@next/playwright</code> asserts what is visible <em>without waiting for the network</em>:</p>
+<div class="codewrap"><pre data-lang="ts"><code>import { expect, test } from '@playwright/test';
+import { instant } from '@next/playwright';
+
+test('product title is available immediately', async ({ page }) =&gt; {
+  await page.goto('/products/shoes');
+
+  await instant(page, async () =&gt; {
+    await page.click('a[href=&quot;/products/hats&quot;]');
+    await expect(page.locator('h1')).toContainText('Baseball Cap');
+    await expect(page.getByText('Checking inventory...')).toBeVisible();
+  });
+
+  await expect(page.getByText('12 in stock')).toBeVisible();
+});</code></pre></div>
+<p>The test fails whenever the instant UI changes, whatever the cause. If you have ever shipped a &quot;why is this page slow now&quot; bug, this is the fix: your navigation performance becomes a test, not a vibe.</p>
+<h3 id="44-network-resilience-experimental">4.4 Network resilience (experimental)</h3>
+<div class="codewrap"><pre data-lang="ts"><code>// next.config.ts
+const nextConfig: NextConfig = {
+  experimental: { useOffline: true },
+};</code></pre></div>
+<p>With <code>useOffline</code>, a soft navigation, fetch, or Server Action that hits a dropped connection stays pending and retries on reconnect, rather than throwing. Because Partial Prefetching already caches a route&#39;s shell, a prefetched route still renders that shell offline and streams its data on reconnect.</p>
+<div class="codewrap"><pre data-lang="tsx"><code>'use client';
+import { useOffline } from 'next/offline';
+
+export function OfflineBanner() {
+  const isOffline = useOffline();
+  if (!isOffline) return null;
+  return &lt;div&gt;You're offline. Retrying when you reconnect.&lt;/div&gt;;
+}</code></pre></div>
+<hr>
+</section><section id="part-5--turbopack-and-the-webpack-decision"><h2 id="part-5--turbopack-and-the-webpack-decision">Part 5 — Turbopack, and the Webpack Decision</h2>
+<p>Turbopack became the default in 16.0. The practical consequences:</p>
+<p><strong>If you have no custom webpack config:</strong> nothing to do. Your <code>--turbopack</code> flags are now redundant and should be removed from <code>package.json</code>:</p>
+<div class="codewrap"><pre data-lang="json"><code>{ &quot;scripts&quot;: { &quot;dev&quot;: &quot;next dev&quot;, &quot;build&quot;: &quot;next build&quot;, &quot;start&quot;: &quot;next start&quot; } }</code></pre></div>
+<p><strong>If you have a custom webpack config:</strong> <code>next build</code> fails deliberately, to stop you shipping a build that ignores it. Choose:</p>
+<ul>
+<li><code>next build --turbopack</code> — build with Turbopack, ignore the config.</li>
+<li><code>next build --webpack</code> — opt out entirely.</li>
+<li>Migrate the config to Turbopack options — the long-term answer.</li>
+</ul>
+<p><strong>Config moved.</strong> <code>experimental.turbopack</code> is now top-level:</p>
+<div class="codewrap"><pre data-lang="ts"><code>// Next.js 16
+const nextConfig: NextConfig = {
+  turbopack: {
+    // options
+  },
+};</code></pre></div>
+<p><strong>Two migrations that catch people:</strong></p>
+<div class="codewrap"><pre data-lang="scss"><code>/* Webpack allowed the legacy tilde prefix */
+@import '~bootstrap/dist/css/bootstrap.min.css';
+
+/* Turbopack does not */
+@import 'bootstrap/dist/css/bootstrap.min.css';</code></pre></div>
+<p>If a client bundle imports a Node native module you&#39;ll see <code>Module not found: Can&#39;t resolve &#39;fs&#39;</code>. The right fix is refactoring the import; the escape hatch is <code>turbopack.resolveAlias</code>:</p>
+<div class="codewrap"><pre data-lang="ts"><code>turbopack: {
+  resolveAlias: {
+    fs: { browser: './empty.ts' },  // fix imports instead when you can
+  },
+},</code></pre></div>
+<p><strong>The wins, restated:</strong> memory eviction during long dev sessions, and a persistent filesystem cache now covering <code>next build</code>. If a plugin adds a <code>webpack</code> option you didn&#39;t write, that&#39;s the usual cause of a sudden build failure.</p>
+<blockquote>
+<p><strong>Also new:</strong> <code>next dev</code> and <code>next build</code> use separate output directories, so they can run concurrently. <code>next dev</code> writes to <code>.next/dev</code>, and a lockfile prevents two dev or build instances on one project.</p>
+</blockquote>
+<hr>
+</section><section id="part-6--the-ai-agent-story-why-this-release-is-different"><h2 id="part-6--the-ai-agent-story-why-this-release-is-different">Part 6 — The AI-Agent Story (Why This Release Is Different)</h2>
+<p>Next.js has spent a year treating coding agents as first-class users, and 16.3 is where that becomes practical. Four things changed.</p>
+<h3 id="61-versioned-docs-through-agentsmd">6.1 Versioned docs through <code>AGENTS.md</code></h3>
+<p>Already covered in Part 2.1, but it belongs here too: the dev server writes and maintains a block pointing at <code>node_modules/next/dist/docs/</code>, so an agent reads docs that match <em>your installed version</em>. Vercel retired the earlier Skills that existed only to ferry current docs into an app.</p>
+<h3 id="62-docs-as-markdown">6.2 Docs as Markdown</h3>
+<p>Append <code>.md</code> to any Next.js docs URL and you get the Markdown source. Try it on the page you&#39;re reading about:</p>
+<div class="codewrap"><pre data-lang="text"><code>https://nextjs.org/docs/app/getting-started/upgrading.md</code></pre></div>
+<p>That makes docs scriptable — an agent can fetch exactly the page it needs, in a format it parses well, instead of scraping HTML.</p>
+<h3 id="63-first-party-skills">6.3 First-party skills</h3>
+<p>Skills package multi-step workflows. For Next.js 16.3, the ones worth knowing:</p>
+<div class="codewrap"><pre data-lang="bash"><code>npx skills add vercel/next.js --skill next-dev-loop
+npx skills add vercel/next.js --skill next-cache-components-adoption</code></pre></div>
+<p><code>next-dev-loop</code> gives an agent a repeatable inspect → edit → verify cycle against the running dev server. <code>next-cache-components-adoption</code> drives the Cache Components migration one feature at a time.</p>
+<h3 id="64-the-upgrade-prompt">6.4 The upgrade prompt</h3>
+<p>The official upgrade guide leads with an agent prompt rather than manual steps, which tells you where Vercel thinks the leverage is. The shape of it:</p>
+<div class="codewrap"><pre data-lang="text"><code>Upgrade this app to Next.js 16.
+
+Before editing code, make sure AGENTS.md points at version-matched Next.js docs.
+Then follow the Next.js 16 upgrade guide as the source of truth for the migration.
+Use the codemod when you're ready to run the mechanical upgrade.
+Briefly explain the upgrade plan before making broad changes.
+Keep the migration scoped to the upgrade, inspect the diff, run the relevant checks,
+and fix remaining breaking changes.</code></pre></div>
+<p>The prompt&#39;s discipline is worth stealing even if you upgrade by hand: <strong>state the plan before editing, keep the change scoped, inspect the diff, verify the interactive states.</strong></p>
+<hr>
+</section><section id="part-7--a-worked-upgrade-on-a-solo-saas"><h2 id="part-7--a-worked-upgrade-on-a-solo-saas">Part 7 — A Worked Upgrade on a Solo SaaS</h2>
+<p>The stack in this shelf: Next.js App Router on Vercel, Postgres, Stripe, a few LLM calls. Here&#39;s the order I&#39;d do it in.</p>
+<h3 id="71-the-checklist">7.1 The checklist</h3>
+<ol>
+<li><strong>Branch and commit.</strong> <code>git checkout -b chore/next-16</code>.</li>
+<li><strong>Check the floors.</strong> Node 20.9+, TS 5.1+.</li>
+<li><strong>Set up agent docs.</strong> <code>npx @next/codemod@canary agents-md</code>.</li>
+<li><strong>Run the codemod.</strong> <code>npx next upgrade</code>, then <code>next-async-request-api</code> if needed.</li>
+<li><strong>Fix Turbopack.</strong> Remove <code>--turbopack</code> flags. If <code>next build</code> fails on a webpack config, decide: <code>--webpack</code> or migrate.</li>
+<li><strong>Rename middleware.</strong> <code>mv middleware.ts proxy.ts</code>; rename the export; confirm you weren&#39;t relying on <code>edge</code>.</li>
+<li><strong>Fix <code>revalidateTag</code> calls.</strong> Add a profile argument.</li>
+<li><strong>Review <code>next/image</code>.</strong> Especially a self-hosted or proxied image source with query strings, and any <code>quality</code> prop not equal to 75.</li>
+<li><strong>Add <code>default.js</code> to parallel route slots.</strong></li>
+<li><strong>Run <code>next typegen</code> and let TypeScript find the async-params sites.</strong></li>
+<li><strong>Build, deploy to preview, walk the interactive flows.</strong></li>
+<li><strong>Only then</strong> consider <code>cacheComponents</code>, on its own branch.</li>
+</ol>
+<h3 id="72-reading-a-real-diff">7.2 Reading a real diff</h3>
+<p>A synchronous <code>searchParams</code> read before and after, since this is the change that touches the most files:</p>
+<div class="codewrap"><pre data-lang="tsx"><code>// before — Next 15 compatibility period
+export default function Page({ searchParams }: { searchParams: { q?: string } }) {
+  const q = searchParams.q ?? '';
+  return &lt;Results q={q} /&gt;;
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="tsx"><code>// after — Next 16, async, and Suspense-friendly
+import { Suspense } from 'react';
+
+export default function Page({ searchParams }: PageProps&lt;'/'&gt;) {
+  return (
+    &lt;Suspense fallback={&lt;p&gt;Loading…&lt;/p&gt;}&gt;
+      &lt;Results searchParams={searchParams} /&gt;
+    &lt;/Suspense&gt;
+  );
+}
+
+async function Results({ searchParams }: Pick&lt;PageProps&lt;'/'&gt;, 'searchParams'&gt;) {
+  const { q = '' } = await searchParams;
+  return &lt;ResultsList q={q} /&gt;;
+}</code></pre></div>
+<p>Note the shape isn&#39;t forced on you by the async change alone — you <em>could</em> just <code>await</code> at the top of the page. But doing it this way makes the route ready for <code>cacheComponents</code> later, because the dynamic read is already inside a boundary.</p>
+<h3 id="73-a-webhook-that-invalidates-correctly">7.3 A webhook that invalidates, correctly</h3>
+<p>A Stripe webhook lands, and the billing page must show the new state:</p>
+<div class="codewrap"><pre data-lang="ts"><code>// app/api/stripe/webhook/route.ts
+import { revalidateTag } from 'next/cache';
+
+export async function POST(req: Request) {
+  const event = await verifyStripeSignature(req);
+  await recordEvent(event);
+
+  // Route Handlers can't call updateTag — use revalidateTag with a profile.
+  revalidateTag(`billing-${event.data.object.customer}`, 'max');
+
+  return Response.json({ ok: true });
+}</code></pre></div>
+<p>And the read side, tagged so that call finds it:</p>
+<div class="codewrap"><pre data-lang="ts"><code>// app/lib/billing.ts
+import { cacheLife, cacheTag } from 'next/cache';
+
+export async function getBillingState(customerId: string) {
+  'use cache';
+  cacheLife('max');
+  cacheTag(`billing-${customerId}`);
+  return db.billing.findFirst({ where: { customerId } });
+}</code></pre></div>
+<p>And a user-facing mutation, where read-your-own-writes matters enough to use <code>updateTag</code>:</p>
+<div class="codewrap"><pre data-lang="ts"><code>// app/actions.ts
+'use server';
+import { updateTag } from 'next/cache';
+
+export async function renameReport(reportId: string, title: string) {
+  await db.reports.update(reportId, { title });
+  updateTag(`report-${reportId}`); // user sees the rename immediately
+}</code></pre></div>
+<p>That trio — <code>cacheTag</code> on the read, <code>updateTag</code> for the user&#39;s own mutation, <code>revalidateTag(..., &#39;max&#39;)</code> for the webhook — is the whole invalidation model in practice.</p>
+<hr>
+</section><section id="cheat-sheet"><h2 id="cheat-sheet">Cheat Sheet</h2>
+<div class="codewrap"><pre data-lang="bash"><code># Upgrade
+npx next upgrade                                  # on 16.1+
+npx @next/codemod@canary upgrade latest           # explicit codemod
+npx @next/codemod@canary next-async-request-api . # async params/APIs
+npx @next/codemod@canary agents-md                # versioned docs for agents
+npx next typegen                                  # PageProps / LayoutProps / RouteContext
+
+# Incremental Cache Components adoption
+npx @next/codemod@canary cache-components-instant-false ./app
+npx skills add vercel/next.js --skill next-cache-components-adoption
+npx skills add vercel/next.js --skill next-dev-loop</code></pre></div>
+<div class="codewrap"><pre data-lang="ts"><code>// next.config.ts — the flags that matter
+const nextConfig: NextConfig = {
+  // stable
+  reactCompiler: true,
+  turbopack: { /* top-level now, was experimental.turbopack */ },
+
+  // Next 16 caching + 16.3 instant navigations
+  cacheComponents: true,
+  partialPrefetching: true,
+
+  // experimental
+  experimental: {
+    turbopackRustReactCompiler: true,
+    useOffline: true,
+  },
+};</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Old</th>
+<th>New</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>export const dynamic = &#39;force-dynamic&#39;</code></td>
+<td>delete</td>
+</tr>
+<tr>
+<td><code>export const revalidate = 3600</code></td>
+<td><code>&#39;use cache&#39;</code> + <code>cacheLife(&#39;hours&#39;)</code></td>
+</tr>
+<tr>
+<td><code>export const fetchCache = &#39;force-cache&#39;</code></td>
+<td><code>&#39;use cache&#39;</code></td>
+</tr>
+<tr>
+<td><code>unstable_cache(fn, keys, opts)</code></td>
+<td>async fn with <code>&#39;use cache&#39;</code> + <code>cacheTag</code> + <code>cacheLife</code></td>
+</tr>
+<tr>
+<td><code>fetch(url, { next: { revalidate, tags } })</code></td>
+<td><code>&#39;use cache&#39;</code> + <code>cacheLife</code> + <code>cacheTag</code></td>
+</tr>
+<tr>
+<td><code>noStore()</code></td>
+<td>delete</td>
+</tr>
+<tr>
+<td><code>experimental.ppr</code> / <code>experimental_ppr</code></td>
+<td><code>cacheComponents: true</code></td>
+</tr>
+<tr>
+<td><code>revalidateTag(&#39;x&#39;)</code></td>
+<td><code>revalidateTag(&#39;x&#39;, &#39;max&#39;)</code> or <code>updateTag(&#39;x&#39;)</code></td>
+</tr>
+<tr>
+<td><code>middleware.ts</code></td>
+<td><code>proxy.ts</code>, export <code>proxy</code></td>
+</tr>
+<tr>
+<td><code>runtime = &#39;edge&#39;</code> in proxy</td>
+<td>not supported; use Proxy for edge routing</td>
+</tr>
+<tr>
+<td><code>middleware</code> config flags</td>
+<td><code>proxy</code> config flags</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th><code>cacheLife</code> profile</th>
+<th>Roughly</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&#39;seconds&#39;</code></td>
+<td>seconds</td>
+</tr>
+<tr>
+<td><code>&#39;minutes&#39;</code></td>
+<td>minutes</td>
+</tr>
+<tr>
+<td><code>&#39;hours&#39;</code></td>
+<td>hours</td>
+</tr>
+<tr>
+<td><code>&#39;days&#39;</code></td>
+<td>days</td>
+</tr>
+<tr>
+<td><code>&#39;weeks&#39;</code></td>
+<td>weeks</td>
+</tr>
+<tr>
+<td><code>&#39;max&#39;</code></td>
+<td>as long as possible</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Minimum</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Node.js</td>
+<td>20.9.0 LTS</td>
+</tr>
+<tr>
+<td>TypeScript</td>
+<td>5.1.0</td>
+</tr>
+<tr>
+<td>Chrome / Edge / Firefox</td>
+<td>111+</td>
+</tr>
+<tr>
+<td>Safari</td>
+<td>16.4+</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Build fails mentioning <code>webpack</code> config</td>
+<td>16 default is Turbopack</td>
+<td><code>next build --turbopack</code> to ignore, <code>--webpack</code> to opt out, or migrate the config</td>
+</tr>
+<tr>
+<td><code>Module not found: Can&#39;t resolve &#39;fs&#39;</code></td>
+<td>Client bundle imports a Node native module</td>
+<td>Refactor the import; <code>turbopack.resolveAlias</code> as a last resort</td>
+</tr>
+<tr>
+<td>Sass import with <code>~</code> fails</td>
+<td>Turbopack rejects the legacy tilde prefix</td>
+<td>Drop the <code>~</code></td>
+</tr>
+<tr>
+<td><code>params</code>/<code>searchParams</code> typed as <code>Promise</code> but accessed sync</td>
+<td>Async request APIs are now fully async</td>
+<td><code>await</code> them; run <code>next typegen</code> and use <code>PageProps</code></td>
+</tr>
+<tr>
+<td><code>revalidateTag</code> TypeScript error</td>
+<td>New required profile argument</td>
+<td><code>revalidateTag(&#39;tag&#39;, &#39;max&#39;)</code></td>
+</tr>
+<tr>
+<td><code>updateTag</code> throws at runtime</td>
+<td>Called outside a Server Action</td>
+<td>Use <code>revalidateTag</code> in Route Handlers/webhooks</td>
+</tr>
+<tr>
+<td>Build errors when enabling <code>cacheComponents</code></td>
+<td>Unhandled uncached data outside <code>&lt;Suspense&gt;</code></td>
+<td>Wrap in <code>&lt;Suspense&gt;</code>, or cache with <code>&#39;use cache&#39;</code></td>
+</tr>
+<tr>
+<td><code>instant = false</code> did not fix the build</td>
+<td>Synchronous IO (<code>new Date()</code>, <code>Math.random()</code>, <code>crypto.randomUUID()</code>)</td>
+<td>Move it out of the prerendered shell: <code>&lt;Suspense&gt;</code> + <code>connection()</code>, or a Client Component</td>
+</tr>
+<tr>
+<td><code>dynamicParams</code> export errors</td>
+<td>Not supported with <code>cacheComponents</code></td>
+<td>Delete it; call <code>notFound()</code> instead of <code>dynamicParams: false</code></td>
+</tr>
+<tr>
+<td><code>generateStaticParams</code> returning <code>[]</code> errors</td>
+<td>Cache Components requires at least one param</td>
+<td>Return one real param so the shell prerenders</td>
+</tr>
+<tr>
+<td>Parallel route build failure</td>
+<td>Missing <code>default.js</code></td>
+<td>Add one returning <code>null</code> or calling <code>notFound()</code></td>
+</tr>
+<tr>
+<td>Dropdowns/dialogs/forms behave oddly after enabling Cache Components</td>
+<td>UI state now persists via <code>&lt;Activity&gt;</code></td>
+<td>Add explicit resets; derive state from the URL</td>
+</tr>
+<tr>
+<td>Scroll-to-top stopped being instant</td>
+<td>16 no longer overrides <code>scroll-behavior</code></td>
+<td>Add <code>data-scroll-behavior=&quot;smooth&quot;</code> to <code>&lt;html&gt;</code></td>
+</tr>
+<tr>
+<td>Cache hit rate dropped after migrating <code>unstable_cache</code></td>
+<td><code>use cache</code> is in-memory, not durable</td>
+<td><code>use cache: remote</code> or a cache handler</td>
+</tr>
+<tr>
+<td>Insights not visible</td>
+<td>They only appear in the dev overlay / dev log / MCP <code>get_errors</code></td>
+<td>Read the overlay or query the MCP tool; the HTTP response still returns 200</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>YouTube <strong>search</strong> links only — release videos age faster than anything else here.</p>
+<table>
+<thead>
+<tr>
+<th>Search</th>
+<th>What you&#39;ll find</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://www.youtube.com/results?search_query=Next.js+16+upgrade+guide" target="_blank" rel="noopener">Next.js 16 upgrade guide</a></td>
+<td>Migration walkthroughs</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Next.js+cacheComponents+tutorial" target="_blank" rel="noopener">Next.js cacheComponents tutorial</a></td>
+<td>The new caching model, explained</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Next.js+use+cache+directive" target="_blank" rel="noopener">Next.js use cache directive</a></td>
+<td><code>use cache</code>, <code>cacheLife</code>, <code>cacheTag</code> in practice</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Next.js+Instant+Navigations" target="_blank" rel="noopener">Next.js Instant Navigations</a></td>
+<td>Partial Prefetching and shells</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Next.js+Turbopack+migration" target="_blank" rel="noopener">Next.js Turbopack migration</a></td>
+<td>Moving off webpack</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Next.js+middleware+to+proxy" target="_blank" rel="noopener">Next.js middleware to proxy</a></td>
+<td>The rename, and the edge question</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Next.js+React+Compiler" target="_blank" rel="noopener">Next.js React Compiler</a></td>
+<td>Automatic memoization</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Next.js+AGENTS.md+setup" target="_blank" rel="noopener">Next.js AGENTS.md setup</a></td>
+<td>Making your coding agent version-aware</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--docs"><h2 id="written-references--docs">Written References &amp; Docs</h2>
+<p>Vercel/Next.js domains first.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Docs home</td>
+<td><code>https://nextjs.org/docs</code></td>
+</tr>
+<tr>
+<td>Docs index (machine-readable)</td>
+<td><code>https://nextjs.org/docs/llms.txt</code></td>
+</tr>
+<tr>
+<td>Upgrading overview</td>
+<td><code>https://nextjs.org/docs/app/getting-started/upgrading</code></td>
+</tr>
+<tr>
+<td>Upgrade guide — version 16</td>
+<td><code>https://nextjs.org/docs/app/guides/upgrading/version-16</code></td>
+</tr>
+<tr>
+<td>Migrating to Cache Components</td>
+<td><code>https://nextjs.org/docs/app/guides/migrating-to-cache-components</code></td>
+</tr>
+<tr>
+<td>Instant navigation guide</td>
+<td><code>https://nextjs.org/docs/app/guides/instant-navigation</code></td>
+</tr>
+<tr>
+<td>AI coding agents guide</td>
+<td><code>https://nextjs.org/docs/app/guides/ai-agents</code></td>
+</tr>
+<tr>
+<td><code>cacheComponents</code> config</td>
+<td><code>https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheComponents</code></td>
+</tr>
+<tr>
+<td><code>use cache</code> directive</td>
+<td><code>https://nextjs.org/docs/app/api-reference/directives/use-cache</code></td>
+</tr>
+<tr>
+<td><code>cacheLife</code></td>
+<td><code>https://nextjs.org/docs/app/api-reference/functions/cacheLife</code></td>
+</tr>
+<tr>
+<td><code>cacheTag</code></td>
+<td><code>https://nextjs.org/docs/app/api-reference/functions/cacheTag</code></td>
+</tr>
+<tr>
+<td><code>updateTag</code></td>
+<td><code>https://nextjs.org/docs/app/api-reference/functions/updateTag</code></td>
+</tr>
+<tr>
+<td><code>revalidateTag</code></td>
+<td><code>https://nextjs.org/docs/app/api-reference/functions/revalidateTag</code></td>
+</tr>
+<tr>
+<td>Turbopack docs</td>
+<td><code>https://nextjs.org/docs/app/api-reference/turbopack</code></td>
+</tr>
+<tr>
+<td><code>turbopackFileSystemCache</code></td>
+<td><code>https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopackFileSystemCache</code></td>
+</tr>
+<tr>
+<td><code>turbopackRustReactCompiler</code></td>
+<td><code>https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopackRustReactCompiler</code></td>
+</tr>
+<tr>
+<td>Root params</td>
+<td><code>https://nextjs.org/docs/app/api-reference/functions/next-root-params</code></td>
+</tr>
+<tr>
+<td>Codemods</td>
+<td><code>https://nextjs.org/docs/app/guides/upgrading/codemods</code></td>
+</tr>
+<tr>
+<td>Next.js CLI</td>
+<td><code>https://nextjs.org/docs/app/api-reference/cli/next</code></td>
+</tr>
+<tr>
+<td>Release blog index</td>
+<td><code>https://nextjs.org/blog</code></td>
+</tr>
+<tr>
+<td>Blog — Next.js 16.3</td>
+<td><code>https://nextjs.org/blog/next-16-3</code></td>
+</tr>
+<tr>
+<td>Blog — 16.3 Instant Navigations</td>
+<td><code>https://nextjs.org/blog/next-16-3-instant-navigations</code></td>
+</tr>
+<tr>
+<td>Blog — 16.3 AI improvements</td>
+<td><code>https://nextjs.org/blog/next-16-3-ai-improvements</code></td>
+</tr>
+<tr>
+<td>Blog — 16.3 Turbopack</td>
+<td><code>https://nextjs.org/blog/next-16-3-turbopack</code></td>
+</tr>
+<tr>
+<td>Blog — Next.js 16</td>
+<td><code>https://nextjs.org/blog/next-16</code></td>
+</tr>
+<tr>
+<td>Blog — Next.js 16.2</td>
+<td><code>https://nextjs.org/blog/next-16-2</code></td>
+</tr>
+<tr>
+<td>Blog — building app-like experiences</td>
+<td><code>https://nextjs.org/blog/building-app-like-experiences-with-nextjs-16-3</code></td>
+</tr>
+<tr>
+<td>Blog — making navigations instant in v0</td>
+<td><code>https://nextjs.org/blog/making-v0-navigations-instant</code></td>
+</tr>
+<tr>
+<td>Blog — security release program</td>
+<td><code>https://nextjs.org/blog/next-security-release-program</code></td>
+</tr>
+<tr>
+<td>Blog — upcoming September security release</td>
+<td><code>https://nextjs.org/blog/upcoming-nextjs-security-release-september-2026</code></td>
+</tr>
+<tr>
+<td>Blog — agentic future</td>
+<td><code>https://nextjs.org/blog/agentic-future</code></td>
+</tr>
+<tr>
+<td>Skills repo</td>
+<td><code>https://github.com/vercel/next.js/tree/canary/skills</code></td>
+</tr>
+<tr>
+<td>GitHub repo</td>
+<td><code>https://github.com/vercel/next.js</code></td>
+</tr>
+<tr>
+<td>GitHub discussions</td>
+<td><code>https://github.com/vercel/next.js/discussions</code></td>
+</tr>
+<tr>
+<td>Discord</td>
+<td><code>https://nextjs.org/discord</code></td>
+</tr>
+<tr>
+<td>TypeScript 7 announcement</td>
+<td><code>https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/</code></td>
+</tr>
+<tr>
+<td>React 19.2</td>
+<td><code>https://react.dev/blog/2025/10/01/react-19-2</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Verification tip:</strong> append <code>.md</code> to any <code>nextjs.org/docs</code> URL for the Markdown source. If a link 404s, search <code>&lt;feature name&gt; Next.js docs</code> and navigate from <code>nextjs.org</code>.</p>
+</blockquote>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English definition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>App Router</td>
+<td>The file-system router in <code>app/</code>, built on React Server Components</td>
+</tr>
+<tr>
+<td>Turbopack</td>
+<td>The Rust bundler, default for dev and build since 16</td>
+</tr>
+<tr>
+<td>Webpack</td>
+<td>The previous bundler; still available via <code>--webpack</code></td>
+</tr>
+<tr>
+<td>Route segment config</td>
+<td>Exports like <code>dynamic</code>, <code>revalidate</code>, <code>fetchCache</code> — replaced by Cache Components</td>
+</tr>
+<tr>
+<td><code>&#39;use cache&#39;</code></td>
+<td>The directive that opts a function into caching</td>
+</tr>
+<tr>
+<td><code>cacheLife</code></td>
+<td>Defines how long a cached value stays fresh</td>
+</tr>
+<tr>
+<td><code>cacheTag</code></td>
+<td>Labels cached data so it can be invalidated</td>
+</tr>
+<tr>
+<td><code>updateTag</code></td>
+<td>Server-Action-only invalidation with read-your-own-writes semantics</td>
+</tr>
+<tr>
+<td><code>revalidateTag</code></td>
+<td>Stale-while-revalidate invalidation; requires a cache profile</td>
+</tr>
+<tr>
+<td><code>refresh</code></td>
+<td>Re-render the client router from a Server Action</td>
+</tr>
+<tr>
+<td>Static shell</td>
+<td>Prerendered HTML served before dynamic data arrives</td>
+</tr>
+<tr>
+<td><code>instant = false</code></td>
+<td>Opt a route out of instant-navigation validation while migrating</td>
+</tr>
+<tr>
+<td>Instant Insights</td>
+<td>Devtool listing navigations that aren&#39;t instant</td>
+</tr>
+<tr>
+<td>Partial Prefetching</td>
+<td>Per-link control over how much of the next page is fetched ahead</td>
+</tr>
+<tr>
+<td>Partial Prerendering (PPR)</td>
+<td>Subsumed by <code>cacheComponents</code> in 16</td>
+</tr>
+<tr>
+<td><code>proxy.ts</code></td>
+<td>The renamed <code>middleware.ts</code>; Node.js runtime, not configurable</td>
+</tr>
+<tr>
+<td>Root params</td>
+<td>Params defined above the root layout, readable from any Server Component</td>
+</tr>
+<tr>
+<td><code>AGENTS.md</code></td>
+<td>File <code>next dev</code> writes with version-matched docs pointers</td>
+</tr>
+<tr>
+<td>Synchronous IO</td>
+<td><code>new Date()</code>, <code>Math.random()</code>, <code>crypto.randomUUID()</code> — build errors during prerender</td>
+</tr>
+<tr>
+<td><code>&lt;Activity&gt;</code></td>
+<td>React component Next.js uses to preserve route state in <code>hidden</code> mode</td>
+</tr>
+<tr>
+<td>Active LTS</td>
+<td><code>16.3.x</code> — the current recommended line</td>
+</tr>
+<tr>
+<td>Maintenance LTS</td>
+<td><code>15.5.x</code> — security fixes only</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Should I upgrade right now?</strong> For security and speed, yes — with one caveat. A scheduled release on <strong>September 30, 2026</strong> addresses nine vulnerabilities (one critical). Upgrade to at least 16.3.6 now, and plan to take 16.3.7 when it lands.</p>
+<p><strong>Do I have to adopt Cache Components?</strong> No. It&#39;s opt-in. The old caching model still works, and you can migrate route by route at your own pace.</p>
+<p><strong>Is <code>use cache</code> a drop-in for <code>unstable_cache</code>?</strong> Not quite. The ergonomics are better and the key is automatic, but persistence differs: <code>use cache</code> is in-memory by default and doesn&#39;t survive instance teardown. Use <code>use cache: remote</code> or a cache handler for durability.</p>
+<p><strong>What&#39;s the fastest win?</strong> Upgrade to 16.3 and change nothing. Up to 90% less dev memory and faster repeat builds, with zero app changes.</p>
+<p><strong>Turbopack or Webpack?</strong> Turbopack, unless a dependency forces otherwise. Migrate the config rather than staying on <code>--webpack</code> indefinitely.</p>
+<p><strong>Did <code>middleware</code> really get renamed?</strong> Yes — to <code>proxy</code>, and the function export too. The <code>edge</code> runtime is not supported there, so if you need edge, stay on <code>middleware</code> for now.</p>
+<p><strong>My agent keeps writing Next 14 code.</strong> Run the <code>agents-md</code> codemod and confirm <code>AGENTS.md</code> points at <code>node_modules/next/dist/docs/</code>.</p>
+<p><strong>What breaks the build that <code>instant = false</code> won&#39;t fix?</strong> Synchronous IO — <code>new Date()</code>, <code>Date.now()</code>, <code>Math.random()</code>, <code>crypto.randomUUID()</code> during prerender. Those must move out of the static shell.</p>
+<p><strong>Where do the perf numbers come from?</strong> Vercel&#39;s release posts, measured on its own properties. Re-measure on your app.</p>
+<h3 id="next-steps-in-order">Next steps, in order</h3>
+<ol>
+<li><strong>Today:</strong> check Node 20.9+ and TS 5.1+. Branch.</li>
+<li><strong>This week:</strong> run the codemods; fix Turbopack, async params, <code>revalidateTag</code>, <code>proxy</code>, and <code>next/image</code>.</li>
+<li><strong>Next week:</strong> deploy to a preview, walk the interactive flows, take the security patch.</li>
+<li><strong>Week 3:</strong> try <code>reactCompiler: true</code> and measure your build time.</li>
+<li><strong>Week 4:</strong> enable <code>cacheComponents</code> on a branch. Use <code>instant = false</code> liberally, then convert one route at a time.</li>
+<li><strong>Month 2:</strong> turn on <code>partialPrefetching</code>, add an <code>instant()</code> Playwright test for your busiest navigation.</li>
+</ol>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p><strong>Verified as of September 2026 from Vercel/Next.js primary sources:</strong></p>
+<ul>
+<li><strong>Versions:</strong> latest stable 16.3.6; Active LTS 16.3.x, Maintenance LTS 15.5.x. A scheduled security release on <strong>September 30, 2026</strong> (16.3.7 / 15.5.27) addresses <strong>nine vulnerabilities: one critical, two high, five medium, one low</strong> (<code>nextjs.org/blog</code>).</li>
+<li><strong>Next.js 16.3 features:</strong> up to 90% less dev memory (memory eviction + dev disk caching, on by default); build filesystem caching with reported 2.3×–5.5× faster repeat builds; TypeScript 7 support via <code>typescript@^7</code>; ~22% more requests under load from native Node.js streams; versioned docs via <code>AGENTS.md</code>; fewer prefetch requests through inlining; immutable static assets; <code>catchError</code> custom error boundaries with <code>retry()</code>; <code>import.meta.glob</code>; root params via <code>next/root-params</code> (<code>nextjs.org/blog/next-16-3</code>).</li>
+<li><strong>Instant Navigations:</strong> opt-in via <code>cacheComponents: true</code> + <code>partialPrefetching: true</code>; Instant Insights, Partial Prefetching, better ISR for unlisted dynamic paths, Navigation Inspector, and the <code>instant()</code> helper from <code>@next/playwright</code> (same source).</li>
+<li><strong>Experimental:</strong> Rust React Compiler (<code>reactCompiler</code> + <code>experimental.turbopackRustReactCompiler</code>) with 34%/46% cold/warm improvements on v0; network resilience via <code>experimental.useOffline</code> and the <code>useOffline</code> hook (same source).</li>
+<li><strong>Next.js 16 upgrade requirements and breaking changes:</strong> Node.js 20.9+, TypeScript 5.1+, Chrome/Edge/Firefox 111+, Safari 16.4+; Turbopack default with webpack-config build failure; fully-async request APIs; async <code>params</code>/<code>id</code> for image metadata and <code>sitemap</code>; React 19.2; React Compiler stable; <code>revalidateTag</code> second argument; new <code>updateTag</code> and <code>refresh</code>; <code>cacheLife</code>/<code>cacheTag</code> stabilized; <code>middleware</code> → <code>proxy</code> (Node.js runtime only); PPR folded into <code>cacheComponents</code>; <code>next/image</code> default changes; concurrent dev/build with <code>.next/dev</code>; parallel-route <code>default.js</code> requirement; ESLint flat config; scroll-behavior override removed; removals of AMP, <code>next lint</code>, runtime config, <code>devIndicators</code> options, <code>experimental.dynamicIO</code>/<code>useCache</code>, <code>unstable_rootParams</code> (<code>nextjs.org/docs/app/guides/upgrading/version-16</code>).</li>
+<li><strong>Cache Components migration:</strong> <code>use cache</code> + <code>cacheLife</code> + <code>cacheTag</code> replacing route segment configs and <code>fetch</code> cache options; <code>unstable_cache</code> → <code>use cache</code>; <code>noStore</code> removal; <code>updateTag</code> vs <code>revalidateTag</code> semantics; <code>use cache</code> in-memory default vs prior durable caches; <code>generateStaticParams</code> must return at least one param; <code>dynamicParams</code> unsupported; <code>&lt;Suspense&gt;</code> requirements for runtime data; the <code>instant = false</code> opt-out and its limits; <code>&lt;Activity&gt;</code> UI-state preservation behaviour (<code>nextjs.org/docs/app/guides/migrating-to-cache-components</code>).</li>
+</ul>
+<p><strong>Vendor claims, not independently verified:</strong> all performance figures (memory, build speed, SSR throughput, React Compiler gains) come from Vercel&#39;s release posts and are measured on its own properties. The direction is credible; the multipliers are marketing until you reproduce them.</p>
+<p><strong>Changes fast:</strong> the exact patch version and the September 30 security release contents; the supported-client list for skills; experimental flag names; and whether any given feature has graduated from experimental. Re-check <code>nextjs.org/blog</code> and the version guide before depending on a specific behaviour.</p>
+<p><strong>Not security advice.</strong> If you handle regulated data, read the security release notes and the Next.js security documentation directly, and patch on the vendor&#39;s schedule rather than this summary&#39;s.</p>
+<hr>
+</section><section id="your-setup-notes-mac--vs-code--opencode"><h2 id="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</h2>
+<p><strong>How I&#39;d sequence this on my own stack.</strong></p>
+<table>
+<thead>
+<tr>
+<th>In my workspace</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Next.js App Router on Vercel</td>
+<td>Upgrade path is well-trodden; the codemods do most of it</td>
+</tr>
+<tr>
+<td>opencode as the coding agent</td>
+<td>Run <code>agents-md</code> first so it stops writing Next 14 code</td>
+</tr>
+<tr>
+<td>Postgres + Stripe + a couple LLM calls</td>
+<td>The webhook invalidation pattern in Part 7.3 maps directly</td>
+</tr>
+<tr>
+<td>A single deploy target (Vercel)</td>
+<td>Turbopack migration is low risk; no custom webpack config to fight</td>
+</tr>
+<tr>
+<td>No Playwright tests today</td>
+<td>The <code>instant()</code> helper is the first test I&#39;d add, on the busiest nav</td>
+</tr>
+</tbody></table>
+<p><strong>Recommended stack for this upgrade:</strong></p>
+<ul>
+<li><strong>Do it on a branch.</strong> <code>chore/next-16</code>. The codemod touches many files.</li>
+<li><strong>Agent docs first.</strong> <code>npx @next/codemod@canary agents-md</code>, then confirm the block points at <code>node_modules/next/dist/docs/</code>.</li>
+<li><strong>Codemods, then TypeScript.</strong> Let <code>next typegen</code> + <code>tsc</code> find the async-params sites rather than grepping.</li>
+<li><strong>Turbopack by default.</strong> Remove <code>--turbopack</code> flags; only reach for <code>--webpack</code> if a plugin forces it.</li>
+<li><strong>Cache Components later, incrementally.</strong> Enable the flag, run the <code>instant-false</code> codemod, then convert one route per sitting.</li>
+<li><strong>One invalidation trio per feature.</strong> <code>cacheTag</code> on the read, <code>updateTag</code> for the user&#39;s own mutation, <code>revalidateTag(..., &#39;max&#39;)</code> for webhooks.</li>
+<li><strong>One <code>instant()</code> test.</strong> The busiest navigation, asserted against network timing.</li>
+<li><strong>What I would not do:</strong> enable <code>cacheComponents</code> and <code>partialPrefetching</code> in the same PR as the version bump. Two variables at once is how you get a three-day debugging session.</li>
+</ul>
+<p><strong>Smoke test for the first session, in order:</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code>node --version            # want v20.9.0 or later
+git checkout -b chore/next-16
+npx @next/codemod@canary agents-md
+npx next upgrade
+npm run build             # expect failures; fix Turbopack, async params, revalidateTag</code></pre></div>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Web Platform</span> · 7 parts · ~25 min · Generated from <code>markdown_docs/13-nextjs-2026.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>
