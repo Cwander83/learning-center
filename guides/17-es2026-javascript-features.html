@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ES2026 and the New JavaScript You Can Actually Use — Learning Center</title>
+<meta name="description" content="Seven features landed in the ES2026 spec on 30 June 2026, and two of the biggest — Temporal and using — were deliberately held back for ES2027 even though engines already ship them. Here is what each new function does, what it replaces, and how to tell &quot;in the spec&quot; from &quot;in the browser&quot;.">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="17-es2026-javascript-features">
+<header class="topbar">
+  <a class="homebtn" href="../index.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/></svg>Home</a>
+  <span class="brand">ES2026 and the New JavaScript You Can Actually Use</span>
+  <button id="themeToggle" title="Toggle dark / light" aria-label="Toggle dark and light theme">
+    <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <span id="themeLabel">Dark</span>
+  </button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<details id="toc" class="toc" open>
+<summary class="tocsum">Contents<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#the-analogy-table" data-sec="the-analogy-table" class="sub">The analogy table</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--how-to-read-the-year-without-getting-confused" data-sec="part-1--how-to-read-the-year-without-getting-confused">Part 1 — How to Read the Year Without Getting Confused</a><a href="#11-the-four-states-of-a-feature" data-sec="11-the-four-states-of-a-feature" class="sub">1.1 The four states of a feature</a><a href="#12-the-2026-surprise-shipped--specified" data-sec="12-the-2026-surprise-shipped--specified" class="sub">1.2 The 2026 surprise: shipped ≠ specified</a><a href="#13-where-to-check-and-what-wins" data-sec="13-where-to-check-and-what-wins" class="sub">1.3 Where to check, and what wins</a><a href="#14-the-honest-caveat" data-sec="14-the-honest-caveat" class="sub">1.4 The honest caveat</a><a href="#part-2--the-seven-es2026-features-one-by-one" data-sec="part-2--the-seven-es2026-features-one-by-one">Part 2 — The Seven ES2026 Features, One by One</a><a href="#21-arrayfromasync--collect-an-async-generator" data-sec="21-arrayfromasync--collect-an-async-generator" class="sub">2.1 <code>Array.fromAsync</code> — collect an async generator</a><a href="#22-erroriserror--the-only-cross-realm-test-that-works" data-sec="22-erroriserror--the-only-cross-realm-test-that-works" class="sub">2.2 <code>Error.isError</code> — the only cross-realm test that works</a><a href="#23-mathsumprecise--addition-without-the-drift" data-sec="23-mathsumprecise--addition-without-the-drift" class="sub">2.3 <code>Math.sumPrecise</code> — addition without the drift</a><a href="#24-uint8array-base64-and-hex--the-standard-library-caught-up" data-sec="24-uint8array-base64-and-hex--the-standard-library-caught-up" class="sub">2.4 <code>Uint8Array</code> base64 and hex — the standard library caught up</a><a href="#25-iteratorconcat--lazy-sequencing" data-sec="25-iteratorconcat--lazy-sequencing" class="sub">2.5 <code>Iterator.concat</code> — lazy sequencing</a><a href="#26-jsonparse-source-access-and-jsonrawjson" data-sec="26-jsonparse-source-access-and-jsonrawjson" class="sub">2.6 <code>JSON.parse</code> source access and <code>JSON.rawJSON</code></a><a href="#27-mapgetorinsert--the-upsert-you-kept-writing-by-hand" data-sec="27-mapgetorinsert--the-upsert-you-kept-writing-by-hand" class="sub">2.7 <code>Map.getOrInsert</code> — the upsert you kept writing by hand</a><a href="#part-3--temporal-the-real-headline-es2027-here-now" data-sec="part-3--temporal-the-real-headline-es2027-here-now">Part 3 — <code>Temporal</code>: The Real Headline (ES2027, Here Now)</a><a href="#31-why-date-was-the-problem" data-sec="31-why-date-was-the-problem" class="sub">3.1 Why <code>Date</code> was the problem</a><a href="#32-the-moves-you-will-make-every-day" data-sec="32-the-moves-you-will-make-every-day" class="sub">3.2 The moves you will make every day</a><a href="#33-polyfills-while-you-wait-for-safari" data-sec="33-polyfills-while-you-wait-for-safari" class="sub">3.3 Polyfills, while you wait for Safari</a><a href="#part-4--using-deterministic-cleanup-also-es2027-also-here" data-sec="part-4--using-deterministic-cleanup-also-es2027-also-here">Part 4 — <code>using</code>: Deterministic Cleanup (Also ES2027, Also Here)</a><a href="#41-the-pattern-it-replaces" data-sec="41-the-pattern-it-replaces" class="sub">4.1 The pattern it replaces</a><a href="#42-the-pattern-it-enables" data-sec="42-the-pattern-it-enables" class="sub">4.2 The pattern it enables</a><a href="#43-the-helper-types" data-sec="43-the-helper-types" class="sub">4.3 The helper types</a><a href="#44-where-it-already-runs" data-sec="44-where-it-already-runs" class="sub">4.4 Where it already runs</a><a href="#part-5--the-stage-3-watchlist" data-sec="part-5--the-stage-3-watchlist">Part 5 — The Stage 3 Watchlist</a><a href="#part-6--what-is-not-coming-despite-what-you-read" data-sec="part-6--what-is-not-coming-despite-what-you-read">Part 6 — What Is Not Coming (Despite What You Read)</a><a href="#61-records--tuples-is-withdrawn" data-sec="61-records--tuples-is-withdrawn" class="sub">6.1 Records &amp; Tuples is withdrawn</a><a href="#62-pattern-matching-is-early" data-sec="62-pattern-matching-is-early" class="sub">6.2 Pattern matching is early</a><a href="#63-the-pipeline-operator-is-still-stuck" data-sec="63-the-pipeline-operator-is-still-stuck" class="sub">6.3 The pipeline operator is still stuck</a><a href="#64-import-attributes-is-es2025-not-es2026" data-sec="64-import-attributes-is-es2025-not-es2026" class="sub">6.4 <code>import attributes</code> is ES2025, not ES2026</a><a href="#part-7--adopting-it-what-runs-where" data-sec="part-7--adopting-it-what-runs-where">Part 7 — Adopting It: What Runs Where</a><a href="#71-per-feature-support-plainly" data-sec="71-per-feature-support-plainly" class="sub">7.1 Per-feature support, plainly</a><a href="#72-a-sixty-second-feature-detection-script" data-sec="72-a-sixty-second-feature-detection-script" class="sub">7.2 A sixty-second feature-detection script</a><a href="#73-the-adoption-order-that-costs-the-least" data-sec="73-the-adoption-order-that-costs-the-least" class="sub">7.3 The adoption order that costs the least</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheet" data-sec="cheat-sheet">Cheat Sheet</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--docs" data-sec="written-references--docs">Written References &amp; Docs</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#next-steps-in-order" data-sec="next-steps-in-order" class="sub">Next steps, in order</a><a href="#verification-note" data-sec="verification-note">Verification Note</a><a href="#your-setup-notes-mac--vs-code--opencode" data-sec="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</a></div>
+</nav>
+</details>
+<main>
+<h1>ES2026 and the New JavaScript You Can Actually Use</h1>
+<div class="callout lede">Seven features landed in the ES2026 spec on 30 June 2026, and two of the biggest — <code>Temporal</code> and <code>using</code> — were deliberately held back for ES2027 even though engines already ship them. Here is what each new function does, what it replaces, and how to tell &quot;in the spec&quot; from &quot;in the browser&quot;.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>JavaScript ships on a yearly train. Every June, TC39&#39;s finished proposals get published as one new edition of ECMA-262, and every engine (V8, JavaScriptCore, SpiderMonkey) has usually shipped them months before the paperwork caught up. That gap is the single most confusing thing about &quot;new JavaScript&quot;: a feature can be <strong>done</strong>, <strong>shipped</strong>, <strong>in the spec</strong>, or <strong>not in the spec yet</strong>, and those are four different facts.</p>
+<p>In 2026 the gap got wide enough to trip people up. <code>Temporal</code> — the replacement for <code>Date</code> — reached Stage 4 in March 2026 and runs by default in Node 26 and Firefox. <code>using</code> runs in Chrome, Node, and Deno. Both are <strong>finished</strong>, and both are <strong>not in ES2026</strong>. They are slated for ES2027. Meanwhile the seven features that <em>are</em> ES2026 read like a maintenance release: precise math, sane binary encoding, a real <code>Map</code> upsert. That contrast is the story of this year&#39;s language update.</p>
+<div class="codewrap"><pre data-lang=""><code>   HOW A JAVASCRIPT FEATURE SHIPS
+
+   Proposal ──► Stage 1 ──► Stage 2 ──► Stage 2.7 ──► Stage 3 ──► Stage 4
+   idea        shape       design      test-ready     browsers    finished
+                reviewed    settled     (impl can     can start   2 impls +
+                                        start)        building    tests pass
+                                                          │
+                                                          ▼
+                              merged into the living spec immediately
+                                                          │
+                              ┌───────────────────────────┴────────────┐
+                              ▼                                        ▼
+                   ENGINES SHIP IT                         SNAPSHOT IS PUBLISHED
+                   Chrome / Node / Firefox / Safari        the &quot;ES20XX&quot; edition
+                   often 6–18 months EARLIER               the following June
+                                                          (ES2026 = 17th edition,
+                                                           ratified 30 June 2026)
+
+   THE TRAP: &quot;shipped&quot; and &quot;in ES2026&quot; are not the same date.
+   Temporal + using = shipped, but published in ES2027.</code></pre></div>
+<p>The rule to internalise: <strong>check the edition for the spec text, and check your runtime for the behaviour.</strong> If those two disagree, your runtime is ahead, and that is normal.</p>
+<h3 id="the-analogy-table">The analogy table</h3>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English analogy</th>
+<th>Why it matters to you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>TC39</strong></td>
+<td>The committee that designs JavaScript</td>
+<td>Their stage list is the roadmap; nothing else is</td>
+</tr>
+<tr>
+<td><strong>Stage 4</strong></td>
+<td>&quot;Feature complete, two independent engines agree&quot;</td>
+<td>Merged into the spec draft immediately</td>
+</tr>
+<tr>
+<td><strong>ECMA-262 edition</strong></td>
+<td>The printed annual snapshot</td>
+<td>ES2026 = the 17th edition, ratified 30 June 2026</td>
+</tr>
+<tr>
+<td><strong><code>Temporal</code></strong></td>
+<td>A new date library, built into the language</td>
+<td>Replaces <code>Date</code>; immutable and time-zone aware</td>
+</tr>
+<tr>
+<td><strong><code>using</code></strong></td>
+<td><code>try/finally</code> that runs itself</td>
+<td>Deterministic cleanup for files, connections, locks</td>
+</tr>
+<tr>
+<td><strong><code>Array.fromAsync</code></strong></td>
+<td><code>Array.from</code>, but for async sources</td>
+<td>Collect an async generator without a loop</td>
+</tr>
+<tr>
+<td><strong><code>Error.isError</code></strong></td>
+<td>A reliable &quot;is this an Error?&quot; test</td>
+<td>The only check that works across iframes/realms</td>
+</tr>
+<tr>
+<td><strong><code>Math.sumPrecise</code></strong></td>
+<td>Addition that does not drift</td>
+<td>Sums floats without accumulated rounding error</td>
+</tr>
+<tr>
+<td><strong><code>Uint8Array.fromBase64</code></strong></td>
+<td>Base64 without <code>atob</code> or a Buffer shim</td>
+<td>Binary encoding in the standard library</td>
+</tr>
+<tr>
+<td><strong><code>Iterator.concat</code></strong></td>
+<td>Lazily join several iterables</td>
+<td>No intermediate arrays, no custom generator</td>
+</tr>
+<tr>
+<td><strong><code>JSON.parse</code> source access</strong></td>
+<td>&quot;Show me the original digits&quot;</td>
+<td>Big integers survive a JSON round-trip</td>
+</tr>
+<tr>
+<td><strong><code>Map.getOrInsert</code></strong></td>
+<td><code>get</code>-or-set in one call</td>
+<td>The upsert idiom, finally built in</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The one-sentence version:</strong> adopt the seven ES2026 features now (they are small, safe, and mostly backfill), learn <code>Temporal</code> and <code>using</code> now (they are the real prizes and are already running), and treat everything at Stage 3 as a watchlist rather than a dependency.</p>
+</blockquote>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>ES2026 is the 17th edition of ECMA-262</strong>, ratified by Ecma International on <strong>30 June 2026</strong>. It contains exactly <strong>seven</strong> features, all API additions, no new syntax.</li>
+<li><strong><code>Array.fromAsync</code></strong> collects an async iterable into an array, with an optional mapping function.</li>
+<li><strong><code>Error.isError</code></strong> is the cross-realm-safe way to ask &quot;is this an error?&quot; — <code>instanceof Error</code> is not.</li>
+<li><strong><code>Math.sumPrecise</code></strong> sums an iterable of numbers without floating-point drift.</li>
+<li><strong><code>Uint8Array</code> gained <code>fromBase64</code>, <code>toBase64</code>, <code>fromHex</code>, <code>toHex</code></strong> — no more <code>Buffer</code> shims or <code>atob</code> dance.</li>
+<li><strong><code>Iterator.concat</code></strong> lazily sequences several iterables into one.</li>
+<li><strong><code>JSON.parse</code>&#39;s reviver now gets a third argument, <code>context.source</code></strong>, the raw text of each value — so you can recover integers that JavaScript would otherwise round. <code>JSON.rawJSON()</code> fixes the stringify side.</li>
+<li><strong><code>Map</code> and <code>WeakMap</code> gained <code>getOrInsert</code> and <code>getOrInsertComputed</code></strong> (the &quot;Upsert&quot; proposal).</li>
+<li><strong>The two headliners are ES2027, not ES2026:</strong> <code>Temporal</code> (a full date/time API) and <code>using</code> (deterministic resource cleanup). Both are Stage 4 and shipped in engines today.</li>
+<li><strong>Everything else is Stage 3 or lower.</strong> Decorators, <code>import defer</code>, iterator extras, and a dictionary-shaped <code>Promise.all</code> are close; pattern matching is early; Records &amp; Tuples is dead.</li>
+</ol>
+<p>If you read nothing else, read <strong>Part 1 (how to read the year)</strong> and <strong>Part 3 (<code>Temporal</code>)</strong>.</p>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Why</th>
+<th>Check</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Node.js 26 (Current)</td>
+<td>The newest features land with each V8 bump; Node 24 has only part of the seven</td>
+<td><code>node --version</code></td>
+</tr>
+<tr>
+<td>A current browser</td>
+<td>Chrome 146 / Firefox 139+ / Safari 26 for the newest engine features</td>
+<td><code>chrome://version</code></td>
+</tr>
+<tr>
+<td>A test file you own</td>
+<td>So the per-feature &quot;does my runtime have it?&quot; script is real work</td>
+<td>any repo</td>
+</tr>
+<tr>
+<td>Optional: a polyfill budget</td>
+<td><code>Temporal</code> still needs one on older Safari</td>
+<td>see Part 7</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Pin one version in your head.</strong> Everything in this guide is written against <strong>Node.js 26</strong> (Current, released May 2026; LTS from October 2026) and evergreen Chrome/Firefox/Safari. If you are on Node 18, half of this is already two years old and the other half is unavailable. Upgrade first.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--how-to-read-the-year-without-getting-confused"><h2 id="part-1--how-to-read-the-year-without-getting-confused">Part 1 — How to Read the Year Without Getting Confused</h2>
+<h3 id="11-the-four-states-of-a-feature">1.1 The four states of a feature</h3>
+<p>Every JavaScript feature passes through four states, and blog posts collapse them into one, which is why the reporting is a mess:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>What it means</th>
+<th>How to confirm</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Proposed</strong></td>
+<td>A stage number exists</td>
+<td>tc39/proposals table</td>
+</tr>
+<tr>
+<td><strong>Shipped</strong></td>
+<td>At least one engine runs it, often behind a flag</td>
+<td>MDN compatibility table, <code>caniuse</code></td>
+</tr>
+<tr>
+<td><strong>Specified</strong></td>
+<td>The edition has been ratified</td>
+<td>The ES2026 feature list</td>
+</tr>
+<tr>
+<td><strong>Universal</strong></td>
+<td>Every core browser, no flag</td>
+<td>Baseline (see Paper 14)</td>
+</tr>
+</tbody></table>
+<p>A feature is only safe to ship dependency-free when it is <strong>universal</strong>, not when it is specified. Baseline is the label for that, and it is the same two-year clock the CSS paper describes.</p>
+<h3 id="12-the-2026-surprise-shipped--specified">1.2 The 2026 surprise: shipped ≠ specified</h3>
+<p>Two big features are Stage 4 and shipped but <strong>not</strong> in ES2026:</p>
+<ul>
+<li><strong><code>Temporal</code></strong> — reached Stage 4 in March 2026 and is published in <strong>ES2027</strong>.</li>
+<li><strong>Explicit Resource Management (<code>using</code>)</strong> — Stage 4, published in <strong>ES2027</strong>.</li>
+</ul>
+<p>The TC39 finished-proposals table is explicit about this: both carry an <strong>Expected Publication Year of 2027</strong>, alongside <code>Atomics.pause</code> and Joint Iteration. They reached Stage 4 <em>after</em> the ES2026 cutoff.</p>
+<div class="codewrap"><pre data-lang=""><code>   SAME YEAR, DIFFERENT PAPERWORK
+
+   Stage 4 reached:        Mar 2026        Mar 2026       2026
+   Feature:                Temporal        using          the seven
+   Published in:           ES2027          ES2027         ES2026
+   Runs today in Node 26:  yes             yes            yes
+
+   → &quot;Temporal is in ES2026&quot; is WRONG, even though you can use it.
+   → &quot;using isn't available yet&quot; is WRONG, even though it's ES2027.</code></pre></div>
+<h3 id="13-where-to-check-and-what-wins">1.3 Where to check, and what wins</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it gives you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>tc39/proposals</strong> (GitHub)</td>
+<td>The authoritative stage table: <code>README.md</code> for live proposals, <code>finished-proposals.md</code> for Stage 4 and its publication year</td>
+</tr>
+<tr>
+<td><strong>MDN</strong></td>
+<td>Per-feature pages with a compatibility table and a status banner</td>
+</tr>
+<tr>
+<td><strong>Node.js API docs</strong></td>
+<td>Version-tagged &quot;Added in&quot; and &quot;History&quot; tables — the cleanest per-version record there is</td>
+</tr>
+<tr>
+<td><strong>V8 / SpiderMonkey / WebKit blogs</strong></td>
+<td>What an engine actually shipped, and in which version</td>
+</tr>
+<tr>
+<td><strong>caniuse / Baseline (webstatus.dev)</strong></td>
+<td>The universal-or-not question</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Conflict resolution rule:</strong> the TC39 finished-proposals table wins on <em>what is in which edition</em>; the runtime&#39;s own documentation wins on <em>what my code will do today</em>. A blog post wins on neither.</p>
+</blockquote>
+<h3 id="14-the-honest-caveat">1.4 The honest caveat</h3>
+<p>The exact feature list of any edition is settled by the Ecma General Assembly, and the ratification happened on 30 June 2026. If a source published before that date lists &quot;seven features&quot;, it was describing the candidate, not the ratified text. Everything in Part 2 is drawn from the ratified list in TC39&#39;s <code>finished-proposals.md</code>.</p>
+<hr>
+</section><section id="part-2--the-seven-es2026-features-one-by-one"><h2 id="part-2--the-seven-es2026-features-one-by-one">Part 2 — The Seven ES2026 Features, One by One</h2>
+<p>These are all API additions with no new syntax, so there is nothing to parse and nothing to break. Each subsection gives the before/after.</p>
+<h3 id="21-arrayfromasync--collect-an-async-generator">2.1 <code>Array.fromAsync</code> — collect an async generator</h3>
+<p>The async sibling of <code>Array.from</code>. It awaits promises and pulls an async iterable into a real array.</p>
+<div class="codewrap"><pre data-lang="js"><code>// Before: a manual loop
+const collected = [];
+for await (const item of asyncSource()) {
+  collected.push(item);
+}
+
+// After
+const items = await Array.fromAsync(asyncSource());
+
+// With a mapping function, same shape as Array.from
+const doubled = await Array.fromAsync(new Set([1, 2, 3]), (n) =&gt; n * 2);
+// [2, 4, 6]</code></pre></div>
+<p>It accepts async iterables, sync iterables that yield promises, and array-like objects. It is <strong>not</strong> a replacement for streaming: it holds the whole result in memory, so use it for bounded collections.</p>
+<h3 id="22-erroriserror--the-only-cross-realm-test-that-works">2.2 <code>Error.isError</code> — the only cross-realm test that works</h3>
+<p><code>value instanceof Error</code> is unreliable the moment more than one JavaScript realm is in play: an error thrown inside an <code>&lt;iframe&gt;</code> is not an instance of your <code>Error</code>, because the constructor is a different object.</p>
+<div class="codewrap"><pre data-lang="js"><code>// Broken across realms
+iframeError instanceof Error; // false, even though it IS an Error
+
+// Correct
+Error.isError(iframeError);   // true
+Error.isError(new Error(&quot;x&quot;)); // true
+Error.isError({ name: &quot;Error&quot; }); // false</code></pre></div>
+<p><code>Error.isError</code> checks the internal error brand, so it also returns <code>true</code> for <code>DOMException</code> and other spec-defined error types. Use it in any code that inspects unknown <code>catch</code> values.</p>
+<h3 id="23-mathsumprecise--addition-without-the-drift">2.3 <code>Math.sumPrecise</code> — addition without the drift</h3>
+<p>Summing a list of floats accumulates rounding error. <code>0.1 + 0.2</code> is famously not <code>0.3</code>, and the error compounds.</p>
+<div class="codewrap"><pre data-lang="js"><code>[0.1, 0.2, 0.3].reduce((a, b) =&gt; a + b, 0); // 0.6000000000000001
+Math.sumPrecise([0.1, 0.2, 0.3]);           // 0.6</code></pre></div>
+<p>It takes any iterable of numbers and returns a correctly-rounded sum. It is slower than a naive <code>reduce</code>, so use it where the accuracy matters — money-adjacent maths, statistics, test assertions — not in a hot loop.</p>
+<blockquote>
+<p><strong>It is not a decimal type.</strong> <code>Math.sumPrecise</code> fixes <em>summation</em>, not <em>representation</em>. For exact currency arithmetic you still want integer cents or a decimal library.</p>
+</blockquote>
+<h3 id="24-uint8array-base64-and-hex--the-standard-library-caught-up">2.4 <code>Uint8Array</code> base64 and hex — the standard library caught up</h3>
+<p>Base64 in JavaScript used to mean <code>btoa</code>/<code>atob</code> (which only handle binary strings), a <code>Buffer</code> shim, or a dependency.</p>
+<div class="codewrap"><pre data-lang="js"><code>const bytes = new Uint8Array([104, 105]); // &quot;hi&quot;
+
+bytes.toBase64();              // &quot;aGk=&quot;
+bytes.toHex();                 // &quot;6869&quot;
+Uint8Array.fromBase64(&quot;aGk=&quot;); // Uint8Array(2) [104, 105]
+Uint8Array.fromHex(&quot;6869&quot;);    // Uint8Array(2) [104, 105]</code></pre></div>
+<p>The <code>from*</code> methods accept options for non-standard alphabets and for how to handle a trailing partial chunk. The common case is the plain call above.</p>
+<p><strong>What it deletes:</strong> <code>btoa</code>/<code>atob</code> wrappers, <code>Buffer.from(x, &#39;base64&#39;)</code> in code that is otherwise browser-portable, and the base64 package in your dependency tree.</p>
+<h3 id="25-iteratorconcat--lazy-sequencing">2.5 <code>Iterator.concat</code> — lazy sequencing</h3>
+<p>Joining iterables used to mean spreading them into arrays (materialising everything) or writing a generator.</p>
+<div class="codewrap"><pre data-lang="js"><code>// Before: materialises intermediate arrays
+const all = [...a, ...b];
+
+// Or a hand-written generator
+function* concat(...sources) {
+  for (const source of sources) yield* source;
+}
+
+// After: lazy, no boilerplate
+for (const value of Iterator.concat([1, 2], new Set([3, 4]), gen())) {
+  console.log(value);
+}</code></pre></div>
+<p><code>Iterator.concat</code> is a static method on <code>Iterator</code> and returns a lazy iterator, so nothing is read until you iterate. It sequences <em>iterables</em>, not iterators — a consumed iterator will not replay.</p>
+<h3 id="26-jsonparse-source-access-and-jsonrawjson">2.6 <code>JSON.parse</code> source access and <code>JSON.rawJSON</code></h3>
+<p>The quiet gem of ES2026. JSON has arbitrary-precision numbers; JavaScript numbers do not. Round-tripping a large integer ID through <code>JSON.parse</code> silently corrupts it:</p>
+<div class="codewrap"><pre data-lang="js"><code>JSON.parse('{&quot;id&quot;: 9007199254740993}').id; // 9007199254740992  ← rounded</code></pre></div>
+<p>ES2026 gives the reviver a third argument whose <code>source</code> field is the <strong>raw text</strong> of the value being revived:</p>
+<div class="codewrap"><pre data-lang="js"><code>const parsed = JSON.parse('{&quot;id&quot;: 9007199254740993}', (key, value, context) =&gt; {
+  if (key === &quot;id&quot; &amp;&amp; typeof value === &quot;number&quot;) {
+    return BigInt(context.source); // 9007199254740993n
+  }
+  return value;
+});</code></pre></div>
+<p>On the stringify side, <code>JSON.rawJSON()</code> builds a value whose digits are emitted verbatim, and <code>JSON.isRawJSON()</code> tests for it:</p>
+<div class="codewrap"><pre data-lang="js"><code>const raw = JSON.rawJSON(&quot;9007199254740993&quot;);
+JSON.stringify({ id: raw }); // {&quot;id&quot;:9007199254740993}</code></pre></div>
+<p>Together these make big integer IDs safe through a full JSON round-trip. If you have ever stored a Snowflake ID or a 64-bit key and watched the last digits change, this is the fix.</p>
+<h3 id="27-mapgetorinsert--the-upsert-you-kept-writing-by-hand">2.7 <code>Map.getOrInsert</code> — the upsert you kept writing by hand</h3>
+<p>Grouping and memoising with a <code>Map</code> always needed the same three lines:</p>
+<div class="codewrap"><pre data-lang="js"><code>// Before
+let bucket = groups.get(key);
+if (bucket === undefined) {
+  bucket = [];
+  groups.set(key, bucket);
+}
+bucket.push(value);</code></pre></div>
+<p>ES2026 adds the method:</p>
+<div class="codewrap"><pre data-lang="js"><code>// After — value form
+const user = cache.getOrInsert(userId, { visits: 0 });
+
+// After — computed form, the factory only runs on a miss
+const user2 = cache.getOrInsertComputed(userId, (key) =&gt; fetchUser(key));</code></pre></div>
+<p>Both exist on <code>Map</code> and <code>WeakMap</code>. Use <code>getOrInsert</code> when the default is cheap and reusable; use <code>getOrInsertComputed</code> when constructing the default is expensive, because the factory is only invoked when the key is absent.</p>
+<blockquote>
+<p><strong>Watch the name.</strong> The proposal is called <strong>Upsert</strong> in TC39&#39;s tables; the shipped methods are <code>getOrInsert</code> / <code>getOrInsertComputed</code>. Searching for &quot;map emplace&quot; (an older name) leads to stale pages.</p>
+</blockquote>
+<hr>
+</section><section id="part-3--temporal-the-real-headline-es2027-here-now"><h2 id="part-3--temporal-the-real-headline-es2027-here-now">Part 3 — <code>Temporal</code>: The Real Headline (ES2027, Here Now)</h2>
+<p><code>Temporal</code> is the first genuine replacement for <code>Date</code> in JavaScript&#39;s history, and it has been in progress for roughly nine years. It reached Stage 4 in <strong>March 2026</strong> and is published in <strong>ES2027</strong>. Firefox shipped it in v139, Chrome and Edge in v144, and <strong>Node.js 26 enables it by default</strong> (V8 14.6).</p>
+<h3 id="31-why-date-was-the-problem">3.1 Why <code>Date</code> was the problem</h3>
+<p><code>Date</code> is mutable, month-indexed from zero, silently coerces to the machine&#39;s local time zone, and has no concept of a calendar date without a time. Every one of those is a bug generator:</p>
+<div class="codewrap"><pre data-lang="js"><code>new Date(2026, 0, 1); // 1 January 2026 — because January is 0</code></pre></div>
+<p><code>Temporal</code> fixes this by refusing to be one type. It gives you a family of types, each with one job.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Represents</th>
+<th>Use for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Temporal.Instant</code></td>
+<td>An exact point on the timeline</td>
+<td>Log timestamps, epoch maths</td>
+</tr>
+<tr>
+<td><code>Temporal.ZonedDateTime</code></td>
+<td>An instant + a time zone + a calendar</td>
+<td>Meetings, anything a user sees in &quot;their&quot; time</td>
+</tr>
+<tr>
+<td><code>Temporal.PlainDateTime</code></td>
+<td>A wall-clock date and time, no zone</td>
+<td>UI values before they are committed</td>
+</tr>
+<tr>
+<td><code>Temporal.PlainDate</code></td>
+<td>A calendar date</td>
+<td>Birthdays, due dates, billing periods</td>
+</tr>
+<tr>
+<td><code>Temporal.PlainTime</code></td>
+<td>A clock time</td>
+<td>Opening hours, alarms</td>
+</tr>
+<tr>
+<td><code>Temporal.PlainYearMonth</code></td>
+<td>A year and month</td>
+<td>Statements, monthly reports</td>
+</tr>
+<tr>
+<td><code>Temporal.PlainMonthDay</code></td>
+<td>A month and day, no year</td>
+<td>Anniversaries, recurring holidays</td>
+</tr>
+<tr>
+<td><code>Temporal.Duration</code></td>
+<td>A length of time</td>
+<td>&quot;Three days and four hours&quot;</td>
+</tr>
+</tbody></table>
+<p>The design rule: <strong><code>Plain</code> types have no time zone; <code>ZonedDateTime</code> has one; <code>Instant</code> is the raw timeline.</strong> Pick the narrowest type that is true.</p>
+<h3 id="32-the-moves-you-will-make-every-day">3.2 The moves you will make every day</h3>
+<div class="codewrap"><pre data-lang="js"><code>// Now, in a named zone, DST-safe
+const now = Temporal.Now.zonedDateTimeISO(&quot;America/New_York&quot;);
+now.toString(); // &quot;2026-09-28T09:00:00-04:00[America/New_York]&quot;
+
+// Arithmetic that respects the calendar and DST
+const due = now.add({ days: 14 }).with({ hour: 17, minute: 0 });</code></pre></div>
+<div class="codewrap"><pre data-lang="js"><code>// Calendar dates stay calendar dates
+const start = Temporal.PlainDate.from(&quot;2026-01-01&quot;);
+const end = Temporal.PlainDate.from(&quot;2026-09-28&quot;);
+end.since(start, { largestUnit: &quot;months&quot; }).toString(); // &quot;P8M27D&quot;
+
+// A plain date never shifts because of a time zone
+start.add({ months: 1 }).toString(); // &quot;2026-02-01&quot;</code></pre></div>
+<div class="codewrap"><pre data-lang="js"><code>// Conversions are explicit, never implicit
+const instant = Temporal.Now.instant();
+const inTokyo = instant.toZonedDateTimeISO(&quot;Asia/Tokyo&quot;);
+inTokyo.toPlainDate().toString(); // the local calendar date in Tokyo</code></pre></div>
+<h3 id="33-polyfills-while-you-wait-for-safari">3.3 Polyfills, while you wait for Safari</h3>
+<p>Firefox, Chromium-based browsers, and Node 26 ship <code>Temporal</code> natively. Safari&#39;s support has been partial, so for broad reach use a polyfill:</p>
+<div class="codewrap"><pre data-lang="bash"><code>npm install @js-temporal/polyfill</code></pre></div>
+<div class="codewrap"><pre data-lang="js"><code>// import once, at the top of your entry point
+import &quot;@js-temporal/polyfill&quot;;</code></pre></div>
+<p>There is also <code>temporal-polyfill</code>, a smaller alternative. Both are production-grade; the reference implementation from the proposal champions is <code>@js-temporal/polyfill</code>.</p>
+<blockquote>
+<p><strong>Do not feature-detect by touching <code>Temporal.Now</code> in a hot path.</strong> Import the polyfill at the entry point, or gate the whole <code>Temporal</code> import behind a dynamic <code>import()</code> so you only pay for it where it is missing.</p>
+</blockquote>
+<hr>
+</section><section id="part-4--using-deterministic-cleanup-also-es2027-also-here"><h2 id="part-4--using-deterministic-cleanup-also-es2027-also-here">Part 4 — <code>using</code>: Deterministic Cleanup (Also ES2027, Also Here)</h2>
+<p>Explicit Resource Management adds two keywords, <code>using</code> and <code>await using</code>, plus a small set of helper types. It is the JavaScript version of a scope-bound <code>finally</code>.</p>
+<h3 id="41-the-pattern-it-replaces">4.1 The pattern it replaces</h3>
+<div class="codewrap"><pre data-lang="js"><code>// Before: the cleanup is easy to forget on an early return or throw
+const file = await open(path);
+try {
+  await process(file);
+} finally {
+  await file.close();
+}</code></pre></div>
+<h3 id="42-the-pattern-it-enables">4.2 The pattern it enables</h3>
+<div class="codewrap"><pre data-lang="js"><code>class Tracer {
+  #label;
+  constructor(label) { this.#label = label; }
+  [Symbol.dispose]() {
+    console.log(`released: ${this.#label}`);
+  }
+}
+
+{
+  using t = new Tracer(&quot;db-handle&quot;);
+  // ... work
+} // &quot;released: db-handle&quot; — runs here, even if the block throws</code></pre></div>
+<p>For asynchronous cleanup, add <code>await</code>:</p>
+<div class="codewrap"><pre data-lang="js"><code>{
+  await using conn = await openConnection();
+  // dispose awaits [Symbol.asyncDispose]() at block exit
+}</code></pre></div>
+<h3 id="43-the-helper-types">4.3 The helper types</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Symbol.dispose</code> / <code>Symbol.asyncDispose</code></td>
+<td>The well-known symbol a disposable object implements</td>
+</tr>
+<tr>
+<td><code>DisposableStack</code></td>
+<td>Collect several disposables and release them in reverse order</td>
+</tr>
+<tr>
+<td><code>AsyncDisposableStack</code></td>
+<td>The async equivalent</td>
+</tr>
+<tr>
+<td><code>SuppressedError</code></td>
+<td>Wraps a cleanup error when the body also threw, so neither is lost</td>
+</tr>
+</tbody></table>
+<div class="codewrap"><pre data-lang="js"><code>{
+  using stack = new DisposableStack();
+  stack.use(openFile(&quot;a.txt&quot;));
+  stack.use(openFile(&quot;b.txt&quot;));
+} // both files closed, newest first</code></pre></div>
+<h3 id="44-where-it-already-runs">4.4 Where it already runs</h3>
+<p>Chrome, Node.js, and Deno ship <code>using</code> today; Babel and TypeScript support the syntax. It is Stage 4 and slated for <strong>ES2027</strong>, so treat it as &quot;available in modern engines, not yet universal&quot;. It is safe inside a build step you control, and it is a poor choice for a library that must run on the oldest browser you support without transpilation.</p>
+<hr>
+</section><section id="part-5--the-stage-3-watchlist"><h2 id="part-5--the-stage-3-watchlist">Part 5 — The Stage 3 Watchlist</h2>
+<p>These are designed and ready for engines to implement, but not finished. Do not build a product on them; do read them, because several will land within a year.</p>
+<table>
+<thead>
+<tr>
+<th>Proposal</th>
+<th>What it does</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Deferring Module Evaluation</strong> (<code>import defer</code>)</td>
+<td>Fetch and link a module now, evaluate it on first use</td>
+<td>Already shipping behind flags; MDN lists it as experimental</td>
+</tr>
+<tr>
+<td><strong>Source Phase Imports</strong> (<code>import source</code>)</td>
+<td>Import a module&#39;s <em>source</em> and instantiate it later</td>
+<td>Pairs with the deferred-evaluation story</td>
+</tr>
+<tr>
+<td><strong>Import Text</strong></td>
+<td><code>import text from &quot;./file.txt&quot;</code> as a string</td>
+<td>Removes a bundler-specific trick</td>
+</tr>
+<tr>
+<td><strong>Iterator Includes</strong></td>
+<td><code>Iterator.prototype.includes</code></td>
+<td><code>Array.prototype.includes</code>, but lazy</td>
+</tr>
+<tr>
+<td><strong>Iterator Join</strong></td>
+<td>Concatenate an iterator&#39;s values into a string</td>
+<td>Complements <code>Iterator.concat</code></td>
+</tr>
+<tr>
+<td><strong>Iterator Chunking</strong></td>
+<td>Split a long iterator into fixed-size chunks</td>
+<td>Batch processing without manual buffering</td>
+</tr>
+<tr>
+<td><strong>Await Dictionary</strong></td>
+<td><code>Promise.allKeyed</code> / <code>Promise.allSettledKeyed</code></td>
+<td>The &quot;named <code>Promise.all</code>&quot; everyone writes by hand</td>
+</tr>
+<tr>
+<td><strong>Error Stack Accessor</strong></td>
+<td>Turn <code>error.stack</code> into a proper accessor</td>
+<td>Better stack handling for libraries</td>
+</tr>
+<tr>
+<td><strong>RegExp Buffer Boundaries</strong></td>
+<td><code>\A</code>, <code>\z</code>, <code>\Z</code> anchors</td>
+<td>Anchors that are not line-relative</td>
+</tr>
+<tr>
+<td><strong>Decorators</strong></td>
+<td>Standard class decorators, no transpiler</td>
+<td>Stage 2.7 as of the May 2026 meeting; TypeScript and Babel already implement the shape</td>
+</tr>
+<tr>
+<td><strong>Dynamic Code Brand Checks</strong></td>
+<td>Flexible brand checks before dynamic code loading</td>
+<td>Security-adjacent; used by trusted-types work</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The Stage 2.7 oddity.</strong> TC39 added an intermediate stage, <strong>2.7</strong>, for proposals that are essentially designed but need implementation testing before Stage 3. Decorators and Decorator Metadata sat there in 2026. Seeing &quot;2.7&quot; means &quot;close, not promised&quot;.</p>
+</blockquote>
+<hr>
+</section><section id="part-6--what-is-not-coming-despite-what-you-read"><h2 id="part-6--what-is-not-coming-despite-what-you-read">Part 6 — What Is Not Coming (Despite What You Read)</h2>
+<p>Being clear about the dead options saves you a weekend of research.</p>
+<h3 id="61-records--tuples-is-withdrawn">6.1 Records &amp; Tuples is withdrawn</h3>
+<p>The <code>#[1, 2]</code> tuple and <code>#{ x: 1 }</code> record syntax — deeply immutable, compared by value — was <strong>withdrawn at the April 2025 plenary</strong> after years at Stage 2. The follow-up is <strong>Composites</strong>, a much smaller Stage 1 proposal that gives value-based equality using ordinary frozen, interned objects rather than new primitives. It has shipped nowhere. For production today, the answer is a plain array plus a convention, or TypeScript&#39;s tuple type as a compile-time contract.</p>
+<h3 id="62-pattern-matching-is-early">6.2 Pattern matching is early</h3>
+<p>The <code>match</code> expression proposal sits at <strong>Stage 1</strong>. It may land, but not before ES2027 at the earliest, and not in a form you should design around.</p>
+<h3 id="63-the-pipeline-operator-is-still-stuck">6.3 The pipeline operator is still stuck</h3>
+<p><code>|&gt;</code> has been &quot;nearly there&quot; for years. The disagreement is over <code>%</code> placeholders versus topic-style binding, and it has not resolved. Do not wait for it; a named local variable is fine.</p>
+<h3 id="64-import-attributes-is-es2025-not-es2026">6.4 <code>import attributes</code> is ES2025, not ES2026</h3>
+<p>You will see guides list <code>import x from &quot;./data.json&quot; with { type: &quot;json&quot; }</code> as a 2026 feature. It is not. Import Attributes and JSON Modules reached Stage 4 in October 2024 and are published in <strong>2025</strong>. Same for the new <code>Set</code> methods, iterator helpers, and <code>Promise.try</code>. They are modern, and they are last year&#39;s news.</p>
+<hr>
+</section><section id="part-7--adopting-it-what-runs-where"><h2 id="part-7--adopting-it-what-runs-where">Part 7 — Adopting It: What Runs Where</h2>
+<h3 id="71-per-feature-support-plainly">7.1 Per-feature support, plainly</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Edition</th>
+<th>Node</th>
+<th>Browsers</th>
+<th>Safe without a polyfill?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Array.fromAsync</code></td>
+<td>ES2026</td>
+<td>22+</td>
+<td>Chrome 121+, Firefox 115+, Safari 16.4+</td>
+<td>Yes for current targets</td>
+</tr>
+<tr>
+<td><code>Error.isError</code></td>
+<td>ES2026</td>
+<td>24+</td>
+<td>Chrome 134+, Firefox 138+, Safari 18.4+</td>
+<td>Check your target</td>
+</tr>
+<tr>
+<td><code>Math.sumPrecise</code></td>
+<td>ES2026</td>
+<td><strong>not yet</strong></td>
+<td>Chrome 147+, Firefox 137+, Safari 26.2+</td>
+<td>Newest engine-only; polyfill in Node</td>
+</tr>
+<tr>
+<td><code>Uint8Array</code> base64/hex</td>
+<td>ES2026</td>
+<td>25+</td>
+<td>Chrome 140+, Firefox 133+, Safari 18.2+</td>
+<td>Check your target</td>
+</tr>
+<tr>
+<td><code>Iterator.concat</code></td>
+<td>ES2026</td>
+<td>26 (V8 14.6)</td>
+<td>Chrome 146+, Firefox 147+, Safari 26.4+</td>
+<td>Newest; feature-detect</td>
+</tr>
+<tr>
+<td><code>JSON.parse</code> source / <code>rawJSON</code></td>
+<td>ES2026</td>
+<td>21+</td>
+<td>Chrome 114+, Firefox 135+, Safari 18.4+</td>
+<td>Widely landed already</td>
+</tr>
+<tr>
+<td><code>Map.getOrInsert</code></td>
+<td>ES2026</td>
+<td>26 (V8 14.6)</td>
+<td>Chrome 145+, Firefox 144+, Safari 26.2+</td>
+<td>Newest of the seven</td>
+</tr>
+<tr>
+<td><code>Temporal</code></td>
+<td>ES2027</td>
+<td>26 (default)</td>
+<td>Firefox 139+, Chrome 144+, Safari partial</td>
+<td>Polyfill for full reach</td>
+</tr>
+<tr>
+<td><code>using</code> / <code>await using</code></td>
+<td>ES2027</td>
+<td>24+</td>
+<td>Chrome 134+, Firefox 141+, Safari preview</td>
+<td>Transpiler or modern-only</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Treat the browser columns as a starting point, not gospel.</strong> Compatibility tables move every few weeks, and several of the engine versions above landed within the last few releases. The authoritative check is MDN&#39;s compatibility table for the specific feature plus your own <code>node --version</code> — which is exactly what the script in 7.2 does. The table above is a September 2026 snapshot.</p>
+</blockquote>
+<blockquote>
+<p><strong>One entry deserves a warning.</strong> <code>Math.sumPrecise</code> had <strong>not shipped in Node as of this check</strong> — it depends on a V8 version newer than the one in Node 26. In Node, do the summation in a helper or use a small library until V8 catches up; the browser columns are the ones that have it.</p>
+</blockquote>
+<h3 id="72-a-sixty-second-feature-detection-script">7.2 A sixty-second feature-detection script</h3>
+<p>Run this on whatever runtime you actually deploy to. It tells you the truth in one pass.</p>
+<div class="codewrap"><pre data-lang="js"><code>// check.mjs — run: node check.mjs
+const checks = {
+  &quot;Array.fromAsync&quot;: () =&gt; typeof Array.fromAsync === &quot;function&quot;,
+  &quot;Error.isError&quot;: () =&gt; typeof Error.isError === &quot;function&quot;,
+  &quot;Math.sumPrecise&quot;: () =&gt; typeof Math.sumPrecise === &quot;function&quot;,
+  &quot;Uint8Array.fromBase64&quot;: () =&gt; typeof Uint8Array.fromBase64 === &quot;function&quot;,
+  &quot;Iterator.concat&quot;: () =&gt; typeof Iterator.concat === &quot;function&quot;,
+  &quot;JSON.rawJSON&quot;: () =&gt; typeof JSON.rawJSON === &quot;function&quot;,
+  &quot;Map.getOrInsert&quot;: () =&gt; typeof Map.prototype.getOrInsert === &quot;function&quot;,
+  Temporal: () =&gt; typeof globalThis.Temporal === &quot;object&quot;,
+  &quot;using (syntax)&quot;: () =&gt; true, // syntax: you know at build time, not runtime
+};
+
+for (const [name, test] of Object.entries(checks)) {
+  console.log(test() ? &quot;✓&quot; : &quot;✗&quot;, name);
+}</code></pre></div>
+<p>The <code>using</code> line is honest about a real distinction: a syntax feature cannot be probed at runtime. If your parser accepts it, it exists; if not, you get a parse error, and that is a transpiler or target-version decision, not a feature check.</p>
+<h3 id="73-the-adoption-order-that-costs-the-least">7.3 The adoption order that costs the least</h3>
+<ol>
+<li><strong>Today:</strong> swap <code>instanceof Error</code> for <code>Error.isError</code> and any base64 helper for <code>Uint8Array.fromBase64</code>.</li>
+<li><strong>This week:</strong> add <code>Math.sumPrecise</code> to test helpers and money-adjacent sums, and <code>getOrInsertComputed</code> to your cache maps.</li>
+<li><strong>Next:</strong> fix any big-integer JSON round-trip with <code>context.source</code> and <code>JSON.rawJSON</code>.</li>
+<li><strong>Then:</strong> pilot <code>Temporal</code> in one module behind the polyfill, converting a <code>Date</code> that has caused an off-by-one.</li>
+<li><strong>Later:</strong> adopt <code>using</code> in a service you control, where the runtime is not in question.</li>
+</ol>
+<hr>
+</section><section id="cheat-sheet"><h2 id="cheat-sheet">Cheat Sheet</h2>
+<div class="codewrap"><pre data-lang="js"><code>// ─── ES2026: the seven ──────────────────────────────────────────────
+await Array.fromAsync(asyncSource());                 // async → array
+await Array.fromAsync(new Set([1, 2]), (n) =&gt; n * 2); // with a map fn
+Error.isError(value);                                 // cross-realm safe
+Math.sumPrecise([0.1, 0.2, 0.3]);                     // 0.6, no drift
+bytes.toBase64(); bytes.toHex();
+Uint8Array.fromBase64(&quot;aGk=&quot;); Uint8Array.fromHex(&quot;6869&quot;);
+Iterator.concat(a, b, c);                             // lazy sequence
+JSON.parse(text, (k, v, ctx) =&gt; ctx.source);          // raw digits
+JSON.stringify({ id: JSON.rawJSON(&quot;9007199254740993&quot;) });
+map.getOrInsert(key, fallback);
+map.getOrInsertComputed(key, (k) =&gt; compute(k));</code></pre></div>
+<div class="codewrap"><pre data-lang="js"><code>// ─── ES2027, shipping now ───────────────────────────────────────────
+const now = Temporal.Now.zonedDateTimeISO(&quot;America/New_York&quot;);
+now.add({ days: 14 }).with({ hour: 17 });
+Temporal.PlainDate.from(&quot;2026-09-28&quot;).since(&quot;2026-01-01&quot;, { largestUnit: &quot;months&quot; });
+
+class Handle { [Symbol.dispose]() { /* release */ } }
+{
+  using h = new Handle();   // disposed at block exit
+}
+{
+  await using c = await openConnection(); // await [Symbol.asyncDispose]()
+}</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>I want to…</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Collect an async generator</td>
+<td><code>Array.fromAsync</code></td>
+</tr>
+<tr>
+<td>Reliably test for an error</td>
+<td><code>Error.isError</code></td>
+</tr>
+<tr>
+<td>Sum floats accurately</td>
+<td><code>Math.sumPrecise</code></td>
+</tr>
+<tr>
+<td>Encode/decode base64 or hex</td>
+<td><code>Uint8Array.fromBase64</code> / <code>toHex</code></td>
+</tr>
+<tr>
+<td>Join iterables lazily</td>
+<td><code>Iterator.concat</code></td>
+</tr>
+<tr>
+<td>Keep a 64-bit ID intact through JSON</td>
+<td><code>context.source</code> + <code>JSON.rawJSON</code></td>
+</tr>
+<tr>
+<td>Get-or-set in a <code>Map</code></td>
+<td><code>getOrInsert</code> / <code>getOrInsertComputed</code></td>
+</tr>
+<tr>
+<td>Handle dates and time zones</td>
+<td><code>Temporal.ZonedDateTime</code></td>
+</tr>
+<tr>
+<td>Clean up a resource deterministically</td>
+<td><code>using</code> / <code>await using</code></td>
+</tr>
+<tr>
+<td>Check the edition a feature is in</td>
+<td>TC39 <code>finished-proposals.md</code></td>
+</tr>
+<tr>
+<td>Check whether you can use it today</td>
+<td>MDN table + <code>node --version</code></td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Math.sumPrecise is not a function</code></td>
+<td>It had not shipped in Node as of this check; newer engines only</td>
+<td>Use a summation helper or a small library in Node; verify with the Part 7 script</td>
+</tr>
+<tr>
+<td><code>Error.isError</code> missing</td>
+<td>Same — feature is recent</td>
+<td>Upgrade, or keep <code>instanceof</code> only within one realm</td>
+</tr>
+<tr>
+<td>A big integer ID still changes</td>
+<td>Code path never used the reviver</td>
+<td>Add <code>context.source</code> handling, or parse with a decimal library</td>
+</tr>
+<tr>
+<td><code>TypeError: Iterator.concat is not a function</code></td>
+<td>Node 26-era feature on an older runtime</td>
+<td>Upgrade, or keep the hand-written generator</td>
+</tr>
+<tr>
+<td><code>getOrInsert is not a function</code></td>
+<td>Newest of the seven; Chrome 145+/Node 26</td>
+<td>Feature-detect and fall back to <code>get</code>/<code>set</code></td>
+</tr>
+<tr>
+<td><code>Temporal is not defined</code></td>
+<td>Safari, or Node &lt; 26 without the polyfill</td>
+<td><code>npm i @js-temporal/polyfill</code> and import it at the entry point</td>
+</tr>
+<tr>
+<td>Polyfill loaded twice, huge bundle</td>
+<td>Static import plus a dynamic <code>import()</code></td>
+<td>Pick one path; gate the dynamic import on <code>!globalThis.Temporal</code></td>
+</tr>
+<tr>
+<td><code>SyntaxError</code> on <code>using</code></td>
+<td>Parser predates the syntax, or a target too old</td>
+<td>Raise the target, or transpile</td>
+</tr>
+<tr>
+<td>&quot;Temporal is in ES2026&quot; per a blog</td>
+<td>Blog conflated &quot;Stage 4&quot; with &quot;this edition&quot;</td>
+<td>Trust <code>finished-proposals.md</code>; Temporal is ES2027</td>
+</tr>
+<tr>
+<td>New <code>Set</code>/iterator methods listed as ES2026</td>
+<td>They are ES2025</td>
+<td>Harmless, but do not plan around an incorrect year</td>
+</tr>
+<tr>
+<td><code>Uint8Array.fromBase64</code> throws on an odd string</td>
+<td>Invalid or truncated base64</td>
+<td>Use the options argument, or validate before decoding</td>
+</tr>
+<tr>
+<td><code>JSON.rawJSON</code> output is rejected</td>
+<td>Raw string is not valid JSON for the position</td>
+<td>Pass a valid JSON literal (digits, <code>true</code>, <code>null</code>), not an arbitrary string</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>YouTube <strong>search</strong> links only — version-specific videos date badly.</p>
+<table>
+<thead>
+<tr>
+<th>Search</th>
+<th>What you&#39;ll find</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://www.youtube.com/results?search_query=ECMAScript+2026+new+features" target="_blank" rel="noopener">ECMAScript 2026 new features</a></td>
+<td>Walkthroughs of the seven</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Temporal+API+tutorial" target="_blank" rel="noopener">Temporal API tutorial</a></td>
+<td>Replacing <code>Date</code> end to end</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=JavaScript+using+statement+explicit+resource+management" target="_blank" rel="noopener">JavaScript using statement</a></td>
+<td>Resource management in practice</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Array.fromAsync+explained" target="_blank" rel="noopener">Array.fromAsync explained</a></td>
+<td>Async collection without loops</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Math.sumPrecise+floating+point+JavaScript" target="_blank" rel="noopener">Math.sumPrecise floating point</a></td>
+<td>Why summation drifts</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Uint8Array+base64+hex+JavaScript" target="_blank" rel="noopener">Uint8Array base64 hex</a></td>
+<td>Binary encoding in the stdlib</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=JSON.parse+source+text+access+JavaScript" target="_blank" rel="noopener">JSON.parse source text access</a></td>
+<td>Big integers through JSON</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Map+getOrInsert+upsert+JavaScript" target="_blank" rel="noopener">Map getOrInsert upsert</a></td>
+<td>The upsert idiom</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=TC39+stages+explained" target="_blank" rel="noopener">TC39 stages explained</a></td>
+<td>Reading the roadmap</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=import+defer+JavaScript" target="_blank" rel="noopener">import defer JavaScript</a></td>
+<td>Deferred module evaluation</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--docs"><h2 id="written-references--docs">Written References &amp; Docs</h2>
+<p>Primary sources first: TC39 for the spec, the runtime&#39;s own docs for behaviour.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TC39 proposals — live stage table</td>
+<td><code>https://github.com/tc39/proposals</code></td>
+</tr>
+<tr>
+<td>TC39 — finished proposals and publication years</td>
+<td><code>https://github.com/tc39/proposals/blob/main/finished-proposals.md</code></td>
+</tr>
+<tr>
+<td>TC39 — current candidates (Stage 3)</td>
+<td><code>https://tc39.es/</code></td>
+</tr>
+<tr>
+<td>ECMAScript language spec (living draft)</td>
+<td><code>https://tc39.es/ecma262/</code></td>
+</tr>
+<tr>
+<td>MDN — <code>Temporal</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal</code></td>
+</tr>
+<tr>
+<td>MDN — <code>Array.fromAsync</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fromAsync</code></td>
+</tr>
+<tr>
+<td>MDN — <code>Error.isError</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/isError</code></td>
+</tr>
+<tr>
+<td>MDN — <code>Math.sumPrecise</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sumPrecise</code></td>
+</tr>
+<tr>
+<td>MDN — <code>Uint8Array.fromBase64</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/fromBase64</code></td>
+</tr>
+<tr>
+<td>MDN — <code>Iterator.concat</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/concat</code></td>
+</tr>
+<tr>
+<td>MDN — <code>JSON.rawJSON</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/rawJSON</code></td>
+</tr>
+<tr>
+<td>MDN — <code>Map.prototype.getOrInsert</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/getOrInsert</code></td>
+</tr>
+<tr>
+<td>MDN — <code>import defer</code></td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import/defer</code></td>
+</tr>
+<tr>
+<td>MDN — using declarations</td>
+<td><code>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/using</code></td>
+</tr>
+<tr>
+<td>Node.js 26 release notes</td>
+<td><code>https://nodejs.org/en/blog/release/v26.0.0</code></td>
+</tr>
+<tr>
+<td><code>@js-temporal/polyfill</code></td>
+<td><code>https://github.com/js-temporal/temporal-polyfill</code></td>
+</tr>
+<tr>
+<td>Igalia — Temporal reaches Stage 4</td>
+<td><code>https://www.igalia.com/2026/03/13/Temporal-Reaches-Stage-4.html</code></td>
+</tr>
+<tr>
+<td>Composites proposal</td>
+<td><code>https://tc39.es/proposal-composites/</code></td>
+</tr>
+</tbody></table>
+<p><strong>Third-party, for context only:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Compatibility trackers (caniuse, MDN tables)</td>
+<td>Convenient, but re-check per feature and date</td>
+</tr>
+<tr>
+<td>&quot;What&#39;s new in ES20XX&quot; blog roundups</td>
+<td>Good index; frequently wrong about the edition year</td>
+</tr>
+<tr>
+<td>Runtime comparison articles</td>
+<td>Vendor-flavoured; verify on the runtime&#39;s own docs</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Verification tip:</strong> the edition a feature belongs to comes from <code>finished-proposals.md</code>. The behaviour you will get today comes from the runtime&#39;s docs. When a blog post and those disagree, the blog is wrong.</p>
+</blockquote>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English definition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TC39</td>
+<td>The committee that designs the JavaScript language</td>
+</tr>
+<tr>
+<td>Stage 4</td>
+<td>Finished: two implementations and a passing test suite</td>
+</tr>
+<tr>
+<td>ECMA-262</td>
+<td>The standard that defines JavaScript</td>
+</tr>
+<tr>
+<td>ES2026</td>
+<td>The 17th edition, ratified 30 June 2026</td>
+</tr>
+<tr>
+<td>Candidate</td>
+<td>The draft list of features for an edition, before ratification</td>
+</tr>
+<tr>
+<td><code>Array.fromAsync</code></td>
+<td>Build an array from an async iterable</td>
+</tr>
+<tr>
+<td><code>Error.isError</code></td>
+<td>Cross-realm-safe error check</td>
+</tr>
+<tr>
+<td><code>Math.sumPrecise</code></td>
+<td>Correctly-rounded summation of an iterable</td>
+</tr>
+<tr>
+<td><code>Iterator.concat</code></td>
+<td>Lazily sequence several iterables</td>
+</tr>
+<tr>
+<td><code>JSON.rawJSON</code></td>
+<td>Emit a JSON literal verbatim during stringify</td>
+</tr>
+<tr>
+<td><code>getOrInsert</code></td>
+<td>Return a <code>Map</code> value, inserting a default if absent</td>
+</tr>
+<tr>
+<td><code>Temporal</code></td>
+<td>The modern date/time API (ES2027)</td>
+</tr>
+<tr>
+<td><code>ZonedDateTime</code></td>
+<td>An instant plus a time zone and calendar</td>
+</tr>
+<tr>
+<td><code>PlainDate</code></td>
+<td>A calendar date with no time or zone</td>
+</tr>
+<tr>
+<td><code>using</code></td>
+<td>A declaration that disposes its value at scope exit</td>
+</tr>
+<tr>
+<td><code>Symbol.dispose</code></td>
+<td>The symbol a disposable object implements</td>
+</tr>
+<tr>
+<td><code>SuppressedError</code></td>
+<td>Wraps a cleanup error when the body also threw</td>
+</tr>
+<tr>
+<td>Upsert</td>
+<td>The TC39 name for the <code>getOrInsert</code> proposal</td>
+</tr>
+<tr>
+<td>Polyfill</td>
+<td>A library that adds a missing feature at runtime</td>
+</tr>
+<tr>
+<td>Transpile</td>
+<td>Rewrite newer syntax for older targets at build time</td>
+</tr>
+<tr>
+<td>Composites</td>
+<td>The Stage 1 successor to the withdrawn Records &amp; Tuples</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Is <code>Temporal</code> part of ES2026?</strong> No. It reached Stage 4 in March 2026 but is published in <strong>ES2027</strong>. It runs today in Node 26, Firefox, and Chromium-based browsers, so &quot;available&quot; and &quot;in ES2026&quot; are both true statements about different things.</p>
+<p><strong>Is <code>using</code> available?</strong> Yes, in Chrome, Node.js, and Deno; the spec publication is ES2027. Use it where you control the runtime; transpile where you do not.</p>
+<p><strong>Why are these API-only additions and not syntax?</strong> TC39 deliberately kept ES2026 conservative after a decade of large releases. No new syntax means no parser changes and no compatibility risk from the additions themselves.</p>
+<p><strong>Do I still need a base64 library?</strong> In browsers and Node 25+, no — <code>Uint8Array.fromBase64</code>/<code>toBase64</code> and the hex pair replace the common cases. Keep a library only for non-standard alphabets, streaming, or Node 24 and older.</p>
+<p><strong><code>Error.isError</code> versus <code>instanceof Error</code> — which should I use?</strong> <code>Error.isError</code> everywhere you inspect an unknown value, especially in a catch block. <code>instanceof</code> is fine only when you are certain there is a single realm.</p>
+<p><strong>Does <code>Math.sumPrecise</code> fix <code>0.1 + 0.2</code>?</strong> It fixes <em>summing</em> a list. The single addition <code>0.1 + 0.2</code> is a representation issue and is unchanged. For money, use integer cents or a decimal library.</p>
+<p><strong>What is the safest way to try these?</strong> Run the feature-detection script in Part 7 against your deployed runtime, then adopt in the order in 7.3. Nothing here requires a build change except <code>using</code>.</p>
+<p><strong>Which one will I actually notice?</strong> <code>Temporal</code> and <code>Map.getOrInsert</code>. The first because it deletes a class of time-zone bugs; the second because you write it by hand at least once a week.</p>
+<p><strong>Where do I check a stage?</strong> <code>https://github.com/tc39/proposals</code> — <code>README.md</code> for live work, <code>finished-proposals.md</code> for what shipped and in which edition.</p>
+<h3 id="next-steps-in-order">Next steps, in order</h3>
+<ol>
+<li><strong>Today:</strong> run the Part 7 detection script on your runtime and note the gaps.</li>
+<li><strong>This week:</strong> replace <code>instanceof Error</code> with <code>Error.isError</code> and base64 helpers with <code>Uint8Array.fromBase64</code>.</li>
+<li><strong>Next week:</strong> add <code>getOrInsertComputed</code> to your caching layer and <code>Math.sumPrecise</code> to test helpers.</li>
+<li><strong>Week 3:</strong> fix one big-integer JSON round-trip with <code>context.source</code> and <code>JSON.rawJSON</code>.</li>
+<li><strong>Week 4:</strong> convert one <code>Date</code>-heavy module to <code>Temporal</code> behind the polyfill.</li>
+<li><strong>Month 2:</strong> read the Stage 3 watchlist and pick one feature to track, not adopt.</li>
+</ol>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p><strong>Verified as of September 2026 from TC39 and runtime primary sources:</strong></p>
+<ul>
+<li><strong>ES2026 is the 17th edition of ECMA-262</strong>, ratified by Ecma International on 30 June 2026, containing exactly seven features, all API additions with no new syntax (TC39 <code>finished-proposals.md</code>; Ecma approval reporting).</li>
+<li><strong>The seven:</strong> <code>Array.fromAsync</code>, <code>Error.isError</code>, <code>Math.sumPrecise</code>, <code>Uint8Array</code> base64/hex (<code>fromBase64</code>, <code>toBase64</code>, <code>fromHex</code>, <code>toHex</code>), <code>Iterator.concat</code> (Iterator Sequencing), <code>JSON.parse</code> source text access with <code>JSON.rawJSON</code>/<code>JSON.isRawJSON</code>, and <code>Map</code>/<code>WeakMap</code> <code>getOrInsert</code>/<code>getOrInsertComputed</code> (the Upsert proposal) — each carrying an Expected Publication Year of 2026 in <code>finished-proposals.md</code>.</li>
+<li><strong><code>Temporal</code> reached Stage 4 in March 2026 and is published in ES2027</strong>, not ES2026; its Expected Publication Year in <code>finished-proposals.md</code> is 2027. Firefox v139, Chrome v144, Edge v144 announced support; Node.js 26 enables Temporal by default (Node.js 26.0.0 release notes, 2026-05-05, V8 14.6).</li>
+<li><strong>Explicit Resource Management (<code>using</code> / <code>await using</code>) is Stage 4 and published in ES2027</strong> (<code>finished-proposals.md</code>), shipping in Chrome, Node.js, Deno, with Babel and TypeScript support.</li>
+<li><strong>Also in ES2027 per <code>finished-proposals.md</code>:</strong> <code>Atomics.pause</code> and Joint Iteration.</li>
+<li><strong>Stage 3 in 2026</strong> includes Deferring Module Evaluation (<code>import defer</code>), Source Phase Imports (<code>import source</code>), Import Text, Iterator Includes, Iterator Join, Iterator Chunking, Await Dictionary (<code>Promise.allKeyed</code>), Error Stack Accessor, RegExp Buffer Boundaries, and Dynamic Code Brand Checks (TC39 proposals table; tc39.es current candidates).</li>
+<li><strong>Decorators</strong> were presented for Stage 2.7 at the May 2026 plenary and are not in any edition; TypeScript 5.0+ and Babel implement the Stage 3 shape (proposals.fyi; TC39 May 2026 agenda).</li>
+<li><strong>Records &amp; Tuples was withdrawn in April 2025</strong> and replaced in scope by the <strong>Composites</strong> Stage 1 proposal; it has shipped nowhere (TC39 record-tuple withdrawal issue; <code>tc39.es/proposal-composites</code>).</li>
+<li><strong>Import Attributes and JSON Modules are ES2025, not ES2026</strong> (<code>finished-proposals.md</code> shows an Expected Publication Year of 2025), as are the new <code>Set</code> methods, iterator helpers, <code>Promise.try</code>, and <code>RegExp.escape</code>.</li>
+<li><strong>Node.js type stripping</strong> is stable (v24.12.0 / v25.2.0), enabled by default since v23.6.0 / v22.18.0, ignores <code>tsconfig.json</code>, and does not support syntax requiring code generation (Node.js TypeScript documentation).</li>
+</ul>
+<p><strong>Where I am relying on third-party analysis rather than a primary source:</strong> the per-feature Node and browser version columns in Part 7 are compiled from MDN compatibility tables and release reporting, not from a per-feature vendor announcement. MDN&#39;s tables are themselves aggregated, so treat those columns as a starting point and confirm the specific feature on MDN for your target before depending on a version. In particular, <code>Math.sumPrecise</code> had not shipped in Node as of this check — it needs a V8 version newer than Node 26 carries — so do not treat it as available server-side yet. The &quot;adoption order&quot; and &quot;what to delete&quot; recommendations are my synthesis, not spec text.</p>
+<p><strong>Vendor and third-party claims, not independently verified:</strong> the exact browser version at which each engine shipped a feature, and any claim about which engine was first. Engine blogs and MDN tables move; re-check before asserting a version.</p>
+<p><strong>Changes fast:</strong> stage numbers advance at roughly two-month intervals, engines ship between them, and Safari&#39;s <code>Temporal</code> status has been partial and moving. Re-check MDN and <code>node --version</code> before depending on any status in this guide.</p>
+<p><strong>Not legal or financial advice.</strong> <code>Math.sumPrecise</code> improves summation but is not a decimal type; do not treat it as sufficient for regulated monetary arithmetic.</p>
+<hr>
+</section><section id="your-setup-notes-mac--vs-code--opencode"><h2 id="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</h2>
+<p><strong>How I&#39;d fold this into my own stack.</strong></p>
+<table>
+<thead>
+<tr>
+<th>In my workspace</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A Node 24/26 backend</td>
+<td>Take the whole ES2026 set now; they are additive and safe</td>
+</tr>
+<tr>
+<td>Any cache or grouping <code>Map</code></td>
+<td><code>getOrInsertComputed</code> removes the boilerplate today</td>
+</tr>
+<tr>
+<td>Database IDs as strings in JSON</td>
+<td>Add <code>context.source</code>; this is a real correctness fix, not a nicety</td>
+</tr>
+<tr>
+<td>Existing <code>Date</code> usage</td>
+<td>Convert one module to <code>Temporal</code> first, behind the polyfill</td>
+</tr>
+<tr>
+<td>A service I deploy myself</td>
+<td><code>using</code> is available; use it for file handles and DB connections</td>
+</tr>
+<tr>
+<td>A library meant to run anywhere</td>
+<td>Stay on ES2025 features plus polyfills; skip <code>using</code> syntax</td>
+</tr>
+<tr>
+<td>A build pipeline</td>
+<td>Nothing changes for the seven; <code>using</code> needs a target bump</td>
+</tr>
+</tbody></table>
+<p><strong>Recommended setup:</strong></p>
+<ul>
+<li><strong>Feature-detect on the real runtime.</strong> The Part 7 script takes a minute and settles every argument about &quot;is it available&quot;.</li>
+<li><strong>Keep the TC39 page pinned.</strong> <code>finished-proposals.md</code> is the single source of truth for the edition question.</li>
+<li><strong>One polyfill, imported once.</strong> <code>@js-temporal/polyfill</code> at the entry point, or gated behind a dynamic import. Never both.</li>
+<li><strong>Let the editor do the type work.</strong> A TypeScript <code>lib</code> of <code>ES2024</code>/<code>ES2025</code> will flag the new globals; raise it when you adopt.</li>
+<li><strong>Prefer the narrowest <code>Temporal</code> type.</strong> <code>PlainDate</code> for dates, <code>ZonedDateTime</code> only when a zone genuinely matters.</li>
+<li><strong>What I would not do:</strong> wait for pattern matching or Records &amp; Tuples, or transpile <code>using</code> into a library that must run everywhere. Neither earns the cost yet.</li>
+</ul>
+<p><strong>Smoke test for the first session, in order:</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code># 1. what runtime am I actually on?
+node --version
+
+# 2. what does it have? (paste the Part 7 script into check.mjs)
+node check.mjs
+
+# 3. try the two headline features directly
+node --input-type=module -e &quot;console.log(Temporal.Now.instant().toString())&quot;
+node --input-type=module -e &quot;const m=new Map(); console.log(m.getOrInsert('a',1))&quot;</code></pre></div>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Web Platform</span> · 7 parts · ~23 min · Generated from <code>markdown_docs/17-es2026-javascript-features.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>

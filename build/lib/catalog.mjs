@@ -30,6 +30,9 @@ export const GUIDES = {
   "14-modern-css-2026": { category: "Web Platform", order: 14 },
   "15-recent-ai-features-2026": { category: "AI & Agents", order: 15 },
   "16-chrome-extensions-2026": { category: "Workflow", order: 16 },
+  "17-es2026-javascript-features": { category: "Web Platform", order: 17 },
+  "18-nodejs-builtin-toolchain-2026": { category: "Infra & Dev Env", order: 18 },
+  "19-typescript-7-go-compiler-2026": { category: "Web Platform", order: 19 },
 };
 
 // Docs that are not reader-facing guides (meta / tooling material).
