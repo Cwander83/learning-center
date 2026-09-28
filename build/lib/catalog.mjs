@@ -33,6 +33,7 @@ export const GUIDES = {
   "17-es2026-javascript-features": { category: "Web Platform", order: 17 },
   "18-nodejs-builtin-toolchain-2026": { category: "Infra & Dev Env", order: 18 },
   "19-typescript-7-go-compiler-2026": { category: "Web Platform", order: 19 },
+  "20-angular-beginners-guide": { category: "Web Platform", order: 20 },
 };
 
 // Docs that are not reader-facing guides (meta / tooling material).

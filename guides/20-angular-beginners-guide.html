@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning Angular from Scratch in 2026 — Learning Center</title>
+<meta name="description" content="Angular is a full framework, not a library — it hands you components, routing, forms, data fetching, and a build tool that already agree with each other. This is the beginner's tour: what each piece is, what it does, and how it connects to the next piece.">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="20-angular-beginners-guide">
+<header class="topbar">
+  <a class="homebtn" href="../index.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/></svg>Home</a>
+  <span class="brand">Learning Angular from Scratch in 2026</span>
+  <button id="themeToggle" title="Toggle dark / light" aria-label="Toggle dark and light theme">
+    <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <span id="themeLabel">Dark</span>
+  </button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<details id="toc" class="toc" open>
+<summary class="tocsum">Contents<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#the-analogy-table" data-sec="the-analogy-table" class="sub">The analogy table</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--the-mental-model-what-angular-is-made-of" data-sec="part-1--the-mental-model-what-angular-is-made-of">Part 1 — The Mental Model: What Angular Is Made Of</a><a href="#11-components-draw-the-screen" data-sec="11-components-draw-the-screen" class="sub">1.1 Components draw the screen</a><a href="#12-signals-hold-the-state" data-sec="12-signals-hold-the-state" class="sub">1.2 Signals hold the state</a><a href="#13-services-hold-the-logic" data-sec="13-services-hold-the-logic" class="sub">1.3 Services hold the logic</a><a href="#14-dependency-injection-connects-them" data-sec="14-dependency-injection-connects-them" class="sub">1.4 Dependency injection connects them</a><a href="#15-the-router-decides-the-page" data-sec="15-the-router-decides-the-page" class="sub">1.5 The router decides the page</a><a href="#part-2--your-first-app-and-the-five-cli-commands-you-will-live-in" data-sec="part-2--your-first-app-and-the-five-cli-commands-you-will-live-in">Part 2 — Your First App, and the Five CLI Commands You Will Live In</a><a href="#21-install-and-create" data-sec="21-install-and-create" class="sub">2.1 Install and create</a><a href="#22-the-five-commands" data-sec="22-the-five-commands" class="sub">2.2 The five commands</a><a href="#23-what-got-created" data-sec="23-what-got-created" class="sub">2.3 What got created</a><a href="#part-3--components-the-building-block" data-sec="part-3--components-the-building-block">Part 3 — Components: The Building Block</a><a href="#31-the-anatomy" data-sec="31-the-anatomy" class="sub">3.1 The anatomy</a><a href="#32-showing-a-component-inside-another" data-sec="32-showing-a-component-inside-another" class="sub">3.2 Showing a component inside another</a><a href="#33-passing-data-in-inputs" data-sec="33-passing-data-in-inputs" class="sub">3.3 Passing data in: inputs</a><a href="#34-sending-data-out-outputs" data-sec="34-sending-data-out-outputs" class="sub">3.4 Sending data out: outputs</a><a href="#35-two-way-binding-model" data-sec="35-two-way-binding-model" class="sub">3.5 Two-way binding: <code>model()</code></a><a href="#part-4--templates-where-html-meets-data" data-sec="part-4--templates-where-html-meets-data">Part 4 — Templates: Where HTML Meets Data</a><a href="#41-the-binding-symbols" data-sec="41-the-binding-symbols" class="sub">4.1 The binding symbols</a><a href="#42-control-flow-if-for-switch" data-sec="42-control-flow-if-for-switch" class="sub">4.2 Control flow: <code>@if</code>, <code>@for</code>, <code>@switch</code></a><a href="#43-defer-load-part-of-the-page-later" data-sec="43-defer-load-part-of-the-page-later" class="sub">4.3 <code>@defer</code>: load part of the page later</a><a href="#part-5--signals-how-data-flows" data-sec="part-5--signals-how-data-flows">Part 5 — Signals: How Data Flows</a><a href="#51-reading-and-writing" data-sec="51-reading-and-writing" class="sub">5.1 Reading and writing</a><a href="#52-deriving-a-value-computed" data-sec="52-deriving-a-value-computed" class="sub">5.2 Deriving a value: <code>computed()</code></a><a href="#53-reacting-effect" data-sec="53-reacting-effect" class="sub">5.3 Reacting: <code>effect()</code></a><a href="#54-why-this-matters" data-sec="54-why-this-matters" class="sub">5.4 Why this matters</a><a href="#part-6--services-and-dependency-injection" data-sec="part-6--services-and-dependency-injection">Part 6 — Services and Dependency Injection</a><a href="#61-why-services-exist" data-sec="61-why-services-exist" class="sub">6.1 Why services exist</a><a href="#62-creating-one" data-sec="62-creating-one" class="sub">6.2 Creating one</a><a href="#63-using-one" data-sec="63-using-one" class="sub">6.3 Using one</a><a href="#64-the-mental-picture" data-sec="64-the-mental-picture" class="sub">6.4 The mental picture</a><a href="#part-7--routing-many-pages-one-app" data-sec="part-7--routing-many-pages-one-app">Part 7 — Routing: Many Pages, One App</a><a href="#71-declaring-routes" data-sec="71-declaring-routes" class="sub">7.1 Declaring routes</a><a href="#72-the-outlet-and-the-links" data-sec="72-the-outlet-and-the-links" class="sub">7.2 The outlet and the links</a><a href="#73-reading-route-parameters" data-sec="73-reading-route-parameters" class="sub">7.3 Reading route parameters</a><a href="#74-the-shape-of-a-real-app" data-sec="74-the-shape-of-a-real-app" class="sub">7.4 The shape of a real app</a><a href="#part-8--forms-collecting-input" data-sec="part-8--forms-collecting-input">Part 8 — Forms: Collecting Input</a><a href="#81-the-three-approaches" data-sec="81-the-three-approaches" class="sub">8.1 The three approaches</a><a href="#82-which-to-choose" data-sec="82-which-to-choose" class="sub">8.2 Which to choose</a><a href="#part-9--talking-to-a-server" data-sec="part-9--talking-to-a-server">Part 9 — Talking to a Server</a><a href="#91-the-modern-way-httpresource" data-sec="91-the-modern-way-httpresource" class="sub">9.1 The modern way: <code>httpResource</code></a><a href="#92-when-you-need-httpclient-directly" data-sec="92-when-you-need-httpclient-directly" class="sub">9.2 When you need <code>HttpClient</code> directly</a><a href="#part-10--styling-and-the-component-ecosystem" data-sec="part-10--styling-and-the-component-ecosystem">Part 10 — Styling and the Component Ecosystem</a><a href="#101-component-styles-are-scoped" data-sec="101-component-styles-are-scoped" class="sub">10.1 Component styles are scoped</a><a href="#102-three-ways-to-get-components-you-did-not-write" data-sec="102-three-ways-to-get-components-you-did-not-write" class="sub">10.2 Three ways to get components you did not write</a><a href="#103-images" data-sec="103-images" class="sub">10.3 Images</a><a href="#part-11--performance-and-rendering-without-the-deep-dive" data-sec="part-11--performance-and-rendering-without-the-deep-dive">Part 11 — Performance and Rendering, Without the Deep Dive</a><a href="#part-12--testing-and-the-developer-toolchain" data-sec="part-12--testing-and-the-developer-toolchain">Part 12 — Testing and the Developer Toolchain</a><a href="#121-testing" data-sec="121-testing" class="sub">12.1 Testing</a><a href="#122-the-tools-around-you" data-sec="122-the-tools-around-you" class="sub">12.2 The tools around you</a><a href="#part-13--how-it-all-fits-together" data-sec="part-13--how-it-all-fits-together">Part 13 — How It All Fits Together</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheet" data-sec="cheat-sheet">Cheat Sheet</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--docs" data-sec="written-references--docs">Written References &amp; Docs</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#next-steps-in-order" data-sec="next-steps-in-order" class="sub">Next steps, in order</a><a href="#verification-note" data-sec="verification-note">Verification Note</a><a href="#your-setup-notes-mac--vs-code--opencode" data-sec="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</a></div>
+</nav>
+</details>
+<main>
+<h1>Learning Angular from Scratch in 2026</h1>
+<div class="callout lede">Angular is a full framework, not a library — it hands you components, routing, forms, data fetching, and a build tool that already agree with each other. This is the beginner&#39;s tour: what each piece is, what it does, and how it connects to the next piece.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>If you have used React or Vue, the first thing to understand about Angular is that it is bigger. React gives you a way to build a UI and then leaves you to choose a router, a form approach, a data-fetching layer, and a build tool. Angular ships all of those already wired together, plus a command-line tool that generates the files. That is the whole trade: <strong>less choosing, more framework.</strong></p>
+<p>The second thing to understand is that Angular has changed a lot recently, and a lot of advice online is out of date. If a tutorial talks about <code>NgModules</code>, <code>*ngIf</code>, <code>@Input()</code> decorators, or Zone.js as something you should reach for, it is describing the Angular of several years ago. As of Angular 22 (June 2026), the defaults are <strong>standalone components</strong>, <strong>signals</strong> for state, <strong>built-in control flow</strong> in templates, and <strong>no Zone.js at all</strong>. This guide teaches the 2026 shape, and points out the old names where you will still see them.</p>
+<p>Here is the mental model, and everything else in this guide is a detail hanging off it:</p>
+<div class="codewrap"><pre data-lang=""><code>   AN ANGULAR APP IS A TREE OF COMPONENTS
+
+                      AppComponent            ← the root, bootstrapped in main.ts
+                      ┌─────┴─────┐
+                 Header        RouterOutlet     ← where the Router shows the page
+                                  │
+                    ┌─────────────┼─────────────┐
+                ProductList   CartPage      CheckoutPage   ← one component per page
+                    │
+               ProductCard    ← a child component, reused in a loop
+
+   AND FIVE SERVICES HANGING OFF THE WHOLE TREE
+
+   ┌───────────────────────────────────────────────────────────────┐
+   │  Router   →  decides which component shows for the URL        │
+   │  Forms    →  tracks typed-in values and validation            │
+   │  HTTP     →  talks to your server                             │
+   │  Signals  →  holds state and tells Angular what changed       │
+   │  DI       →  the system that delivers all of the above        │
+   └───────────────────────────────────────────────────────────────┘
+
+   THE TOOLCHAIN AROUND IT
+
+   ng new     →  create a project        ng serve  →  run it locally
+   ng generate →  create a file          ng build  →  make the deployable output
+   ng test    →  run your tests          ng update →  move to a newer version</code></pre></div>
+<p>The one rule that ties it together: <strong>a component owns one piece of screen, a service owns one piece of logic, and dependency injection is how the component gets the service.</strong> Get comfortable with that sentence and the framework stops feeling large.</p>
+<h3 id="the-analogy-table">The analogy table</h3>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English analogy</th>
+<th>Why it matters to you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Component</strong></td>
+<td>A custom HTML tag with behaviour</td>
+<td>The unit you build the screen out of</td>
+</tr>
+<tr>
+<td><strong>Template</strong></td>
+<td>The component&#39;s HTML</td>
+<td>Where data shows up and clicks are handled</td>
+</tr>
+<tr>
+<td><strong>Directive</strong></td>
+<td>A behaviour you attach to an element</td>
+<td>Adds functionality without a new component</td>
+</tr>
+<tr>
+<td><strong>Pipe</strong></td>
+<td>A function in the template</td>
+<td>Formats a value for display, like a date</td>
+</tr>
+<tr>
+<td><strong>Service</strong></td>
+<td>A shared helper class</td>
+<td>One place for logic many components need</td>
+</tr>
+<tr>
+<td><strong>Dependency injection</strong></td>
+<td>A request desk, not a factory</td>
+<td>You ask for a service; Angular supplies it</td>
+</tr>
+<tr>
+<td><strong>Signal</strong></td>
+<td>A value that announces its own changes</td>
+<td>How Angular knows what to re-render</td>
+</tr>
+<tr>
+<td><strong>Router</strong></td>
+<td>The app&#39;s traffic controller</td>
+<td>Maps URLs to components</td>
+</tr>
+<tr>
+<td><strong>Router outlet</strong></td>
+<td>A placeholder the router fills in</td>
+<td>Where the current page renders</td>
+</tr>
+<tr>
+<td><strong>Form</strong></td>
+<td>A structured way to collect input</td>
+<td>Tracks values, validity, and errors together</td>
+</tr>
+<tr>
+<td><strong><code>httpResource</code></strong></td>
+<td>A live connection to a URL</td>
+<td>Fetches data and reports loading and errors</td>
+</tr>
+<tr>
+<td><strong>CLI</strong></td>
+<td>The project&#39;s control panel</td>
+<td>Creates, runs, builds, and upgrades everything</td>
+</tr>
+<tr>
+<td><strong>Standalone component</strong></td>
+<td>Self-contained, no module wrapper</td>
+<td>The modern default; imports what it needs</td>
+</tr>
+<tr>
+<td><strong>Zoneless</strong></td>
+<td>No background watcher</td>
+<td>Change detection is driven by signals, not events</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The one-sentence version:</strong> Angular is a connected set of pieces — components draw the screen, signals hold the state, services hold the logic, DI connects them, and the router decides which screen you are on — and once you can draw that wiring diagram from memory, the rest is practice.</p>
+</blockquote>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>Angular is a framework</strong>, so routing, forms, HTTP, state, and the build tool are included and designed to work together. You are not assembling a stack.</li>
+<li><strong>The current major version is Angular 22</strong>, released 3 June 2026. A major lands roughly once a year, so v23 is expected around mid-2027.</li>
+<li><strong>Components are the building block.</strong> A component is a TypeScript class plus an HTML template plus a selector, joined by one <code>@Component</code> decorator.</li>
+<li><strong>Signals are how data flows.</strong> <code>signal()</code> holds a value, <code>computed()</code> derives one, <code>effect()</code> reacts to one. When a template reads a signal, Angular updates that part of the page automatically.</li>
+<li><strong>Services hold shared logic</strong>, and <code>inject()</code> is how a component asks for one. In Angular 22 there is now a short <code>@Service()</code> decorator alongside the classic <code>@Injectable({ providedIn: &#39;root&#39; })</code>.</li>
+<li><strong>Templates use built-in blocks:</strong> <code>@if</code>, <code>@for</code>, <code>@switch</code>, and <code>@defer</code>. The old <code>*ngIf</code> and <code>*ngFor</code> are legacy.</li>
+<li><strong>The router maps URLs to components</strong>, with <code>&lt;router-outlet&gt;</code> marking where the page appears. Big pages can load on demand with <code>loadComponent</code>.</li>
+<li><strong>Angular 22 has Signal Forms</strong>, a new stable way to build forms on signals. Reactive forms are still fine and still supported.</li>
+<li><strong><code>httpResource</code> fetches data</strong> and gives you loading, error, and value as signals. It graduated to stable in Angular 22.</li>
+<li><strong>The defaults are already fast:</strong> no Zone.js, <code>OnPush</code> change detection by default, server-side rendering available from the CLI, and Vitest as the test runner.</li>
+</ol>
+<p>If you read nothing else, read <strong>Part 1 (the mental model)</strong> and <strong>Part 3 (components)</strong>.</p>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Why</th>
+<th>Check</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Node.js 22.22+, 24.13.1+, or 26+</td>
+<td>Angular 22 requires one of these</td>
+<td><code>node --version</code></td>
+</tr>
+<tr>
+<td>Basic HTML and CSS</td>
+<td>Templates are HTML; styling is CSS</td>
+<td>comfort</td>
+</tr>
+<tr>
+<td>Basic TypeScript</td>
+<td>Components and services are TS classes</td>
+<td><code>let</code>/<code>const</code>, types, classes</td>
+</tr>
+<tr>
+<td>A terminal</td>
+<td>The CLI is how you create and run everything</td>
+<td>any shell</td>
+</tr>
+<tr>
+<td>A code editor</td>
+<td>VS Code plus the Angular Language Service is the common path</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>You do not need to know TypeScript deeply to start.</strong> You need classes, types, and functions. Decorators are the one Angular-flavoured idea, and they are explained the first time they appear in Part 3.</p>
+</blockquote>
+<blockquote>
+<p><strong>A note on versions.</strong> Angular 22 pins TypeScript to <code>&gt;=6.0.0 &lt;6.1.0</code>, and older TypeScript versions are not supported. If a tutorial insists on TypeScript 5, it predates this version. Also note that Angular majors are supported for about 24 months — six months active plus LTS — which is why the version in a tutorial matters.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--the-mental-model-what-angular-is-made-of"><h2 id="part-1--the-mental-model-what-angular-is-made-of">Part 1 — The Mental Model: What Angular Is Made Of</h2>
+<p>Before any code, get the five pieces and their jobs straight. Every remaining part of this guide is one of these five, in more detail.</p>
+<h3 id="11-components-draw-the-screen">1.1 Components draw the screen</h3>
+<p>A <strong>component</strong> is a reusable piece of interface. It has three parts working together: a class (the behaviour), a template (the HTML), and a selector (the tag name you use elsewhere). Angular composes components into a tree, with one root component at the top.</p>
+<p>Think of each component as a custom HTML element. You define <code>&lt;app-product-card&gt;</code>, and from then on you use it like any other tag.</p>
+<h3 id="12-signals-hold-the-state">1.2 Signals hold the state</h3>
+<p>A <strong>signal</strong> is a box holding a value that announces when the value changes. Angular watches which parts of a template read which signals, and updates only those parts when the value moves. This is how modern Angular knows what to re-render, and it is why the framework no longer needs to watch everything for you.</p>
+<p>You will meet three: <code>signal()</code> for a value you change, <code>computed()</code> for a value derived from others, and <code>effect()</code> for running code when values change.</p>
+<h3 id="13-services-hold-the-logic">1.3 Services hold the logic</h3>
+<p>A <strong>service</strong> is a plain class for logic that is not about a single piece of screen — fetching data, keeping a shopping cart, formatting addresses. You make one so that several components can share the same behaviour instead of each re-implementing it.</p>
+<h3 id="14-dependency-injection-connects-them">1.4 Dependency injection connects them</h3>
+<p><strong>Dependency injection (DI)</strong> is the system that delivers services to the components that ask for them. You do not construct a service yourself; you request it, and Angular hands you the instance.</p>
+<p>The everyday tool here is the <code>inject()</code> function: <code>private cart = inject(CartService);</code>. One line, and the component has a working cart service.</p>
+<h3 id="15-the-router-decides-the-page">1.5 The router decides the page</h3>
+<p>The <strong>router</strong> watches the browser URL and decides which component is the current page. When the URL changes, the router swaps in a different component in place of the <code>&lt;router-outlet&gt;</code> marker. This is what makes it a multi-page-feeling app while staying a single-page application.</p>
+<div class="codewrap"><pre data-lang=""><code>   A REQUEST TO /products/42, END TO END
+
+   URL changes to /products/42
+        │
+        ▼
+   Router matches the route  ──  loadComponent() fetches that page's code
+        │
+        ▼
+   ProductDetail component renders inside &lt;router-outlet&gt;
+        │
+        ▼
+   Component reads a signal  ──  signal value comes from a service
+        │
+        ▼
+   Service calls httpResource()  ──  GET /api/products/42
+        │
+        ▼
+   Response arrives  ──  the signal updates  ──  the page updates</code></pre></div>
+<p>That diagram is the whole framework in six lines. The rest of this guide walks each step.</p>
+<blockquote>
+<p><strong>The old vocabulary, for when you meet it.</strong> Older tutorials call the state layer &quot;RxJS Observables&quot;, the component structure &quot;NgModules&quot;, and the template conditionals <code>*ngIf</code>. All three still exist, and all three are no longer the recommended default. When you see them, translate: Observables → signals at the edge, NgModules → standalone components, <code>*ngIf</code> → <code>@if</code>.</p>
+</blockquote>
+<hr>
+</section><section id="part-2--your-first-app-and-the-five-cli-commands-you-will-live-in"><h2 id="part-2--your-first-app-and-the-five-cli-commands-you-will-live-in">Part 2 — Your First App, and the Five CLI Commands You Will Live In</h2>
+<h3 id="21-install-and-create">2.1 Install and create</h3>
+<div class="codewrap"><pre data-lang="bash"><code># once, globally
+npm install -g @angular/cli
+
+# create a project, then run it
+ng new my-app
+cd my-app
+ng serve --open</code></pre></div>
+<p><code>ng new</code> asks a couple of questions — routing, and your stylesheet format — and then generates a working app. You can accept the defaults on every prompt. <code>ng serve --open</code> starts a development server on <code>http://localhost:4200</code>, watches your files, and reloads the browser as you save. There is no separate build step in development.</p>
+<h3 id="22-the-five-commands">2.2 The five commands</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What it does</th>
+<th>When you use it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ng new my-app</code></td>
+<td>Creates a workspace and a starter app</td>
+<td>Once, at the start</td>
+</tr>
+<tr>
+<td><code>ng serve</code></td>
+<td>Runs it locally with live reload</td>
+<td>All day, while building</td>
+</tr>
+<tr>
+<td><code>ng generate component cart</code></td>
+<td>Creates the files for a new piece</td>
+<td>Whenever you add one</td>
+</tr>
+<tr>
+<td><code>ng build</code></td>
+<td>Produces the deployable output in <code>dist/</code></td>
+<td>Before you ship</td>
+</tr>
+<tr>
+<td><code>ng test</code></td>
+<td>Runs the unit tests</td>
+<td>As you go, and in CI</td>
+</tr>
+</tbody></table>
+<p><code>ng generate</code> has short aliases for everything: <code>ng g c cart</code> makes a component, <code>ng g s cart</code> makes a service, <code>ng g guard auth</code> makes a route guard. This is how you will create most files — you rarely write the boilerplate by hand.</p>
+<h3 id="23-what-got-created">2.3 What got created</h3>
+<div class="codewrap"><pre data-lang=""><code>   my-app/
+   ├── src/
+   │   ├── app/
+   │   │   ├── app.ts            ← the root component (Angular 22 naming)
+   │   │   ├── app.html          ← its template
+   │   │   └── app.config.ts     ← app-wide providers (router, HTTP, …)
+   │   ├── main.ts               ← bootstrap: starts Angular
+   │   ├── index.html            ← the single HTML page
+   │   └── styles.css            ← global styles
+   ├── angular.json              ← CLI and build configuration
+   ├── package.json              ← scripts and dependencies
+   └── tsconfig.json             ← TypeScript settings</code></pre></div>
+<p>Two files matter immediately. <strong><code>main.ts</code></strong> is where the app starts, and it names the root component. <strong><code>app.config.ts</code></strong> is where app-wide settings are registered — this is where you add the router, HTTP, and anything else that should exist once for the whole application.</p>
+<blockquote>
+<p><strong>Note the modern naming.</strong> Newer Angular projects name the root files <code>app.ts</code> / <code>app.html</code> rather than <code>app.component.ts</code>. Both patterns are valid; the shorter one is the current CLI default. Do not let a difference in filenames confuse you — the structure is identical.</p>
+</blockquote>
+<hr>
+</section><section id="part-3--components-the-building-block"><h2 id="part-3--components-the-building-block">Part 3 — Components: The Building Block</h2>
+<h3 id="31-the-anatomy">3.1 The anatomy</h3>
+<p>A component is a class with one decorator above it. The decorator is the glue that says &quot;this class draws this template, under this tag name.&quot;</p>
+<div class="codewrap"><pre data-lang="ts"><code>import { Component, signal } from '@angular/core';
+
+@Component({
+  selector: 'app-counter',        // the tag you use elsewhere: &lt;app-counter /&gt;
+  templateUrl: './counter.html',  // the HTML, or use `template:` for inline
+  styleUrl: './counter.css',      // styles scoped to this component
+})
+export class Counter {
+  count = signal(0);              // state lives here
+
+  increment() {
+    this.count.update((n) =&gt; n + 1);
+  }
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="html"><code>&lt;!-- counter.html --&gt;
+&lt;p&gt;Count: {{ count() }}&lt;/p&gt;
+&lt;button (click)=&quot;increment()&quot;&gt;Add one&lt;/button&gt;</code></pre></div>
+<p>Three things to notice, because they are the heart of Angular:</p>
+<ul>
+<li><strong><code>{{ count() }}</code></strong> prints a value. You call the signal like a function to read it.</li>
+<li><strong><code>(click)=&quot;increment()&quot;</code></strong> listens for an event. Parentheses mean &quot;listen&quot;.</li>
+<li><strong><code>[someProp]=&quot;value&quot;</code></strong> (not shown yet) would pass a value in. Square brackets mean &quot;bind&quot;.</li>
+</ul>
+<p>Those two symbols — <code>()</code> and <code>[]</code> — carry most of a template&#39;s meaning. You will use them constantly.</p>
+<h3 id="32-showing-a-component-inside-another">3.2 Showing a component inside another</h3>
+<p>Components are standalone by default in modern Angular, which means a component lists whatever it needs in its own <code>imports</code> array. To use <code>&lt;app-counter&gt;</code>, another component imports it:</p>
+<div class="codewrap"><pre data-lang="ts"><code>import { Component } from '@angular/core';
+import { Counter } from './counter';
+
+@Component({
+  selector: 'app-home',
+  imports: [Counter],              // ← this is what makes &lt;app-counter&gt; available
+  template: `
+    &lt;h1&gt;Home&lt;/h1&gt;
+    &lt;app-counter /&gt;
+    &lt;app-counter /&gt;
+  `,
+})
+export class Home {}</code></pre></div>
+<p>Two <code>&lt;app-counter /&gt;</code> tags, two independent counters. That is component reuse.</p>
+<blockquote>
+<p><strong>If a component does not render, check the <code>imports</code> array first.</strong> Forgetting to import a component — or a directive, or a pipe — is the single most common beginner error in Angular, and the fix is always the same.</p>
+</blockquote>
+<h3 id="33-passing-data-in-inputs">3.3 Passing data in: inputs</h3>
+<p>An <strong>input</strong> is data handed down from a parent to a child. In modern Angular you declare it with the <code>input()</code> function, which creates a signal.</p>
+<div class="codewrap"><pre data-lang="ts"><code>import { Component, input } from '@angular/core';
+
+@Component({
+  selector: 'app-product-card',
+  template: `&lt;h2&gt;{{ name() }}&lt;/h2&gt;&lt;p&gt;{{ price() }}&lt;/p&gt;`,
+})
+export class ProductCard {
+  name = input.required&lt;string&gt;();   // must be provided
+  price = input(0);                  // optional, with a default
+}</code></pre></div>
+<p>The parent passes values with square brackets:</p>
+<div class="codewrap"><pre data-lang="html"><code>&lt;app-product-card [name]=&quot;product.name&quot; [price]=&quot;product.price&quot; /&gt;</code></pre></div>
+<p><code>input.required&lt;string&gt;()</code> tells TypeScript that <code>name</code> will always exist, so you never have to handle &quot;maybe undefined&quot;. It is a small thing that removes a whole class of bugs.</p>
+<h3 id="34-sending-data-out-outputs">3.4 Sending data out: outputs</h3>
+<p>An <strong>output</strong> is an event sent up from a child to a parent — &quot;the user clicked save&quot;, &quot;the field changed&quot;. You declare one with <code>output()</code> and emit from it.</p>
+<div class="codewrap"><pre data-lang="ts"><code>import { Component, output } from '@angular/core';
+
+@Component({
+  selector: 'app-save-button',
+  template: `&lt;button (click)=&quot;saved.emit(true)&quot;&gt;Save&lt;/button&gt;`,
+})
+export class SaveButton {
+  saved = output&lt;boolean&gt;();
+}</code></pre></div>
+<p>The parent listens with parentheses:</p>
+<div class="codewrap"><pre data-lang="html"><code>&lt;app-save-button (saved)=&quot;onSaved($event)&quot; /&gt;</code></pre></div>
+<h3 id="35-two-way-binding-model">3.5 Two-way binding: <code>model()</code></h3>
+<p>When a value should flow both ways — the child can both receive and update it — use <code>model()</code>. The parent binds with <code>[(value)]</code>, the &quot;banana in a box&quot; syntax you will see in every Angular tutorial.</p>
+<div class="codewrap"><pre data-lang="ts"><code>export class NameField {
+  value = model('');       // child declares it
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="html"><code>&lt;app-name-field [(value)]=&quot;userName&quot; /&gt;</code></pre></div>
+<p>Data goes down as an input and comes back up as an output, and <code>model()</code> writes both halves for you.</p>
+<blockquote>
+<p><strong>The old way, briefly.</strong> You will see <code>@Input()</code> and <code>@Output()</code> decorators in older code, and they still work. The signal-based <code>input()</code>, <code>output()</code>, and <code>model()</code> functions are the current recommendation because they are typed, reactive, and need no setter/getter tricks. If you are learning now, learn the functions.</p>
+</blockquote>
+<hr>
+</section><section id="part-4--templates-where-html-meets-data"><h2 id="part-4--templates-where-html-meets-data">Part 4 — Templates: Where HTML Meets Data</h2>
+<h3 id="41-the-binding-symbols">4.1 The binding symbols</h3>
+<table>
+<thead>
+<tr>
+<th>You write</th>
+<th>Meaning</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>{{ value }}</code></td>
+<td>Print a value</td>
+<td><code>{{ user()?.name }}</code></td>
+</tr>
+<tr>
+<td><code>[property]=&quot;expr&quot;</code></td>
+<td>Pass data <em>in</em> to an element or component</td>
+<td><code>[disabled]=&quot;!form.valid()&quot;</code></td>
+</tr>
+<tr>
+<td><code>(event)=&quot;handler()&quot;</code></td>
+<td>Listen for an event</td>
+<td><code>(click)=&quot;save()&quot;</code></td>
+</tr>
+<tr>
+<td><code>[(property)]=&quot;x&quot;</code></td>
+<td>Two-way binding</td>
+<td><code>[(value)]=&quot;name&quot;</code></td>
+</tr>
+</tbody></table>
+<h3 id="42-control-flow-if-for-switch">4.2 Control flow: <code>@if</code>, <code>@for</code>, <code>@switch</code></h3>
+<p>Modern Angular puts conditionals and loops in the template as blocks, starting with <code>@</code>. They read like a mix of JavaScript and HTML, and they replaced the old <code>*ngIf</code> and <code>*ngFor</code> directives.</p>
+<div class="codewrap"><pre data-lang="html"><code>@if (user()) {
+  &lt;p&gt;Welcome back, {{ user().name }}.&lt;/p&gt;
+} @else {
+  &lt;p&gt;Please sign in.&lt;/p&gt;
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="html"><code>@for (product of products(); track product.id) {
+  &lt;app-product-card [name]=&quot;product.name&quot; [price]=&quot;product.price&quot; /&gt;
+} @empty {
+  &lt;p&gt;No products yet.&lt;/p&gt;
+}</code></pre></div>
+<p>Two details worth remembering. The <strong><code>track</code></strong> expression tells Angular which value identifies each item; without it, Angular cannot reuse DOM nodes efficiently and will warn you. And <strong><code>@empty</code></strong> gives you a built-in &quot;no items&quot; state, which removes the usual extra <code>@if</code> around the list.</p>
+<div class="codewrap"><pre data-lang="html"><code>@switch (status()) {
+  @case ('loading') { &lt;app-spinner /&gt; }
+  @case ('error')   { &lt;p&gt;Something went wrong.&lt;/p&gt; }
+  @default          { &lt;app-content /&gt; }
+}</code></pre></div>
+<h3 id="43-defer-load-part-of-the-page-later">4.3 <code>@defer</code>: load part of the page later</h3>
+<p><code>@defer</code> delays loading a section until it is actually needed — when it scrolls into view, when the browser is idle, or on a click. The code for that section ships as a separate chunk and only downloads when the trigger fires.</p>
+<div class="codewrap"><pre data-lang="html"><code>@defer (on viewport) {
+  &lt;app-heavy-chart /&gt;
+} @placeholder {
+  &lt;p&gt;Chart loads when you scroll to it.&lt;/p&gt;
+} @loading {
+  &lt;app-spinner /&gt;
+}</code></pre></div>
+<p>This is one of Angular&#39;s best performance features and it is a template block, not an infrastructure project. Use it for charts, maps, comment threads, and anything below the fold.</p>
+<blockquote>
+<p><strong>A small syntax note that trips people up.</strong> Block syntax needs to be on its own, and <code>@</code> inside a template (like in an email address) must be escaped as <code>&amp;#64;</code>. The CLI&#39;s migration handles this for existing code.</p>
+</blockquote>
+<hr>
+</section><section id="part-5--signals-how-data-flows"><h2 id="part-5--signals-how-data-flows">Part 5 — Signals: How Data Flows</h2>
+<p>Signals deserve their own part because they are the concept that most changed how Angular is written.</p>
+<h3 id="51-reading-and-writing">5.1 Reading and writing</h3>
+<div class="codewrap"><pre data-lang="ts"><code>import { signal } from '@angular/core';
+
+const count = signal(0);     // create, with an initial value
+count();                     // read: call it
+count.set(5);                // replace the value
+count.update((n) =&gt; n + 1);  // change based on the current value</code></pre></div>
+<p>There is deliberately no <code>mutate()</code>. You replace values rather than editing them in place, which makes changes easier to track.</p>
+<h3 id="52-deriving-a-value-computed">5.2 Deriving a value: <code>computed()</code></h3>
+<p>A computed signal is calculated from other signals and updates when they do. It memoises, so it only recalculates when something it depends on actually changes.</p>
+<div class="codewrap"><pre data-lang="ts"><code>const price = signal(20);
+const quantity = signal(3);
+const total = computed(() =&gt; price() * quantity());  // 60
+
+quantity.set(4);
+total();  // 64, recalculated because quantity changed</code></pre></div>
+<p>Use <code>computed()</code> for anything derived: totals, filtered lists, formatted labels, validity. It keeps derived state from drifting out of sync with its sources.</p>
+<h3 id="53-reacting-effect">5.3 Reacting: <code>effect()</code></h3>
+<p>An effect runs code when the signals it reads change. It is for side effects — syncing with a non-Angular library, writing to <code>localStorage</code>, logging — and it is the tool of last resort, because most things you want can be a <code>computed()</code> instead.</p>
+<div class="codewrap"><pre data-lang="ts"><code>effect(() =&gt; {
+  localStorage.setItem('theme', theme());
+});</code></pre></div>
+<blockquote>
+<p><strong>Reach for <code>computed()</code> before <code>effect()</code>.</strong> If you find yourself using an effect to keep one piece of state in sync with another, it is usually a computed signal in disguise, and the computed version cannot fall out of sync.</p>
+</blockquote>
+<h3 id="54-why-this-matters">5.4 Why this matters</h3>
+<p>When a template reads a signal, Angular remembers that connection. Change the signal, and Angular knows exactly which part of the page to update — nothing else. That precision is what lets the framework drop Zone.js entirely: it no longer has to watch every event &quot;just in case.&quot;</p>
+<blockquote>
+<p><strong>Observables are not gone.</strong> Angular still uses RxJS Observables in places, especially around HTTP when you want streaming or complex event handling. The modern bridge is <code>toSignal()</code>, which turns an Observable into a signal so the rest of your code can stay in signal-land. For a beginner, treat signals as the default and Observables as something you reach for later.</p>
+</blockquote>
+<hr>
+</section><section id="part-6--services-and-dependency-injection"><h2 id="part-6--services-and-dependency-injection">Part 6 — Services and Dependency Injection</h2>
+<h3 id="61-why-services-exist">6.1 Why services exist</h3>
+<p>A component should draw a piece of screen. Logic that is not about one piece of screen — fetching products, holding the cart, formatting money — belongs in a service that many components share. Putting it in a service also makes it testable in isolation.</p>
+<h3 id="62-creating-one">6.2 Creating one</h3>
+<div class="codewrap"><pre data-lang="bash"><code>ng generate service cart</code></pre></div>
+<div class="codewrap"><pre data-lang="ts"><code>import { Service, signal, computed } from '@angular/core';
+
+@Service()                          // Angular 22 shorthand
+export class CartService {
+  private items = signal&lt;string[]&gt;([]);
+  readonly count = computed(() =&gt; this.items().length);
+
+  add(item: string) {
+    this.items.update((list) =&gt; [...list, item]);
+  }
+}</code></pre></div>
+<p>The <code>@Service()</code> decorator is new in Angular 22 and is a short form of <code>@Injectable({ providedIn: &#39;root&#39; })</code>. &quot;Provided in root&quot; means Angular makes exactly one instance for the whole app and makes it available everywhere, without further setup. That single-shared-instance behaviour is why services are the natural home for shared state.</p>
+<blockquote>
+<p><strong>Classic versus modern.</strong> Older and current code both use <code>@Injectable({ providedIn: &#39;root&#39; })</code>, and it is not going away. <code>@Service()</code> is the newer, shorter form that also marks the class as a root singleton. There is one boundary worth knowing: <code>@Service()</code> supports <code>inject()</code> but not constructor-based dependency injection, and it does not take <code>useClass</code> / <code>useValue</code> / <code>useFactory</code> provider keys. If you need any of those, keep using <code>@Injectable</code>. For a beginner writing services with <code>inject()</code>, <code>@Service()</code> is the tidier default.</p>
+</blockquote>
+<h3 id="63-using-one">6.3 Using one</h3>
+<div class="codewrap"><pre data-lang="ts"><code>import { Component, inject } from '@angular/core';
+import { CartService } from './cart.service';
+
+@Component({
+  selector: 'app-cart-badge',
+  template: `&lt;span&gt;{{ cart.count() }} items&lt;/span&gt;`,
+})
+export class CartBadge {
+  cart = inject(CartService);      // one line: ask, and receive
+}</code></pre></div>
+<p><code>inject()</code> is the modern way to get a dependency. It works in a component&#39;s field initialisers, in a service, and in functions that run in an &quot;injection context&quot;, which is Angular&#39;s term for a place where asking is legal.</p>
+<h3 id="64-the-mental-picture">6.4 The mental picture</h3>
+<div class="codewrap"><pre data-lang=""><code>   You write:        cart = inject(CartService)
+   Angular does:     &quot;Do I already have a CartService instance?&quot;
+                       yes → hand it over
+                       no  → create one, remember it, hand it over
+
+   Because it is provided in root, every component that asks
+   gets the SAME instance. That is how the cart count in the
+   header and the cart page agree with each other.</code></pre></div>
+<hr>
+</section><section id="part-7--routing-many-pages-one-app"><h2 id="part-7--routing-many-pages-one-app">Part 7 — Routing: Many Pages, One App</h2>
+<h3 id="71-declaring-routes">7.1 Declaring routes</h3>
+<p>Routes are a list mapping a URL path to a component.</p>
+<div class="codewrap"><pre data-lang="ts"><code>// app.routes.ts
+import { Routes } from '@angular/router';
+
+export const routes: Routes = [
+  { path: '', loadComponent: () =&gt; import('./home/home') },
+  { path: 'products', loadComponent: () =&gt; import('./products/products') },
+  { path: 'products/:id', loadComponent: () =&gt; import('./product-detail/product-detail') },
+  { path: '**', loadComponent: () =&gt; import('./not-found/not-found') },
+];</code></pre></div>
+<p><code>loadComponent</code> fetches that page&#39;s code only when the route is visited, which keeps the first download small. The <code>:id</code> in <code>products/:id</code> is a route parameter — a value read from the URL. The <code>**</code> route catches everything unmatched, which is your 404 page.</p>
+<h3 id="72-the-outlet-and-the-links">7.2 The outlet and the links</h3>
+<p>Somewhere in your root component sits the marker where pages appear:</p>
+<div class="codewrap"><pre data-lang="html"><code>&lt;header&gt;
+  &lt;nav&gt;
+    &lt;a routerLink=&quot;/&quot;&gt;Home&lt;/a&gt;
+    &lt;a routerLink=&quot;/products&quot;&gt;Products&lt;/a&gt;
+  &lt;/nav&gt;
+&lt;/header&gt;
+
+&lt;router-outlet /&gt;</code></pre></div>
+<p><code>routerLink</code> navigates without a full page reload. <code>&lt;router-outlet /&gt;</code> is the hole the router fills with whichever component matches the current URL.</p>
+<h3 id="73-reading-route-parameters">7.3 Reading route parameters</h3>
+<div class="codewrap"><pre data-lang="ts"><code>import { Component, inject, input } from '@angular/core';
+
+@Component({ /* … */ })
+export class ProductDetail {
+  // with router input binding enabled, the :id maps straight to this input
+  id = input.required&lt;string&gt;();
+}</code></pre></div>
+<p>When you turn on component input binding (<code>withComponentInputBinding()</code>) in your router config, route parameters, query parameters, and static route data are delivered to your component as inputs — no manual subscription to the route object. It is another place where the modern API removes boilerplate you would once have written by hand.</p>
+<div class="codewrap"><pre data-lang="ts"><code>// app.config.ts
+providers: [provideRouter(routes, withComponentInputBinding())]</code></pre></div>
+<h3 id="74-the-shape-of-a-real-app">7.4 The shape of a real app</h3>
+<div class="codewrap"><pre data-lang=""><code>   /                  →  Home                (loaded eagerly: the landing page)
+   /products          →  ProductList          (lazy)
+   /products/:id      →  ProductDetail        (lazy, reads :id)
+   /cart              →  CartPage             (lazy)
+   /admin/**          →  AdminSection         (lazy, behind a guard)
+   **                 →  NotFound             (catch-all)</code></pre></div>
+<p>Guidance that holds up: load the landing page eagerly, and make everything else lazy. A guard is a function that can block or redirect a navigation — the usual use is &quot;you must be signed in for <code>/admin</code>&quot;.</p>
+<hr>
+</section><section id="part-8--forms-collecting-input"><h2 id="part-8--forms-collecting-input">Part 8 — Forms: Collecting Input</h2>
+<p>Forms are where beginners usually feel Angular&#39;s weight, so here is the short version of the decision.</p>
+<h3 id="81-the-three-approaches">8.1 The three approaches</h3>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Where it stands in Angular 22</th>
+<th>Use it when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Signal Forms</strong></td>
+<td>New and stable in v22</td>
+<td>New apps built on signals</td>
+</tr>
+<tr>
+<td><strong>Reactive forms</strong></td>
+<td>Long-standing, fully supported</td>
+<td>Existing apps, complex validation</td>
+</tr>
+<tr>
+<td><strong>Template-driven forms</strong></td>
+<td>Simple, still supported</td>
+<td>Tiny forms, quick prototypes</td>
+</tr>
+</tbody></table>
+<p>Signal Forms were introduced as experimental in Angular 21 and became stable in Angular 22. The idea: you keep your form data in a signal, and Angular derives the form structure and validation from it.</p>
+<div class="codewrap"><pre data-lang="ts"><code>import { form, required, email } from '@angular/forms/signals';
+
+login = form(
+  { email: '', password: '' },
+  (schema) =&gt; {
+    required(schema.email);
+    email(schema.email);
+    required(schema.password);
+  }
+);</code></pre></div>
+<div class="codewrap"><pre data-lang="html"><code>&lt;form&gt;
+  &lt;input [formField]=&quot;login.email&quot; /&gt;
+  @if (login.email().invalid() &amp;&amp; login.email().touched()) {
+    @for (error of login.email().errors(); track error.kind) {
+      &lt;p&gt;{{ error.message }}&lt;/p&gt;
+    }
+  }
+&lt;/form&gt;</code></pre></div>
+<p>One directive, <code>[formField]</code>, handles the binding. Validation rules are declared once in a schema and run automatically as values change, and each field exposes its state as signals — <code>value()</code>, <code>valid()</code>, <code>invalid()</code>, <code>touched()</code>, and <code>errors()</code>.</p>
+<h3 id="82-which-to-choose">8.2 Which to choose</h3>
+<p>If you are starting fresh on Angular 22, <strong>Signal Forms</strong> are the natural fit and are what the documentation now teaches. If you are joining a codebase that already uses <strong>reactive forms</strong>, stay there — they work, they are supported, and there is a compatibility layer (<code>@angular/forms/signals/compat</code>) so you can migrate gradually rather than all at once.</p>
+<blockquote>
+<p><strong>Do not learn all three at once.</strong> Learn one. The concepts of value, validity, touched, and error are the same in all of them; only the syntax differs.</p>
+</blockquote>
+<hr>
+</section><section id="part-9--talking-to-a-server"><h2 id="part-9--talking-to-a-server">Part 9 — Talking to a Server</h2>
+<h3 id="91-the-modern-way-httpresource">9.1 The modern way: <code>httpResource</code></h3>
+<p><code>httpResource</code> makes a request and hands you the result, the loading state, and the error as signals. Because it is reactive, it re-runs when the signals it depends on change, and cancels an in-flight request if a new one starts.</p>
+<div class="codewrap"><pre data-lang="ts"><code>import { Component, input } from '@angular/core';
+import { httpResource } from '@angular/common/http';
+
+@Component({ /* … */ })
+export class ProductDetail {
+  id = input.required&lt;string&gt;();
+
+  product = httpResource(() =&gt; `/api/products/${this.id()}`);
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="html"><code>@if (product.isLoading()) {
+  &lt;app-spinner /&gt;
+} @else if (product.error()) {
+  &lt;p&gt;Could not load that product.&lt;/p&gt;
+} @else {
+  &lt;h1&gt;{{ product.value().name }}&lt;/h1&gt;
+}</code></pre></div>
+<p>Notice how the <code>@if</code> blocks read the resource&#39;s own signals. Data fetching, loading, and error states all arrive through the same mechanism, so you rarely hand-roll a &quot;is loading&quot; flag again.</p>
+<h3 id="92-when-you-need-httpclient-directly">9.2 When you need <code>HttpClient</code> directly</h3>
+<p><code>httpResource</code> is for reads — fetching data to display. For writes (POST, PUT, DELETE) and for more involved cases, use <code>HttpClient</code>, which returns an Observable.</p>
+<div class="codewrap"><pre data-lang="ts"><code>import { inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+export class ProductService {
+  private http = inject(HttpClient);
+
+  createProduct(product: NewProduct) {
+    return this.http.post('/api/products', product);
+  }
+}</code></pre></div>
+<p>A useful line to remember: <strong><code>httpResource</code> for reads, <code>HttpClient</code> for writes.</strong> In Angular 22, the HTTP client uses the browser&#39;s Fetch API under the hood, and you only need to register <code>provideHttpClient()</code> when you are configuring something like interceptors.</p>
+<blockquote>
+<p><strong>Interceptors</strong>, mentioned above, are functions that can see and modify every outgoing request — adding an auth header, for example. You will meet them once you have an API to secure; you do not need them on day one.</p>
+</blockquote>
+<hr>
+</section><section id="part-10--styling-and-the-component-ecosystem"><h2 id="part-10--styling-and-the-component-ecosystem">Part 10 — Styling and the Component Ecosystem</h2>
+<h3 id="101-component-styles-are-scoped">10.1 Component styles are scoped</h3>
+<p>Styles written in a component&#39;s stylesheet apply only to that component&#39;s template. Two components can both style <code>.title</code> and they will not collide. This is one of Angular&#39;s quieter wins: you stop inventing class-name prefixes to avoid clashes.</p>
+<div class="codewrap"><pre data-lang="ts"><code>@Component({
+  selector: 'app-card',
+  template: `&lt;div class=&quot;card&quot;&gt;…&lt;/div&gt;`,
+  styles: `
+    .card { border: 1px solid #ddd; border-radius: 8px; }
+  `,
+})
+export class Card {}</code></pre></div>
+<p>Global styles still live in <code>styles.css</code>. For everything else, keep styles beside the component.</p>
+<h3 id="102-three-ways-to-get-components-you-did-not-write">10.2 Three ways to get components you did not write</h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>What it gives you</th>
+<th>Choose it when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Angular Material</strong></td>
+<td>Ready-made, styled components</td>
+<td>You want a finished look fast</td>
+</tr>
+<tr>
+<td><strong>Angular CDK</strong></td>
+<td>Behaviour with no styling</td>
+<td>You have your own design system</td>
+</tr>
+<tr>
+<td><strong>Angular Aria</strong></td>
+<td>Headless accessible patterns</td>
+<td>You want correct keyboard and ARIA behaviour, styled your way</td>
+</tr>
+</tbody></table>
+<p><strong>Angular Aria</strong> became stable in Angular 22 after a preview in 21. It provides the hard parts of complex widgets — a combobox, a menu, tabs, an accordion, a toolbar — including keyboard interactions, focus management, and ARIA attributes, while leaving the visuals to you. If you were dreading building an accessible dropdown from scratch, this is the package that does it for you.</p>
+<h3 id="103-images">10.3 Images</h3>
+<p>Angular ships an image directive that enforces good defaults:</p>
+<div class="codewrap"><pre data-lang="html"><code>&lt;img ngSrc=&quot;hero.jpg&quot; width=&quot;800&quot; height=&quot;400&quot; priority /&gt;</code></pre></div>
+<p><code>NgOptimizedImage</code> (imported from <code>@angular/common</code>) requires width and height so the page does not jump while loading, lazy-loads images by default, and — with the <code>priority</code> attribute — makes the main image load first. One attribute for the hero image is often the single easiest performance win on a page.</p>
+<hr>
+</section><section id="part-11--performance-and-rendering-without-the-deep-dive"><h2 id="part-11--performance-and-rendering-without-the-deep-dive">Part 11 — Performance and Rendering, Without the Deep Dive</h2>
+<p>You do not need to optimise on day one. What you should know is that the defaults are already good, and here is what each one means.</p>
+<table>
+<thead>
+<tr>
+<th>Default</th>
+<th>What it means in plain terms</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>No Zone.js</strong></td>
+<td>Angular updates by tracking signals, not by watching every browser event</td>
+</tr>
+<tr>
+<td><strong><code>OnPush</code> by default</strong></td>
+<td>Components re-render when their data actually changes, not on every event</td>
+</tr>
+<tr>
+<td><strong><code>@defer</code></strong></td>
+<td>You can push heavy sections out of the first download with one template block</td>
+</tr>
+<tr>
+<td><strong>Server-side rendering</strong></td>
+<td>The CLI can render pages on the server for faster first paint</td>
+</tr>
+<tr>
+<td><strong>Incremental hydration</strong></td>
+<td>On SSR pages, only the parts the user touches become interactive first</td>
+</tr>
+</tbody></table>
+<p>Two of these deserve a sentence. <strong>Server-side rendering (SSR)</strong> means the first HTML arrives already rendered, so users see content before the JavaScript loads; the CLI wires it up through <code>@angular/ssr</code> (<code>ng add @angular/ssr</code>). <strong>Hydration</strong> is the step where that server-rendered HTML becomes interactive on the client, enabled with <code>provideClientHydration()</code>. In Angular 22, incremental hydration is the default as soon as you use that provider — and it turns on event replay for you, so clicks made before the page is interactive are queued and replayed rather than lost. You can opt out with <code>withNoIncrementalHydration()</code>.</p>
+<blockquote>
+<p><strong>You do not need SSR to learn Angular.</strong> It is valuable for public-facing sites and a distraction for a first project. Add it when you have something to optimise.</p>
+</blockquote>
+<hr>
+</section><section id="part-12--testing-and-the-developer-toolchain"><h2 id="part-12--testing-and-the-developer-toolchain">Part 12 — Testing and the Developer Toolchain</h2>
+<h3 id="121-testing">12.1 Testing</h3>
+<p>New Angular projects use <strong>Vitest</strong> as the unit test runner — the CLI switched to it, and it replaced Karma and Jasmine. You write tests the same conceptual way you always have: create the component, interact with it, assert on what happened.</p>
+<div class="codewrap"><pre data-lang="ts"><code>import { TestBed } from '@angular/core/testing';
+import { Counter } from './counter';
+
+it('increments when the button is clicked', async () =&gt; {
+  const fixture = TestBed.createComponent(Counter);
+  fixture.detectChanges();
+
+  fixture.componentInstance.increment();
+  await fixture.whenStable();
+
+  expect(fixture.componentInstance.count()).toBe(1);
+});</code></pre></div>
+<div class="codewrap"><pre data-lang="bash"><code>ng test</code></pre></div>
+<h3 id="122-the-tools-around-you">12.2 The tools around you</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Angular Language Service</strong></td>
+<td>Type-checking and autocomplete inside templates, in your editor</td>
+</tr>
+<tr>
+<td><strong>Angular DevTools</strong></td>
+<td>A browser extension that shows the component tree and signal values</td>
+</tr>
+<tr>
+<td><strong><code>ng update</code></strong></td>
+<td>Runs the official migrations when you move to a new version</td>
+</tr>
+<tr>
+<td><strong>AI prompt rules</strong></td>
+<td><code>ng new</code> can generate configuration that teaches AI tools your project&#39;s conventions</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Turn on the Angular Language Service.</strong> It is the difference between template errors that appear as you type and template errors that appear when you run the app. It is a five-minute install and it pays for itself immediately.</p>
+</blockquote>
+<hr>
+</section><section id="part-13--how-it-all-fits-together"><h2 id="part-13--how-it-all-fits-together">Part 13 — How It All Fits Together</h2>
+<p>Here is one small app, traced through every piece, so you can see the wiring instead of the parts.</p>
+<div class="codewrap"><pre data-lang=""><code>   A PRODUCT LIST APP, PIECE BY PIECE
+
+   1. URL  /products  is visited
+        →  the Router matches the route and lazy-loads ProductList
+
+   2. ProductList  imports  ProductCard  so it can use &lt;app-product-card&gt;
+        →  components compose into a tree
+
+   3. ProductList  calls  inject(ProductService)
+        →  Dependency Injection supplies the shared service instance
+
+   4. ProductService  exposes  products = httpResource(() =&gt; '/api/products')
+        →  a request goes out; the resource reports value, loading, error
+
+   5. The template reads  products.value()
+        →  Angular records the signal dependency
+
+   6. @if / @for  render a card per product
+        →  @for with track keeps the list fast; @empty handles zero results
+
+   7. Clicking a card  emits an output  →  Router navigates to /products/:id
+        →  ProductDetail reads :id as an input  →  fetches that one product
+
+   8. The whole page can sit behind @defer
+        →  its code loads only when it is needed</code></pre></div>
+<p>Every concept in this guide appears in that list exactly once. That is not a coincidence — Angular is a small number of ideas applied consistently.</p>
+<hr>
+</section><section id="cheat-sheet"><h2 id="cheat-sheet">Cheat Sheet</h2>
+<div class="codewrap"><pre data-lang="bash"><code># ─── CLI ────────────────────────────────────────────────────────────
+ng new my-app                 # create a project
+ng serve --open               # run locally, live reload
+ng g c product-card           # generate a component
+ng g s cart                   # generate a service
+ng g guard auth               # generate a route guard
+ng build                      # build to dist/
+ng test                       # unit tests (Vitest)
+ng update @angular/core       # upgrade with migrations</code></pre></div>
+<div class="codewrap"><pre data-lang="ts"><code>// ─── COMPONENT ──────────────────────────────────────────────────────
+@Component({
+  selector: 'app-card',
+  imports: [OtherComponent],        // what this component needs
+  templateUrl: './card.html',
+  styleUrl: './card.css',
+})
+export class Card {
+  name = input.required&lt;string&gt;();   // data in
+  saved = output&lt;boolean&gt;();         // data out
+  value = model('');                 // two-way
+  count = signal(0);
+  total = computed(() =&gt; this.count() * 2);
+  private cart = inject(CartService);
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="ts"><code>// ─── SERVICE ────────────────────────────────────────────────────────
+@Service()
+export class CartService {
+  private items = signal&lt;string[]&gt;([]);
+  readonly count = computed(() =&gt; this.items().length);
+  add(item: string) { this.items.update((l) =&gt; [...l, item]); }
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="ts"><code>// ─── ROUTING ────────────────────────────────────────────────────────
+export const routes: Routes = [
+  { path: '', loadComponent: () =&gt; import('./home/home') },
+  { path: 'products/:id', loadComponent: () =&gt; import('./detail/detail') },
+  { path: '**', loadComponent: () =&gt; import('./not-found/not-found') },
+];</code></pre></div>
+<div class="codewrap"><pre data-lang="ts"><code>// ─── DATA ───────────────────────────────────────────────────────────
+product = httpResource(() =&gt; `/api/products/${this.id()}`);
+// read: product.value() · product.isLoading() · product.error()</code></pre></div>
+<div class="codewrap"><pre data-lang="html"><code>&lt;!-- ─── TEMPLATE ─────────────────────────────────────────────────── --&gt;
+{{ value }}                         &lt;!-- print --&gt;
+[disabled]=&quot;!valid()&quot;               &lt;!-- bind in --&gt;
+(click)=&quot;save()&quot;                    &lt;!-- listen --&gt;
+[(value)]=&quot;name&quot;                    &lt;!-- two-way --&gt;
+
+@if (user()) { … } @else { … }
+@for (p of products(); track p.id) { … } @empty { … }
+@switch (status()) { @case ('a') { … } @default { … } }
+
+@defer (on viewport) { … } @placeholder { … } @loading { … }</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>I want to…</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Create a project</td>
+<td><code>ng new</code></td>
+</tr>
+<tr>
+<td>Add a file</td>
+<td><code>ng generate</code></td>
+</tr>
+<tr>
+<td>Draw a piece of UI</td>
+<td>A component</td>
+</tr>
+<tr>
+<td>Hold a value</td>
+<td><code>signal()</code></td>
+</tr>
+<tr>
+<td>Derive a value</td>
+<td><code>computed()</code></td>
+</tr>
+<tr>
+<td>React to a change</td>
+<td><code>effect()</code></td>
+</tr>
+<tr>
+<td>Share logic</td>
+<td>A service + <code>inject()</code></td>
+</tr>
+<tr>
+<td>Pass data to a child</td>
+<td><code>input()</code></td>
+</tr>
+<tr>
+<td>Send an event to a parent</td>
+<td><code>output()</code></td>
+</tr>
+<tr>
+<td>Two-way bind</td>
+<td><code>model()</code></td>
+</tr>
+<tr>
+<td>Conditionally show</td>
+<td><code>@if</code></td>
+</tr>
+<tr>
+<td>Repeat a list</td>
+<td><code>@for</code> (with <code>track</code>)</td>
+</tr>
+<tr>
+<td>Map a URL to a page</td>
+<td>A route + <code>loadComponent</code></td>
+</tr>
+<tr>
+<td>Fetch data to display</td>
+<td><code>httpResource</code></td>
+</tr>
+<tr>
+<td>Send data to the server</td>
+<td><code>HttpClient</code></td>
+</tr>
+<tr>
+<td>Collect form input</td>
+<td>Signal Forms</td>
+</tr>
+<tr>
+<td>Defer heavy content</td>
+<td><code>@defer</code></td>
+</tr>
+<tr>
+<td>Optimise the hero image</td>
+<td><code>NgOptimizedImage</code> + <code>priority</code></td>
+</tr>
+<tr>
+<td>Accessible widgets</td>
+<td>Angular Aria</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A component tag does nothing</td>
+<td>Not in the <code>imports</code> array</td>
+<td>Import it in the <code>@Component</code> decorator</td>
+</tr>
+<tr>
+<td><code>NG8001</code> in the editor or console</td>
+<td>Unknown element — usually a missing import</td>
+<td>Add the component, directive, or pipe to <code>imports</code></td>
+</tr>
+<tr>
+<td><code>input.required()</code> is undefined at runtime</td>
+<td>The parent did not pass it</td>
+<td>Check the <code>[prop]=&quot;…&quot;</code> binding in the parent template</td>
+</tr>
+<tr>
+<td><code>@for</code> warns about tracking</td>
+<td>Missing <code>track</code></td>
+<td>Add <code>track item.id</code> with a stable unique property</td>
+</tr>
+<tr>
+<td>A signal never updates the page</td>
+<td>You read <code>count</code> instead of <code>count()</code></td>
+<td>Signal values are read by calling them</td>
+</tr>
+<tr>
+<td><code>inject()</code> throws &quot;not in an injection context&quot;</td>
+<td>Called outside a constructor or field initialiser</td>
+<td>Move it to a field initialiser, or run inside the allowed context</td>
+</tr>
+<tr>
+<td>Effect runs forever</td>
+<td>It sets the same signal it reads</td>
+<td>Use <code>computed()</code>, or read without tracking</td>
+</tr>
+<tr>
+<td>Route shows nothing</td>
+<td>No <code>&lt;router-outlet /&gt;</code></td>
+<td>Add the outlet where the page should render</td>
+</tr>
+<tr>
+<td>Deep link 404s after deploy</td>
+<td>Server not rewriting to <code>index.html</code></td>
+<td>Configure the host to serve the app shell for unknown paths</td>
+</tr>
+<tr>
+<td><code>@</code> in a template breaks the build</td>
+<td>Unescaped <code>@</code> in content</td>
+<td>Write <code>&amp;#64;</code></td>
+</tr>
+<tr>
+<td>Form value does not appear</td>
+<td>Binding the wrong directive</td>
+<td>Signal Forms use <code>[formField]</code>; check the schema path</td>
+</tr>
+<tr>
+<td><code>httpResource</code> fires too often</td>
+<td>The URL function reads a signal that changes a lot</td>
+<td>Debounce the input signal, or narrow the dependency</td>
+</tr>
+<tr>
+<td>Tests fail to import a component</td>
+<td>Missing test setup for that dependency</td>
+<td>Provide the dependency in <code>TestBed</code></td>
+</tr>
+<tr>
+<td>Build fails on an old tutorial</td>
+<td>Old API (NgModule, <code>*ngIf</code>)</td>
+<td>Follow the current docs; the migrations can rewrite most of it</td>
+</tr>
+<tr>
+<td>Upgrade errors on TypeScript</td>
+<td>Angular 22 needs TS <code>&gt;=6.0 &lt;6.1</code></td>
+<td>Update TypeScript, then <code>ng update</code></td>
+</tr>
+<tr>
+<td><code>zone.js</code> still in the bundle</td>
+<td>Old project, polyfills not cleaned</td>
+<td>Remove <code>zone.js</code> from the build and <code>npm uninstall zone.js</code></td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>YouTube <strong>search</strong> links only — a version-specific video goes stale with the next release.</p>
+<table>
+<thead>
+<tr>
+<th>Search</th>
+<th>What you&#39;ll find</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://www.youtube.com/results?search_query=Angular+tutorial+for+beginners+2026" target="_blank" rel="noopener">Angular tutorial for beginners 2026</a></td>
+<td>Starting from zero</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Angular+signals+tutorial" target="_blank" rel="noopener">Angular signals tutorial</a></td>
+<td><code>signal</code>, <code>computed</code>, <code>effect</code> in practice</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Angular+standalone+components" target="_blank" rel="noopener">Angular standalone components</a></td>
+<td>The modern component model</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Angular+control+flow+%40if+%40for" target="_blank" rel="noopener">Angular control flow @if @for</a></td>
+<td>The new template blocks</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Angular+dependency+injection+inject+function" target="_blank" rel="noopener">Angular dependency injection inject()</a></td>
+<td>Services and DI</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Angular+router+tutorial+lazy+loading" target="_blank" rel="noopener">Angular router tutorial</a></td>
+<td>Routes and lazy loading</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Angular+signal+forms" target="_blank" rel="noopener">Angular signal forms</a></td>
+<td>Forms on signals</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Angular+httpResource" target="_blank" rel="noopener">Angular httpResource</a></td>
+<td>Reactive data fetching</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Angular+zoneless+change+detection" target="_blank" rel="noopener">Angular zoneless change detection</a></td>
+<td>Why Zone.js is gone</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Angular+SSR+hydration" target="_blank" rel="noopener">Angular SSR and hydration</a></td>
+<td>Server rendering and hydration</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--docs"><h2 id="written-references--docs">Written References &amp; Docs</h2>
+<p>The official documentation is unusually good for Angular, and it is the source that keeps up with the framework. Start there.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Angular documentation home</td>
+<td><code>https://angular.dev/</code></td>
+</tr>
+<tr>
+<td>Essentials — a short tour of the concepts</td>
+<td><code>https://angular.dev/essentials</code></td>
+</tr>
+<tr>
+<td>Learn Angular — interactive tutorial</td>
+<td><code>https://angular.dev/tutorials/learn-angular</code></td>
+</tr>
+<tr>
+<td>Your first app — the fuller tutorial</td>
+<td><code>https://angular.dev/tutorials/first-app</code></td>
+</tr>
+<tr>
+<td>Components — anatomy</td>
+<td><code>https://angular.dev/guide/components</code></td>
+</tr>
+<tr>
+<td>Templates — binding and control flow</td>
+<td><code>https://angular.dev/guide/templates/control-flow</code></td>
+</tr>
+<tr>
+<td>Signals — overview</td>
+<td><code>https://angular.dev/guide/signals</code></td>
+</tr>
+<tr>
+<td>Dependency injection — overview</td>
+<td><code>https://angular.dev/guide/di</code></td>
+</tr>
+<tr>
+<td>Creating and using services</td>
+<td><code>https://angular.dev/guide/di/creating-and-using-services</code></td>
+</tr>
+<tr>
+<td>Routing — lazy loading</td>
+<td><code>https://angular.dev/guide/routing/loading-strategies</code></td>
+</tr>
+<tr>
+<td>Routing — route data as component inputs</td>
+<td><code>https://angular.dev/api/router/withComponentInputBinding</code></td>
+</tr>
+<tr>
+<td>Forms — signal forms overview</td>
+<td><code>https://angular.dev/guide/forms/signals/overview</code></td>
+</tr>
+<tr>
+<td>Forms — field state management</td>
+<td><code>https://angular.dev/guide/forms/signals/field-state-management</code></td>
+</tr>
+<tr>
+<td><code>httpResource</code></td>
+<td><code>https://angular.dev/guide/http/http-resource</code></td>
+</tr>
+<tr>
+<td>Zoneless change detection</td>
+<td><code>https://angular.dev/guide/zoneless</code></td>
+</tr>
+<tr>
+<td>Hydration</td>
+<td><code>https://angular.dev/guide/hydration</code></td>
+</tr>
+<tr>
+<td>Incremental hydration</td>
+<td><code>https://angular.dev/guide/incremental-hydration</code></td>
+</tr>
+<tr>
+<td>Angular Aria — overview</td>
+<td><code>https://angular.dev/guide/aria/overview</code></td>
+</tr>
+<tr>
+<td>Accessibility best practices</td>
+<td><code>https://angular.dev/best-practices/a11y</code></td>
+</tr>
+<tr>
+<td>Image optimization</td>
+<td><code>https://angular.dev/guide/image-optimization</code></td>
+</tr>
+<tr>
+<td>Style guide (file naming)</td>
+<td><code>https://angular.dev/style-guide</code></td>
+</tr>
+<tr>
+<td>Migrating from Karma to Vitest</td>
+<td><code>https://angular.dev/guide/testing/migrating-to-vitest</code></td>
+</tr>
+<tr>
+<td>CLI reference</td>
+<td><code>https://angular.dev/cli</code></td>
+</tr>
+<tr>
+<td>Versioning and release schedule</td>
+<td><code>https://angular.dev/reference/releases</code></td>
+</tr>
+<tr>
+<td>Angular roadmap</td>
+<td><code>https://angular.dev/roadmap</code></td>
+</tr>
+<tr>
+<td>Official release notes (per version)</td>
+<td><code>https://github.com/angular/angular/releases</code></td>
+</tr>
+<tr>
+<td>Update guide</td>
+<td><code>https://angular.dev/update-guide</code></td>
+</tr>
+</tbody></table>
+<p><strong>Third-party, useful but not the source of truth:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Release walkthrough blogs</td>
+<td>Good summaries of what a version changed; verify against the release notes</td>
+</tr>
+<tr>
+<td>&quot;Best practices&quot; listicles</td>
+<td>Convenient checklists; some still show pre-signal patterns</td>
+</tr>
+<tr>
+<td>Community tutorials</td>
+<td>Vary widely; check the Angular version before following</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Verification tip:</strong> when a tutorial contradicts <code>angular.dev</code>, the documentation wins. Angular changes its recommended approach often enough that the framework&#39;s own site is the only source that stays current.</p>
+</blockquote>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English definition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Angular</td>
+<td>A full web framework: UI, routing, forms, data, and build tool together</td>
+</tr>
+<tr>
+<td>Component</td>
+<td>A class plus a template plus a selector; one piece of screen</td>
+</tr>
+<tr>
+<td>Template</td>
+<td>The HTML a component renders</td>
+</tr>
+<tr>
+<td>Directive</td>
+<td>A behaviour attached to an element</td>
+</tr>
+<tr>
+<td>Pipe</td>
+<td>A function used inside a template to format a value</td>
+</tr>
+<tr>
+<td>Service</td>
+<td>A plain class holding shared logic</td>
+</tr>
+<tr>
+<td>Dependency injection</td>
+<td>The system that supplies services to whoever asks</td>
+</tr>
+<tr>
+<td><code>inject()</code></td>
+<td>The function that asks Angular for a dependency</td>
+</tr>
+<tr>
+<td>Signal</td>
+<td>A value that announces its own changes</td>
+</tr>
+<tr>
+<td><code>computed()</code></td>
+<td>A signal derived from other signals</td>
+</tr>
+<tr>
+<td><code>effect()</code></td>
+<td>Code that runs when the signals it reads change</td>
+</tr>
+<tr>
+<td>Standalone component</td>
+<td>A component that imports what it needs, with no module wrapper</td>
+</tr>
+<tr>
+<td>Zone.js</td>
+<td>The old change-detection watcher; no longer used by default</td>
+</tr>
+<tr>
+<td>Zoneless</td>
+<td>Change detection driven by signals rather than by events</td>
+</tr>
+<tr>
+<td>OnPush</td>
+<td>The default change-detection strategy: re-render when data changes</td>
+</tr>
+<tr>
+<td>Router</td>
+<td>The part that maps URLs to components</td>
+</tr>
+<tr>
+<td><code>router-outlet</code></td>
+<td>The marker where the current page renders</td>
+</tr>
+<tr>
+<td>Lazy loading</td>
+<td>Downloading a page&#39;s code only when it is visited</td>
+</tr>
+<tr>
+<td>Route guard</td>
+<td>A function that can allow or block a navigation</td>
+</tr>
+<tr>
+<td>Signal Forms</td>
+<td>Angular&#39;s signal-based form library, stable in v22</td>
+</tr>
+<tr>
+<td>Reactive forms</td>
+<td>The long-standing model-driven form approach</td>
+</tr>
+<tr>
+<td><code>httpResource</code></td>
+<td>A reactive HTTP request exposing value, loading, and error</td>
+</tr>
+<tr>
+<td><code>HttpClient</code></td>
+<td>The core HTTP service; used for writes</td>
+</tr>
+<tr>
+<td>SSR</td>
+<td>Server-side rendering; the server sends ready-made HTML</td>
+</tr>
+<tr>
+<td>Hydration</td>
+<td>Turning server-rendered HTML into an interactive app</td>
+</tr>
+<tr>
+<td><code>@defer</code></td>
+<td>A template block that loads its content later</td>
+</tr>
+<tr>
+<td>CLI</td>
+<td><code>ng</code> — the command-line tool for the whole workflow</td>
+</tr>
+<tr>
+<td>Angular Aria</td>
+<td>Headless, accessible component directives</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Do I need to learn NgModules?</strong> Not to start, and not for new code. Standalone components are the default, and they import what they need directly. You will meet NgModules in older codebases; the concepts transfer.</p>
+<p><strong>Signals or RxJS?</strong> Signals for state, and that is most of what a beginner needs. RxJS still earns its place for complex asynchronous streams, and <code>toSignal()</code> bridges the two. Do not treat them as rivals.</p>
+<p><strong>Do I need to know TypeScript well?</strong> You need classes and types, which is a day of learning. Angular&#39;s own TypeScript use is straightforward, and the editor tells you when something is wrong.</p>
+<p><strong>Which version should I learn?</strong> The current one — Angular 22 as of this writing. A major lands about once a year, and <code>ng update</code> runs the migrations, so you are not relearning the framework each time.</p>
+<p><strong>Is Angular still relevant?</strong> It is actively developed, with a yearly major, a public roadmap, and recent releases that modernised state, forms, and rendering. It is heavier than a library, and that is a deliberate trade for having the pieces agree.</p>
+<p><strong>Should I use Angular Material or build my own?</strong> Start with Material to get moving, and move to the CDK or Angular Aria when you have a design of your own. Angular Aria gives you correct behaviour without imposing a look.</p>
+<p><strong>Do I need SSR to start?</strong> No. It matters for public sites and first-paint speed. Add it later; <code>ng add @angular/ssr</code> sets it up.</p>
+<p><strong>How do I know if a tutorial is current?</strong> Look for: standalone components, <code>@if</code>/<code>@for</code>, <code>input()</code>/<code>output()</code>, signals, and no Zone.js. If it uses <code>*ngIf</code>, <code>@Input()</code>, and <code>NgModule</code> as the default, it predates the current shape.</p>
+<p><strong>What is changing next?</strong> The roadmap lists work across reactivity, forms, and tooling, and WebMCP (integrating AI agents into web apps) is available to experiment with. The direction is consistent: signals and defaults that are correct out of the box.</p>
+<h3 id="next-steps-in-order">Next steps, in order</h3>
+<ol>
+<li><strong>Today:</strong> install the CLI, run <code>ng new</code>, and get the starter app on screen with <code>ng serve</code>.</li>
+<li><strong>This week:</strong> build one component with a <code>signal()</code> and a <code>computed()</code>, and pass data into it with <code>input()</code>.</li>
+<li><strong>Next week:</strong> add a service with <code>inject()</code> and move your state into it.</li>
+<li><strong>Week 3:</strong> add the router, make two lazy routes, and link between them.</li>
+<li><strong>Week 4:</strong> fetch real data with <code>httpResource</code> and render loading and error states.</li>
+<li><strong>Month 2:</strong> build a form with Signal Forms, add <code>@defer</code> to one heavy section, and run <code>ng test</code>.</li>
+</ol>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p><strong>Verified as of September 2026 against the official Angular documentation and release notes:</strong></p>
+<ul>
+<li><strong>Angular 22 is the current major</strong>, released <strong>3 June 2026</strong>; the release schedule lists v22.1 (week of 2026-07-27) and v22.2 (week of 2026-09-21), with v23.0 expected around <strong>June 2027</strong>. Majors are supported for roughly <strong>24 months</strong> (active then LTS); v22 is Active until ~2027-06 with LTS until ~2028-06 (<code>angular.dev/reference/releases</code>).</li>
+<li><strong>Angular 22 requires TypeScript <code>&gt;=6.0.0 &lt;6.1.0</code></strong> and <strong>Node.js <code>^22.22.0 || ^24.13.1 || &gt;=26.0.0</code></strong>; Node 20 support was dropped (Angular 22 release coverage; <code>angular.dev</code> version compatibility).</li>
+<li><strong>Signal Forms, the Resource API (<code>resource</code>, <code>httpResource</code>), and <code>@angular/aria</code> are stable in Angular 22</strong>; Signal Forms and Angular Aria were introduced in developer preview in Angular 21 (<code>angular.dev/roadmap</code>; Angular 22 release coverage).</li>
+<li><strong><code>httpResource</code> is marked stable since v22.0</strong> and is built on <code>HttpClient</code>, supporting interceptors; <code>provideHttpClient()</code> is only needed when configuring HTTP features (<code>angular.dev/api/common/http/httpResource</code>, <code>angular.dev/guide/http/http-resource</code>).</li>
+<li><strong><code>HttpClient</code> uses the Fetch API by default in v22</strong>, where it previously used XMLHttpRequest (Angular 22 release coverage).</li>
+<li><strong><code>OnPush</code> is the default change-detection strategy in v22</strong>, and <code>ChangeDetectionStrategy.Default</code> was renamed to <code>ChangeDetectionStrategy.Eager</code> (introduced in v21.2) (<code>angular.dev/roadmap</code>; the Angular RFC discussion #66779).</li>
+<li><strong>Zoneless change detection is the default from Angular v21</strong>, stable as of <strong>v20.2</strong> via <code>provideZonelessChangeDetection()</code> (<code>angular.dev/guide/zoneless</code>, <code>angular.dev/api/core/provideZonelessChangeDetection</code>).</li>
+<li><strong>A new <code>@Service()</code> decorator was added in Angular 22</strong> as an ergonomic shorthand for <code>@Injectable({ providedIn: &#39;root&#39; })</code>; <code>@Service</code> supports <code>inject()</code> but not constructor-based DI (<code>angular.dev/guide/di/creating-and-using-services</code>, <code>angular.dev/guide/di</code>).</li>
+<li><strong>Control flow blocks (<code>@if</code>, <code>@for</code>, <code>@switch</code>) are available from Angular v17</strong>, and <code>@for</code> requires a <code>track</code> expression (<code>angular.dev/guide/templates/control-flow</code>; <code>angular.dev/reference/migrations/control-flow</code>).</li>
+<li><strong><code>withComponentInputBinding()</code></strong> binds query params, path and matrix params, static route data, and resolver data directly to component inputs, with documented precedence (<code>angular.dev/api/router/withComponentInputBinding</code>, <code>angular.dev/guide/routing/common-router-tasks</code>).</li>
+<li><strong>Incremental hydration is enabled by default when using <code>provideClientHydration()</code></strong> and enables event replay automatically; it can be opted out of with <code>withNoIncrementalHydration()</code>, and event replay can be requested with <code>withEventReplay()</code> (<code>angular.dev/guide/incremental-hydration</code>, <code>angular.dev/guide/hydration</code>, <code>angular.dev/api/platform-browser/provideClientHydration</code>).</li>
+<li><strong>Vitest is the default unit test runner for new CLI projects</strong>, with Karma/Jasmine migration documented as experimental (<code>angular.dev/guide/testing/migrating-to-vitest</code>, <code>angular.dev/roadmap</code>).</li>
+<li><strong>Signal Forms</strong> field state exposes <code>value()</code>, <code>valid()</code>, <code>invalid()</code>, <code>pending()</code>, <code>touched()</code>, <code>dirty()</code>, <code>disabled()</code>, <code>readonly()</code>, and <code>errors()</code>; each error carries <code>kind</code> and an optional <code>message</code> (<code>angular.dev/guide/forms/signals/field-state-management</code>, <code>angular.dev/api/forms/signals/FieldState</code>). Note that <code>valid()</code> is not the same as <code>!invalid()</code>: <code>valid()</code> requires no errors <em>and</em> no pending validators.</li>
+<li><strong><code>NgOptimizedImage</code></strong> requires <code>width</code> and <code>height</code>, lazy-loads by default, and uses the <code>priority</code> attribute to prioritise the LCP image (<code>angular.dev/guide/image-optimization</code>).</li>
+<li><strong>Signal-based component APIs</strong> — <code>input()</code>, <code>input.required()</code>, <code>output()</code>, <code>model()</code> — are the documented approach; <code>@Input()</code>/<code>@Output()</code> decorators remain supported (Angular tutorial and API docs).</li>
+<li><strong>New projects use a concise file-naming style guide</strong> (<code>app.ts</code>, <code>app.html</code>) rather than the older type-in-name style (<code>app.component.ts</code>); the CLI&#39;s <code>file-name-style-guide</code> option selects <code>2025</code> (default) or <code>2016</code> (<code>angular.dev/cli/new</code>, <code>angular.dev/cli/generate/application</code>, <code>angular.dev/style-guide</code>).</li>
+</ul>
+<p><strong>Where I am relying on third-party analysis rather than a primary source:</strong> the per-release feature summaries and the &quot;Angular 22 is here&quot; details (for example the exact list of additions such as the <code>debounced()</code> function, <code>injectAsync()</code>, HTML comments in templates, and the deprecation of the Webpack-based builders) come from well-known community release write-ups, not from a single vendor page. The roadmap and API documentation confirm the headline status changes; the smaller items are labelled by their source.</p>
+<p><strong>Vendor and third-party claims, not independently verified:</strong> exact release dates are approximate in Angular&#39;s own schedule (&quot;week of&quot;, &quot;~ Month&quot;), and community blogs differ slightly on the specific day the CLI switched defaults. Compatibility of any third-party library with Zoneless or OnPush is not covered here.</p>
+<p><strong>Changes fast:</strong> Angular ships a major roughly annually and minors every couple of months, and defaults have shifted several times in the last three years (standalone, zoneless, OnPush, test runner). Re-check <code>angular.dev/reference/releases</code> and the roadmap before depending on any status in this guide.</p>
+<p><strong>Not a substitute for the official docs.</strong> This is an orientation guide; the Angular documentation is the authority, and it is maintained alongside each release.</p>
+<hr>
+</section><section id="your-setup-notes-mac--vs-code--opencode"><h2 id="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</h2>
+<p><strong>How I&#39;d start, given the rest of the shelf.</strong></p>
+<table>
+<thead>
+<tr>
+<th>In my workspace</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>VS Code</td>
+<td>Install the Angular Language Service — it type-checks templates as you type</td>
+</tr>
+<tr>
+<td>A terminal</td>
+<td><code>ng</code> for everything; no separate bundler or dev-server config</td>
+</tr>
+<tr>
+<td>AI coding agents</td>
+<td><code>ng new</code> can generate AI prompt rules so an agent follows the project&#39;s conventions</td>
+</tr>
+<tr>
+<td>An existing React/Vue habit</td>
+<td>Expect to un-learn manual change tracking; signals handle it</td>
+</tr>
+<tr>
+<td>A design system</td>
+<td>Use Angular Aria or the CDK for behaviour, and bring your own styles</td>
+</tr>
+<tr>
+<td>A public-facing site</td>
+<td>Add SSR with <code>ng add @angular/ssr</code> once the app works</td>
+</tr>
+</tbody></table>
+<p><strong>Recommended setup:</strong></p>
+<ul>
+<li><strong>Start with the official tutorial, not a video.</strong> <code>angular.dev/tutorials/learn-angular</code> is interactive and stays current; most videos do not.</li>
+<li><strong>Turn on the Language Service first.</strong> It catches missing imports and template mistakes immediately.</li>
+<li><strong>One component, one job.</strong> If a component is fetching data <em>and</em> rendering <em>and</em> validating a form, split it.</li>
+<li><strong>Logic in services, data in signals.</strong> Components read; services own. That split is what makes both testable.</li>
+<li><strong><code>computed()</code> before <code>effect()</code>.</strong> Reach for an effect only when nothing reactive fits.</li>
+<li><strong>Learn one form approach.</strong> Signal Forms for new work, reactive forms if the codebase already uses them.</li>
+<li><strong><code>inject()</code> over constructor injection.</strong> It is shorter and works in more places.</li>
+<li><strong>What I would not do:</strong> read a 2020-era tutorial and follow it verbatim. Check for signals and standalone components before trusting a guide.</li>
+</ul>
+<p><strong>Smoke test for the first session, in order:</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code># 1. do I have a supported Node?
+node --version        # expect v22.22+, v24.13.1+, or v26+
+
+# 2. the CLI
+npm install -g @angular/cli
+ng version
+
+# 3. a project that runs
+ng new my-app
+cd my-app
+ng serve --open       # should open http://localhost:4200
+
+# 4. a component, generated not typed
+ng g c hello
+# then add &lt;app-hello /&gt; to src/app/app.html and watch it appear</code></pre></div>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Web Platform</span> · 13 parts · ~31 min · Generated from <code>markdown_docs/20-angular-beginners-guide.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>
