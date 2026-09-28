@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TypeScript 7 and the Year the Compiler Learned Go — Learning Center</title>
+<meta name="description" content="On 8 July 2026 TypeScript 7 shipped the same compiler ported to Go — 8–12× faster full builds, identical type-checking, and one large caveat: there is no compiler API yet, so Vue, Svelte, Astro, MDX, and Angular tooling cannot upgrade. Here is what changed, what broke, and the side-by-side migration that keeps both compilers installed.">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="19-typescript-7-go-compiler-2026">
+<header class="topbar">
+  <a class="homebtn" href="../index.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/></svg>Home</a>
+  <span class="brand">TypeScript 7 and the Year the Compiler Learned Go</span>
+  <button id="themeToggle" title="Toggle dark / light" aria-label="Toggle dark and light theme">
+    <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <span id="themeLabel">Dark</span>
+  </button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<details id="toc" class="toc" open>
+<summary class="tocsum">Contents<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#the-analogy-table" data-sec="the-analogy-table" class="sub">The analogy table</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--why-go-and-what-port-actually-means" data-sec="part-1--why-go-and-what-port-actually-means">Part 1 — Why Go, and What &quot;Port&quot; Actually Means</a><a href="#11-the-problem-the-port-solves" data-sec="11-the-problem-the-port-solves" class="sub">1.1 The problem the port solves</a><a href="#12-the-numbers-labelled-as-vendor-benchmarks" data-sec="12-the-numbers-labelled-as-vendor-benchmarks" class="sub">1.2 The numbers, labelled as vendor benchmarks</a><a href="#13-what-it-means-day-to-day" data-sec="13-what-it-means-day-to-day" class="sub">1.3 What it means day to day</a><a href="#part-2--typescript-60-the-release-you-have-to-take-first" data-sec="part-2--typescript-60-the-release-you-have-to-take-first">Part 2 — TypeScript 6.0: The Release You Have to Take First</a><a href="#21-why-6-exists-at-all" data-sec="21-why-6-exists-at-all" class="sub">2.1 Why 6 exists at all</a><a href="#22-the-compatibility-promise-precisely" data-sec="22-the-compatibility-promise-precisely" class="sub">2.2 The compatibility promise, precisely</a><a href="#23-options-that-end-at-70" data-sec="23-options-that-end-at-70" class="sub">2.3 Options that end at 7.0</a><a href="#part-3--the-api-gap-why-half-the-ecosystem-waits" data-sec="part-3--the-api-gap-why-half-the-ecosystem-waits">Part 3 — The API Gap: Why Half the Ecosystem Waits</a><a href="#31-what-is-missing" data-sec="31-what-is-missing" class="sub">3.1 What is missing</a><a href="#32-the-bridge-install-both-compilers" data-sec="32-the-bridge-install-both-compilers" class="sub">3.2 The bridge: install both compilers</a><a href="#33-nightlies-moved" data-sec="33-nightlies-moved" class="sub">3.3 Nightlies moved</a><a href="#part-4--the-migration-playbook" data-sec="part-4--the-migration-playbook">Part 4 — The Migration Playbook</a><a href="#41-the-order-that-avoids-pain" data-sec="41-the-order-that-avoids-pain" class="sub">4.1 The order that avoids pain</a><a href="#42-a-concrete-beforeafter" data-sec="42-a-concrete-beforeafter" class="sub">4.2 A concrete before/after</a><a href="#43-measuring-it-on-your-own-repo" data-sec="43-measuring-it-on-your-own-repo" class="sub">4.3 Measuring it on your own repo</a><a href="#44-parallelism-controls" data-sec="44-parallelism-controls" class="sub">4.4 Parallelism controls</a><a href="#part-5--side-by-side-what-changed-and-what-did-not" data-sec="part-5--side-by-side-what-changed-and-what-did-not">Part 5 — Side by Side: What Changed and What Did Not</a><a href="#part-6--where-nodes-type-stripping-changes-the-picture" data-sec="part-6--where-nodes-type-stripping-changes-the-picture">Part 6 — Where Node&#39;s Type Stripping Changes the Picture</a><a href="#part-7--editor-and-build-tooling-what-to-do-this-month" data-sec="part-7--editor-and-build-tooling-what-to-do-this-month">Part 7 — Editor and Build Tooling: What to Do This Month</a><a href="#71-decide-which-group-you-are-in" data-sec="71-decide-which-group-you-are-in" class="sub">7.1 Decide which group you are in</a><a href="#72-the-side-by-side-setup-in-full" data-sec="72-the-side-by-side-setup-in-full" class="sub">7.2 The side-by-side setup, in full</a><a href="#73-what-to-tell-a-teammate" data-sec="73-what-to-tell-a-teammate" class="sub">7.3 What to tell a teammate</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheet" data-sec="cheat-sheet">Cheat Sheet</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--docs" data-sec="written-references--docs">Written References &amp; Docs</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#next-steps-in-order" data-sec="next-steps-in-order" class="sub">Next steps, in order</a><a href="#verification-note" data-sec="verification-note">Verification Note</a><a href="#your-setup-notes-mac--vs-code--opencode" data-sec="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</a></div>
+</nav>
+</details>
+<main>
+<h1>TypeScript 7 and the Year the Compiler Learned Go</h1>
+<div class="callout lede">On 8 July 2026 TypeScript 7 shipped the same compiler ported to Go — 8–12× faster full builds, identical type-checking, and one large caveat: there is no compiler API yet, so Vue, Svelte, Astro, MDX, and Angular tooling cannot upgrade. Here is what changed, what broke, and the side-by-side migration that keeps both compilers installed.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>For a decade the single biggest complaint about TypeScript was not the type system. It was the wait. <code>tsc</code> on a large repository took minutes, the editor&#39;s language service went to sleep during a big edit, and every CI run paid the same tax. The types were good; the throughput was the problem.</p>
+<p>TypeScript 7 answers that complaint by rewriting the compiler and language service in Go. Microsoft calls it a <strong>port</strong>, not a rewrite, and that word matters: the checker was moved line by line, and the team states the type-checking logic is structurally identical to TypeScript 6.0. So this is a performance release wearing a major version number. No new type system, no new syntax, no new semantics — a different engine under the same hood.</p>
+<p>The complication is that the port does not yet expose the compiler&#39;s programming API. Tooling that reaches into the compiler internals — which is how template type-checking works for Vue, Svelte, Astro, MDX, and Angular — cannot run on TypeScript 7. That single omission means the upgrade is not one decision but two: <em>the CLI</em> can move today, and <em>the ecosystem</em> waits for 7.1.</p>
+<div class="codewrap"><pre data-lang=""><code>   THE 6 → 7 TRANSITION
+
+   TypeScript 5.x ──► TypeScript 6.0  ──► TypeScript 7.0
+   JS compiler         JS compiler,        Go compiler,
+   status quo          FINAL JS release    same checker
+
+                       6.0's job:           7.0's job:
+                       ship NEW DEFAULTS    ADOPT those defaults
+                       mark things          turn deprecations
+                       deprecated           into HARD ERRORS
+                       (you have a release  (the cleanup is due)
+                        to clean up)
+
+   THE SEAM
+   ┌──────────────────────────────────────────────────────────┐
+   │  tsc (CLI)          →  TypeScript 7 is ready, today       │
+   │  programmatic API   →  not shipped; expected in 7.1       │
+   │  Vue/Svelte/Astro/  →  blocked on that API; keep TS 6     │
+   │  MDX/Angular                                             │
+   └──────────────────────────────────────────────────────────┘
+
+   THE BRIDGE: install both side by side
+   npm install -D typescript @typescript/typescript6
+   → `tsc`  = TypeScript 7        (fast CLI checks)
+   → `tsc6` = TypeScript 6        (for tools that need the API)</code></pre></div>
+<p>The single most important idea: <strong>TypeScript 7 changes the speed of the compiler, not the meaning of your types — and it does not ship the API the rest of the ecosystem depends on.</strong> Upgrade the CLI and the type-check job immediately; hold your framework tooling until 7.1 lands.</p>
+<h3 id="the-analogy-table">The analogy table</h3>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English analogy</th>
+<th>Why it matters to you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Corsa</strong></td>
+<td>The codename for the Go port</td>
+<td>Distinguishes the engine from the language</td>
+</tr>
+<tr>
+<td><strong>Native port</strong></td>
+<td>Translating a book, not rewriting it</td>
+<td>Semantics are meant to be identical</td>
+</tr>
+<tr>
+<td><strong>JS-based compiler</strong></td>
+<td>The old engine</td>
+<td>TypeScript 6.0 is the last one</td>
+</tr>
+<tr>
+<td><strong><code>tsgo</code></strong></td>
+<td>The Go compiler&#39;s preview binary</td>
+<td>Its nightlies moved to <code>typescript@next</code> at GA</td>
+</tr>
+<tr>
+<td><strong>Compiler API</strong></td>
+<td>A socket other tools plug into</td>
+<td>The thing 7.0 lacks</td>
+</tr>
+<tr>
+<td><strong>Volar</strong></td>
+<td>The engine behind Vue/Svelte/Astro tooling</td>
+<td>Depends on that socket</td>
+</tr>
+<tr>
+<td><strong><code>@typescript/typescript6</code></strong></td>
+<td>A second copy of the old compiler</td>
+<td>Supplies <code>tsc6</code> and the TS 6 API</td>
+</tr>
+<tr>
+<td><strong><code>stableTypeOrdering</code></strong></td>
+<td>A flag that makes declaration emit order deterministic (default on in 7.0)</td>
+<td>Needed for a clean 6 → 7 comparison</td>
+</tr>
+<tr>
+<td><strong>Hard error</strong></td>
+<td>A removed option that now fails the build</td>
+<td>6.0 deprecated it; 7.0 enforces it</td>
+</tr>
+<tr>
+<td><strong>Side-by-side install</strong></td>
+<td>Two compilers, two commands</td>
+<td>The practical migration shape</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The one-sentence version:</strong> treat TypeScript 7 as a compiler swap you can make today for command-line type-checking, and a waiting game for anything that imports the compiler programmatically — and use TypeScript 6.0 as the bridge release that shows you the cleanup before it becomes mandatory.</p>
+</blockquote>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>TypeScript 7.0 went GA on 8 July 2026</strong> (beta 21 April, RC 18 June). It is the compiler and language service <strong>ported to Go</strong>, codename <strong>Corsa</strong>.</li>
+<li><strong>Expect 8–12× faster full builds.</strong> Microsoft&#39;s own benchmarks show roughly 10× on real projects; 7.0.2 is the current patch.</li>
+<li><strong>The type-checking is meant to be identical to 6.0.</strong> This is a performance release, not a language release.</li>
+<li><strong>TypeScript 6.0 (March 2026) was the final JavaScript-based release.</strong> There is no 6.1 — only security and regression patches.</li>
+<li><strong>6.0 introduced the new defaults and deprecations; 7.0 adopts them and turns deprecations into hard errors.</strong> Migrate through 6, not straight to 7.</li>
+<li><strong>7.0 ships no public compiler API.</strong> TypeScript 7.1 is expected to add a new (and different) API.</li>
+<li><strong>Because of that, Vue, Svelte, Astro, MDX, and Angular template type-checking cannot use TypeScript 7 yet.</strong> Volar and similar tools are pinned to the 6.0 API.</li>
+<li><strong>The bridge is <code>@typescript/typescript6</code></strong>, a package that provides a <code>tsc6</code> binary and re-exports the TS 6 API, installable alongside 7.</li>
+<li><strong>Removed in 7.0:</strong> <code>target: es5</code>, <code>downlevelIteration</code>, <code>baseUrl</code>, <code>moduleResolution: node</code>/<code>node10</code>, and <code>module: amd</code>/<code>umd</code>/<code>systemjs</code>/<code>none</code>. <code>types</code> now defaults to <code>[]</code>.</li>
+<li><strong>New flags:</strong> experimental <code>--checkers</code> and <code>--builders</code> for parallelism, and <code>--singleThreaded</code> to turn it off for debugging.</li>
+</ol>
+<p>If you read nothing else, read <strong>Part 3 (the API gap)</strong> and <strong>Part 4 (the migration)</strong>.</p>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Why</th>
+<th>Check</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TypeScript 6.0 or newer</td>
+<td>6.0 is the required bridge release before 7</td>
+<td><code>npx tsc --version</code></td>
+</tr>
+<tr>
+<td>A clean type-check</td>
+<td>7 only promises parity for code that compiles cleanly on 6</td>
+<td><code>npx tsc --noEmit</code></td>
+</tr>
+<tr>
+<td><code>stableTypeOrdering</code> available</td>
+<td>Needed for a like-for-like 6/7 comparison</td>
+<td>part of 6.0</td>
+</tr>
+<tr>
+<td>Knowledge of whether your stack imports the compiler</td>
+<td>Decides whether you can move today</td>
+<td>check your plugins</td>
+</tr>
+<tr>
+<td>~30 minutes</td>
+<td>The CLI swap is quick; the audit is the work</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>One command tells you if you are blocked.</strong> If your toolchain depends on <code>typescript</code> as a peer dependency and reads its API — <code>typescript-eslint</code>, Volar-based plugins, framework language servers — you are in the &quot;CLI only&quot; group. Everything else can move.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--why-go-and-what-port-actually-means"><h2 id="part-1--why-go-and-what-port-actually-means">Part 1 — Why Go, and What &quot;Port&quot; Actually Means</h2>
+<h3 id="11-the-problem-the-port-solves">1.1 The problem the port solves</h3>
+<p>A type checker is a graph traversal over an enormous object graph. The JavaScript implementation is single-threaded, and the JIT cannot parallelise a workload like that beyond a point. Go brings two things: native machine code and <strong>shared-memory multithreading</strong>. The compiler can spread the check across cores rather than time-slicing one thread.</p>
+<p>Microsoft&#39;s framing is &quot;native port&quot;, and the reasoning matters: the port was done methodically rather than redesigned. From the RC announcement, the Go codebase &quot;was methodically ported from our existing implementation rather than rewritten from scratch, and its type-checking logic is structurally identical to TypeScript 6.0&quot;. That is the promise that makes an upgrade safe.</p>
+<h3 id="12-the-numbers-labelled-as-vendor-benchmarks">1.2 The numbers, labelled as vendor benchmarks</h3>
+<p>These are Microsoft&#39;s published comparisons, not an independent audit:</p>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>TypeScript 6</th>
+<th>TypeScript 7</th>
+<th>Speedup</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>VS Code</td>
+<td>125.7 s</td>
+<td>10.6 s</td>
+<td>11.9×</td>
+</tr>
+<tr>
+<td>Sentry</td>
+<td>139.8 s</td>
+<td>15.7 s</td>
+<td>8.9×</td>
+</tr>
+<tr>
+<td>Bluesky</td>
+<td>24.3 s</td>
+<td>2.8 s</td>
+<td>8.7×</td>
+</tr>
+<tr>
+<td>Playwright</td>
+<td>12.8 s</td>
+<td>1.47 s</td>
+<td>8.7×</td>
+</tr>
+<tr>
+<td>tldraw</td>
+<td>11.2 s</td>
+<td>1.46 s</td>
+<td>7.7×</td>
+</tr>
+</tbody></table>
+<p>The announcement&#39;s qualified claim is an <strong>8× to 12× speedup on full builds</strong>. Treat the direction as real and the exact ratio as project-dependent: a small project sees less, a huge one sees more, and build times include I/O the compiler does not control.</p>
+<h3 id="13-what-it-means-day-to-day">1.3 What it means day to day</h3>
+<p>The CLI got fast. That changes CI more than it changes your editor:</p>
+<ul>
+<li><strong>CI type-check steps shrink</strong> from minutes to seconds on large repos, which changes what you can afford to run per pull request.</li>
+<li><strong>Whole-project checks become practical in pre-commit hooks</strong>, which they never were.</li>
+<li><strong>Editor responsiveness improves</strong> through the ported language service, but the gain depends on the client — a slow client is still slow.</li>
+</ul>
+<blockquote>
+<p><strong>Do not promise the same multiplier internally without measuring.</strong> Run both compilers on your own repo (Part 5) before you tell anyone a number.</p>
+</blockquote>
+<hr>
+</section><section id="part-2--typescript-60-the-release-you-have-to-take-first"><h2 id="part-2--typescript-60-the-release-you-have-to-take-first">Part 2 — TypeScript 6.0: The Release You Have to Take First</h2>
+<h3 id="21-why-6-exists-at-all">2.1 Why 6 exists at all</h3>
+<p>TypeScript 6.0 shipped in <strong>March 2026</strong> and is the <strong>last release built on the JavaScript codebase</strong>. There is no 6.1; the 6.0.x line gets rare patches for security, high-severity regressions, and 6-to-7 compatibility only.</p>
+<p>Its purpose is deliberate: 6.0 introduces the <strong>new defaults</strong> and marks a set of options <strong>deprecated</strong>, giving you one release in which to fix things while still running the familiar implementation. TypeScript 7.0 then adopts those defaults and converts the deprecations into <strong>hard errors</strong>. Skipping 6 means encountering all of it at once in 7.</p>
+<div class="codewrap"><pre data-lang=""><code>   6.0 = &quot;these are now the defaults, and these are going away&quot;
+   7.0 = &quot;the defaults are in force, and those things are gone&quot;
+
+   → Migrate to 6.0 on its own, fix the warnings, THEN go to 7.</code></pre></div>
+<h3 id="22-the-compatibility-promise-precisely">2.2 The compatibility promise, precisely</h3>
+<p>Microsoft&#39;s qualified statement: with the <code>stableTypeOrdering</code> flag <strong>on</strong> and the <code>ignoreDeprecations</code> flag <strong>unset</strong>, <em>virtually anything</em> that compiles cleanly under TypeScript 6.0 should compile <strong>identically</strong> under 7.0. Both halves of that condition matter:</p>
+<ul>
+<li><code>stableTypeOrdering</code> makes declaration emit order deterministic, which removes ordering noise from the comparison. In 7.0 it is on by default and can no longer be turned off — the flag exists so a 6.0 run can be put in the same mode for a fair comparison.</li>
+<li><code>ignoreDeprecations</code> unset means you actually saw the deprecations rather than silencing them.</li>
+</ul>
+<p>If you have been running with <code>ignoreDeprecations</code> for the last year, 7.0 will surface all of it at once. That is the whole reason to have taken 6.0 seriously.</p>
+<h3 id="23-options-that-end-at-70">2.3 Options that end at 7.0</h3>
+<table>
+<thead>
+<tr>
+<th>Removed in 7.0</th>
+<th>What to use instead</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>target: es5</code></td>
+<td>A newer target; 5 is out of support</td>
+</tr>
+<tr>
+<td><code>downlevelIteration</code></td>
+<td>A target that does not need it</td>
+</tr>
+<tr>
+<td><code>moduleResolution: node</code> / <code>node10</code></td>
+<td><code>nodenext</code> or <code>bundler</code></td>
+</tr>
+<tr>
+<td><code>module: amd</code> / <code>umd</code> / <code>systemjs</code> / <code>none</code></td>
+<td><code>esnext</code> or <code>preserve</code></td>
+</tr>
+<tr>
+<td><code>baseUrl</code></td>
+<td>Path mapping without it, or relative imports</td>
+</tr>
+</tbody></table>
+<p>Two more defaults changed rather than being removed: <strong><code>types</code> now defaults to <code>[]</code></strong> instead of pulling in everything under <code>node_modules/@types</code>, and <strong><code>rootDir</code> defaults to <code>./</code></strong>. The first is the one that breaks real projects — a missing <code>@types/node</code> that used to be implicit now has to be listed.</p>
+<blockquote>
+<p><strong>The one-line fix for the most common breakage:</strong> add <code>&quot;types&quot;: [&quot;node&quot;]</code> (or your real set) to <code>compilerOptions</code>. The new empty default is a correctness improvement, not a regression, but it is silent until something fails to resolve.</p>
+</blockquote>
+<hr>
+</section><section id="part-3--the-api-gap-why-half-the-ecosystem-waits"><h2 id="part-3--the-api-gap-why-half-the-ecosystem-waits">Part 3 — The API Gap: Why Half the Ecosystem Waits</h2>
+<h3 id="31-what-is-missing">3.1 What is missing</h3>
+<p>TypeScript 7.0 ships <strong>without a public compiler API</strong>. Nothing is wrong with it: the port&#39;s priority was getting the CLI and language service right and letting 6 and 7 run side by side. Microsoft states that <strong>TypeScript 7.1 is expected to ship a new (and different) API</strong>.</p>
+<p>Until then, any tool that imports the compiler programmatically cannot run on TypeScript 7. That is a specific, well-populated list:</p>
+<table>
+<thead>
+<tr>
+<th>Blocked tooling</th>
+<th>Why it needs the API</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Vue + Volar</td>
+<td>Type-checking inside <code>.vue</code> templates</td>
+</tr>
+<tr>
+<td>Svelte</td>
+<td>Type-checking inside <code>.svelte</code> markup</td>
+</tr>
+<tr>
+<td>Astro</td>
+<td>Type-checking <code>.astro</code> frontmatter</td>
+</tr>
+<tr>
+<td>MDX</td>
+<td>Type-checking embedded expressions</td>
+</tr>
+<tr>
+<td>Angular templates</td>
+<td>In-template type checking</td>
+</tr>
+<tr>
+<td><code>typescript-eslint</code></td>
+<td>Reads the compiler via a peer dependency</td>
+</tr>
+<tr>
+<td>Any custom codegen or AST plugin</td>
+<td>Works against the compiler&#39;s internals</td>
+</tr>
+</tbody></table>
+<p>The RC announcement was explicit that workflows using &quot;Vue, MDX, Astro, Svelte, and similar tools are likely unable to take advantage of TypeScript 7 yet,&quot; and the same applies to specialised in-template checking like Angular&#39;s.</p>
+<h3 id="32-the-bridge-install-both-compilers">3.2 The bridge: install both compilers</h3>
+<p>Microsoft publishes a compatibility package, <code>@typescript/typescript6</code>, that:</p>
+<ul>
+<li>provides an executable named <strong><code>tsc6</code></strong> (so it does not collide with 7&#39;s <code>tsc</code>), and</li>
+<li><strong>re-exports the TypeScript 6.0 API</strong>, so tooling that needs the old API keeps working.</li>
+</ul>
+<p>Because tools like <code>typescript-eslint</code> expect to import from <code>typescript</code> directly, Microsoft documents an <strong>npm alias</strong> — but the alias has a trap worth stating before you run it: it replaces <code>typescript</code> with the <strong>6.0</strong> package, so <code>tsc</code> resolves to TypeScript 6 too. There are two clean setups, and you pick based on whether you have API consumers.</p>
+<p><strong>Setup A — no API consumers (plain <code>.ts</code>, React without template checking):</strong> install 7 as the compiler. <code>tsc</code> is fast, and nothing needs the old API.</p>
+<div class="codewrap"><pre data-lang="bash"><code>npm install -D typescript@^7</code></pre></div>
+<div class="codewrap"><pre data-lang="jsonc"><code>// package.json
+{ &quot;devDependencies&quot;: { &quot;typescript&quot;: &quot;^7.0.0&quot; } }</code></pre></div>
+<p><strong>Setup B — you have an API consumer (Vue/Svelte/Astro/MDX, Angular templates, <code>typescript-eslint</code>):</strong> install 7 <em>and</em> the 6 compatibility package, and keep the alias, accepting that <code>tsc</code> now runs 6 unless you invoke 7 explicitly.</p>
+<div class="codewrap"><pre data-lang="bash"><code>npm install -D typescript@npm:@typescript/typescript6 @typescript/typescript6
+# then run the fast compiler explicitly, without disturbing the alias:
+npx -p typescript@7 tsc --noEmit</code></pre></div>
+<div class="codewrap"><pre data-lang="jsonc"><code>// package.json
+{
+  &quot;devDependencies&quot;: {
+    &quot;typescript&quot;: &quot;npm:@typescript/typescript6@^6.0.0&quot;,  // tooling imports the 6.0 API
+    &quot;@typescript/typescript6&quot;: &quot;^6.0.0&quot;                   // supplies the `tsc6` binary
+  }
+}</code></pre></div>
+<p>The layout in each case:</p>
+<div class="codewrap"><pre data-lang=""><code>   SETUP A                       SETUP B
+   ───────                       ───────
+   tsc  → TypeScript 7           tsc  → TypeScript 6   (the alias is the default)
+   tsc6 → not needed             tsc6 → TypeScript 6   (same API, explicit name)
+                                 npx -p typescript@7 tsc → TypeScript 7 (the fast check)</code></pre></div>
+<p>Setup A needs one script; Setup B needs to be explicit about which compiler each job uses.</p>
+<div class="codewrap"><pre data-lang="jsonc"><code>// Setup A — scripts
+{ &quot;scripts&quot;: { &quot;check&quot;: &quot;tsc --noEmit&quot; } }</code></pre></div>
+<div class="codewrap"><pre data-lang="jsonc"><code>// Setup B — scripts
+{
+  &quot;scripts&quot;: {
+    &quot;check&quot;:     &quot;npx -p typescript@7 tsc --noEmit&quot;,
+    &quot;check:api&quot;: &quot;tsc --noEmit&quot;,
+    &quot;lint&quot;:      &quot;eslint .&quot;
+  }
+}</code></pre></div>
+<blockquote>
+<p><strong>The honest trade-off:</strong> in Setup B, the alias wins points for keeping <code>typescript-eslint</code> and framework tooling working, and loses the fast CLI unless you call TypeScript 7 explicitly as shown. If you have no API consumer, skip the alias entirely and take Setup A. When TypeScript 7.1 ships its API, the alias goes away and both setups collapse into A.</p>
+</blockquote>
+<blockquote>
+<p><strong>This is a bridge, not a destination.</strong> Framework maintainers are actively migrating, and TypeScript 7.1 is where the ecosystem is expected to land. Plan to remove the alias, not to keep it forever.</p>
+</blockquote>
+<h3 id="33-nightlies-moved">3.3 Nightlies moved</h3>
+<p>Before GA, most people installed the new compiler as <code>@typescript/native-preview</code>, which peaked at over 8.5 million weekly downloads. That package&#39;s last publish was 7 July 2026, one day before GA. Nightlies now resume under the <strong>standard <code>typescript</code> package on the <code>next</code> tag</strong>, currently in the 7.1.0-dev line:</p>
+<div class="codewrap"><pre data-lang="bash"><code>npm install -D typescript@next</code></pre></div>
+<p>The Go source lived in a staging repository, <code>github.com/microsoft/typescript-go</code>, which Microsoft has since closed and archived (September 2026) as development returned to the main <code>microsoft/TypeScript</code> repository.</p>
+<hr>
+</section><section id="part-4--the-migration-playbook"><h2 id="part-4--the-migration-playbook">Part 4 — The Migration Playbook</h2>
+<h3 id="41-the-order-that-avoids-pain">4.1 The order that avoids pain</h3>
+<div class="codewrap"><pre data-lang=""><code>   1. Get CI on TypeScript 6.0            (it is already the last JS release)
+   2. Turn off ignoreDeprecations         (see the warnings you have been hiding)
+   3. Fix the deprecated options          (Part 2.3)
+   4. Confirm a clean `tsc --noEmit`      (7 promises parity, not improvement)
+   5. Install TypeScript 7 as the CLI     (keep 6 available via the alias)
+   6. Run both on your repo, compare      (`stableTypeOrdering` on, for both)
+   7. Move CI's `check` step to tsc       (7 is fast; keep tsc6 for the tools)
+   8. Wait for 7.1 before removing 6      (the API is the gate, not the CLI)</code></pre></div>
+<p>Steps 1–4 are the real work. Steps 5–7 are a swap.</p>
+<h3 id="42-a-concrete-beforeafter">4.2 A concrete before/after</h3>
+<div class="codewrap"><pre data-lang="jsonc"><code>// BEFORE — TypeScript 5.x/6.x with legacy options
+{
+  &quot;compilerOptions&quot;: {
+    &quot;target&quot;: &quot;es5&quot;,
+    &quot;module&quot;: &quot;umd&quot;,
+    &quot;moduleResolution&quot;: &quot;node&quot;,
+    &quot;baseUrl&quot;: &quot;./src&quot;,
+    &quot;downlevelIteration&quot;: true,
+    &quot;ignoreDeprecations&quot;: &quot;6.0&quot;
+  }
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="jsonc"><code>// AFTER — TypeScript 7-compatible
+{
+  &quot;compilerOptions&quot;: {
+    &quot;target&quot;: &quot;es2022&quot;,
+    &quot;module&quot;: &quot;esnext&quot;,
+    &quot;moduleResolution&quot;: &quot;bundler&quot;,
+    &quot;types&quot;: [&quot;node&quot;],              // the new default is [], so be explicit
+    &quot;rootDir&quot;: &quot;./src&quot;,
+    &quot;stableTypeOrdering&quot;: true,     // deterministic emit for a like-for-like diff
+    &quot;noEmit&quot;: true
+  }
+}</code></pre></div>
+<h3 id="43-measuring-it-on-your-own-repo">4.3 Measuring it on your own repo</h3>
+<p>Do not trust a slide. Run the comparison yourself:</p>
+<div class="codewrap"><pre data-lang="bash"><code># 1. the old compiler, warmed and repeated
+npx -p typescript@6 tsc --noEmit --extendedDiagnostics
+
+# 2. the new compiler, same command
+npx tsc --noEmit --extendedDiagnostics
+
+# 3. a like-for-like diff of the emitted declarations, if you emit them
+#    (both commands need the 6.0 API, so reach for tsc6 or the alias target)
+npx -p @typescript/typescript6 tsc --declaration --emitDeclarationOnly --outDir .tmp/ts6
+npx -p typescript@7 tsc --declaration --emitDeclarationOnly --outDir .tmp/ts7
+diff -r .tmp/ts6 .tmp/ts7 &amp;&amp; echo &quot;identical&quot;</code></pre></div>
+<p><code>--extendedDiagnostics</code> prints the check time and the file/type counts. If the two compilers report the same counts and the declarations diff clean, you have the parity the release promises. If either disagrees, you found a real difference — and an issue worth filing.</p>
+<h3 id="44-parallelism-controls">4.4 Parallelism controls</h3>
+<p>TypeScript 7 adds three flags for tuning the new multi-threaded behaviour:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Purpose</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--checkers</code></td>
+<td>Number of parallel type-checkers</td>
+<td>Labelled experimental</td>
+</tr>
+<tr>
+<td><code>--builders</code></td>
+<td>Number of parallel project builders</td>
+<td>Labelled experimental</td>
+</tr>
+<tr>
+<td><code>--singleThreaded</code></td>
+<td>Disable parallelisation entirely</td>
+<td>Useful for debugging and constrained environments</td>
+</tr>
+</tbody></table>
+<div class="codewrap"><pre data-lang="bash"><code># pin parallelism, which is what CI runners usually want
+tsc --noEmit --checkers 4
+
+# reproduce a bug deterministically
+tsc --noEmit --singleThreaded</code></pre></div>
+<blockquote>
+<p><strong>Leave the experimental flags alone unless you have a reason.</strong> The defaults are tuned; <code>--singleThreaded</code> is the one worth remembering, because it turns a flaky parallel failure into a reproducible one.</p>
+</blockquote>
+<hr>
+</section><section id="part-5--side-by-side-what-changed-and-what-did-not"><h2 id="part-5--side-by-side-what-changed-and-what-did-not">Part 5 — Side by Side: What Changed and What Did Not</h2>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>TypeScript 6.0</th>
+<th>TypeScript 7.0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Implementation</td>
+<td>JavaScript (final JS release)</td>
+<td>Go (native port, &quot;Corsa&quot;)</td>
+</tr>
+<tr>
+<td>Full-build speed</td>
+<td>Baseline</td>
+<td>~8–12× faster (vendor benchmarks)</td>
+</tr>
+<tr>
+<td>Type-checking semantics</td>
+<td>The reference</td>
+<td>Intended to be identical</td>
+</tr>
+<tr>
+<td>Public compiler API</td>
+<td>Yes</td>
+<td><strong>Not yet</strong> — expected in 7.1</td>
+</tr>
+<tr>
+<td>CLI type-checking</td>
+<td>Works</td>
+<td>Works, much faster</td>
+</tr>
+<tr>
+<td>Template tooling (Vue/Svelte/Astro/MDX/Angular)</td>
+<td>Works</td>
+<td><strong>Not supported yet</strong></td>
+</tr>
+<tr>
+<td><code>target: es5</code></td>
+<td>Deprecated, warns</td>
+<td>Hard error</td>
+</tr>
+<tr>
+<td><code>baseUrl</code></td>
+<td>Deprecated</td>
+<td>Removed</td>
+</tr>
+<tr>
+<td><code>types</code> default</td>
+<td>All <code>@types</code> packages</td>
+<td><code>[]</code></td>
+</tr>
+<tr>
+<td><code>rootDir</code> default</td>
+<td>Inferred</td>
+<td><code>./</code></td>
+</tr>
+<tr>
+<td>Parallelism flags</td>
+<td>None</td>
+<td><code>--checkers</code>, <code>--builders</code>, <code>--singleThreaded</code></td>
+</tr>
+<tr>
+<td>Nightly package</td>
+<td><code>typescript@next</code></td>
+<td><code>typescript@next</code> (7.1.0-dev)</td>
+</tr>
+<tr>
+<td>Support expectation</td>
+<td>Patches only</td>
+<td>Active line</td>
+</tr>
+</tbody></table>
+<p><strong>What did not change:</strong> the type system, the syntax, the semantics of assignability, narrowing, generics, or inference. If your code compiled cleanly before, it is meant to compile cleanly now — faster. A &quot;new TypeScript feature&quot; in this release is a compiler feature, not a language one.</p>
+<blockquote>
+<p><strong>A useful mental check.</strong> If a headline about TypeScript 7 is about <em>syntax</em> or <em>the type system</em>, it is not about this release. The Go port changes the engine, not the language.</p>
+</blockquote>
+<hr>
+</section><section id="part-6--where-nodes-type-stripping-changes-the-picture"><h2 id="part-6--where-nodes-type-stripping-changes-the-picture">Part 6 — Where Node&#39;s Type Stripping Changes the Picture</h2>
+<p>There is a wrinkle worth stating plainly, because it interacts with Paper 18 in this series. <strong>Node.js type stripping is stable and on by default</strong>, so plenty of new code runs <code>.ts</code> files with no build step at all. In that world the compiler has a narrower job:</p>
+<table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Who does it now</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Running TypeScript in dev and prod</td>
+<td>Node&#39;s stripper</td>
+</tr>
+<tr>
+<td><strong>Checking</strong> types</td>
+<td><code>tsc --noEmit</code> / <code>tsc6</code></td>
+</tr>
+<tr>
+<td>Template type-checking</td>
+<td>Framework tooling (needs the TS 6 API)</td>
+</tr>
+<tr>
+<td>Emitting declarations for a library</td>
+<td><code>tsc --declaration</code></td>
+</tr>
+</tbody></table>
+<p>That is why a fast CLI matters so much: the compiler is increasingly a <strong>checker in CI and a declaration emitter in release</strong>, not a build step in the middle of every run. TypeScript 7&#39;s speedup lands exactly where the remaining cost is.</p>
+<blockquote>
+<p><strong>The config that pairs with stripping:</strong> <code>erasableSyntaxOnly: true</code>, so the compiler rejects syntax Node cannot strip (<code>enum</code>, runtime <code>namespace</code>, parameter properties, decorators) at author time rather than at runtime. See Paper 18, Part 1.</p>
+</blockquote>
+<hr>
+</section><section id="part-7--editor-and-build-tooling-what-to-do-this-month"><h2 id="part-7--editor-and-build-tooling-what-to-do-this-month">Part 7 — Editor and Build Tooling: What to Do This Month</h2>
+<h3 id="71-decide-which-group-you-are-in">7.1 Decide which group you are in</h3>
+<table>
+<thead>
+<tr>
+<th>Your stack</th>
+<th>Can you move the CLI to TS 7?</th>
+<th>Can you move everything?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Plain <code>.ts</code> Node service</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>React + <code>.ts</code>/<code>.tsx</code> (no template checking)</td>
+<td>Yes</td>
+<td>Usually</td>
+</tr>
+<tr>
+<td><code>typescript-eslint</code> in CI</td>
+<td>Yes for <code>tsc</code></td>
+<td>Keep the alias for the linter</td>
+</tr>
+<tr>
+<td>Vue / Svelte / Astro / MDX</td>
+<td>Yes for <code>tsc</code></td>
+<td><strong>No</strong> — blocked on the API</td>
+</tr>
+<tr>
+<td>Angular (template checking)</td>
+<td>Yes for <code>tsc</code></td>
+<td><strong>No</strong> — blocked on the API</td>
+</tr>
+<tr>
+<td>A library that ships <code>.d.ts</code></td>
+<td>Yes</td>
+<td>Verify the declaration diff</td>
+</tr>
+</tbody></table>
+<h3 id="72-the-side-by-side-setup-in-full">7.2 The side-by-side setup, in full</h3>
+<div class="codewrap"><pre data-lang="bash"><code># install 7 as the primary, 6 as the bridge
+npm install -D typescript @typescript/typescript6</code></pre></div>
+<div class="codewrap"><pre data-lang="jsonc"><code>// package.json — three jobs, three commands
+{
+  &quot;scripts&quot;: {
+    &quot;check&quot;:        &quot;tsc --noEmit&quot;,          // TypeScript 7, fast
+    &quot;check:legacy&quot;: &quot;tsc6 --noEmit&quot;,         // TypeScript 6, for parity checks
+    &quot;build:types&quot;:  &quot;tsc --declaration --emitDeclarationOnly&quot;
+  }
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="jsonc"><code>// .vscode/settings.json — pin the editor's TypeScript deliberately
+{
+  &quot;typescript.tsdk&quot;: &quot;node_modules/typescript/lib&quot;,
+  &quot;typescript.enablePromptUseWorkspaceTsdk&quot;: true
+}</code></pre></div>
+<blockquote>
+<p><strong>Editors can disagree with CI.</strong> VS Code ships its own TypeScript. When the editor and the build report different errors, the workspace SDK setting above is usually the reason. Pin it so both read the same compiler.</p>
+</blockquote>
+<h3 id="73-what-to-tell-a-teammate">7.3 What to tell a teammate</h3>
+<ol>
+<li>The language did not change; the engine did.</li>
+<li>Your editor gets a workspace TypeScript from <code>node_modules</code>, not from VS Code.</li>
+<li><code>tsc</code> is 7 and fast; <code>tsc6</code> is 6 and stays until 7.1 ships the API.</li>
+<li>If you touch a <code>.vue</code>, <code>.svelte</code>, <code>.astro</code>, or <code>.mdx</code> file, template checking is still on the old compiler.</li>
+<li>Nothing about runtime behaviour should differ; if it does, that is a bug worth reporting.</li>
+</ol>
+<hr>
+</section><section id="cheat-sheet"><h2 id="cheat-sheet">Cheat Sheet</h2>
+<div class="codewrap"><pre data-lang="bash"><code># ─── VERSIONS ───────────────────────────────────────────────────────
+npx tsc --version            # what the CLI resolves to (expect 7.x)
+npx tsc6 --version           # the TypeScript 6 bridge binary (6.0.x)
+npm install -D typescript@next          # 7.1.0-dev nightlies
+
+# ─── INSTALL THE SIDE-BY-SIDE BRIDGE ────────────────────────────────
+npm install -D typescript @typescript/typescript6
+
+# ─── CHECK FAST ─────────────────────────────────────────────────────
+tsc --noEmit                       # TypeScript 7
+tsc --noEmit --extendedDiagnostics # see the check time and counts
+tsc --noEmit --singleThreaded      # reproduce a parallel-only failure
+tsc --noEmit --checkers 4          # pin parallelism (experimental)
+
+# ─── COMPARE 6 VS 7 ─────────────────────────────────────────────────
+npx -p typescript@6 tsc --noEmit --extendedDiagnostics
+npx -p typescript@7 tsc --noEmit --extendedDiagnostics
+npx -p @typescript/typescript6 tsc --declaration --emitDeclarationOnly --outDir .tmp/ts6
+npx -p typescript@7 tsc --declaration --emitDeclarationOnly --outDir .tmp/ts7
+diff -r .tmp/ts6 .tmp/ts7</code></pre></div>
+<div class="codewrap"><pre data-lang="jsonc"><code>// tsconfig.json — TypeScript 7-compatible
+{
+  &quot;compilerOptions&quot;: {
+    &quot;target&quot;: &quot;es2022&quot;,
+    &quot;module&quot;: &quot;esnext&quot;,
+    &quot;moduleResolution&quot;: &quot;bundler&quot;,
+    &quot;types&quot;: [&quot;node&quot;],
+    &quot;rootDir&quot;: &quot;./src&quot;,
+    &quot;stableTypeOrdering&quot;: true,
+    &quot;noEmit&quot;: true
+  }
+}</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>I need to…</th>
+<th>Do this</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Type-check fast today</td>
+<td><code>tsc --noEmit</code> on TypeScript 7</td>
+</tr>
+<tr>
+<td>Keep Vue/Svelte/Astro/Angular tooling working</td>
+<td>Install <code>@typescript/typescript6</code> and keep TS 6</td>
+</tr>
+<tr>
+<td>Keep ESLint&#39;s type-aware rules working</td>
+<td>npm alias to the TS 6 package</td>
+</tr>
+<tr>
+<td>Compare 6 and 7 fairly</td>
+<td><code>stableTypeOrdering: true</code> on both, no <code>ignoreDeprecations</code></td>
+</tr>
+<tr>
+<td>Pin the editor&#39;s compiler</td>
+<td><code>typescript.tsdk</code> in <code>.vscode/settings.json</code></td>
+</tr>
+<tr>
+<td>Debug a parallel-only failure</td>
+<td><code>--singleThreaded</code></td>
+</tr>
+<tr>
+<td>Get TS 7.1 nightlies</td>
+<td><code>typescript@next</code></td>
+</tr>
+<tr>
+<td>Emit types once</td>
+<td><code>tsc --declaration --emitDeclarationOnly</code></td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>error TS5107: Option &#39;target=ES5&#39; is deprecated/removed</code></td>
+<td>Removed in 7.0</td>
+<td>Raise <code>target</code> to <code>es2022</code> or newer</td>
+</tr>
+<tr>
+<td><code>baseUrl</code> error</td>
+<td><code>baseUrl</code> is no longer supported</td>
+<td>Move to <code>paths</code> without it, or use relative imports</td>
+</tr>
+<tr>
+<td>Types that used to resolve now fail</td>
+<td><code>types</code> defaults to <code>[]</code></td>
+<td>List them explicitly: <code>&quot;types&quot;: [&quot;node&quot;, ...]</code></td>
+</tr>
+<tr>
+<td>Editor and CLI show different errors</td>
+<td>Editor uses its own TypeScript</td>
+<td>Set <code>typescript.tsdk</code> to the workspace compiler</td>
+</tr>
+<tr>
+<td>Vue/Svelte/Astro template errors vanish</td>
+<td>Template tooling cannot run on 7</td>
+<td>Keep <code>@typescript/typescript6</code> and use <code>tsc6</code> for those checks</td>
+</tr>
+<tr>
+<td><code>typescript-eslint</code> crashes after upgrade</td>
+<td>It imports the compiler API via a peer dep</td>
+<td>Alias <code>typescript</code> to <code>@typescript/typescript6</code> (Setup B), then run the fast compiler as <code>npx -p typescript@7 tsc</code></td>
+</tr>
+<tr>
+<td>Build is not 10× faster</td>
+<td>Small project, or I/O-bound</td>
+<td>Measure with <code>--extendedDiagnostics</code>; expect your own ratio</td>
+</tr>
+<tr>
+<td><code>IgnoreDeprecations</code> no longer silences anything</td>
+<td>7 removed those options</td>
+<td>Fix them; there is nothing left to silence</td>
+</tr>
+<tr>
+<td>Flaky failure only under parallelism</td>
+<td>A thread-safety bug or a race in a plugin</td>
+<td>Reproduce with <code>--singleThreaded</code>, then file it</td>
+</tr>
+<tr>
+<td>Declaration output differs between 6 and 7</td>
+<td>Non-deterministic ordering or a genuine difference</td>
+<td>Turn on <code>stableTypeOrdering</code>; if it persists, diff and file</td>
+</tr>
+<tr>
+<td><code>tsc6</code> not found</td>
+<td>Compatibility package not installed</td>
+<td><code>npm install -D @typescript/typescript6</code></td>
+</tr>
+<tr>
+<td><code>@typescript/native-preview</code> stopped updating</td>
+<td>It was retired at GA</td>
+<td>Use <code>typescript@next</code></td>
+</tr>
+<tr>
+<td><code>node app.ts</code> still needs a transpiler</td>
+<td>Node cannot strip <code>enum</code>/decorators/namespaces</td>
+<td>Set <code>erasableSyntaxOnly: true</code> and rewrite, or keep a build step</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>YouTube <strong>search</strong> links only — compiler releases date quickly.</p>
+<table>
+<thead>
+<tr>
+<th>Search</th>
+<th>What you&#39;ll find</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://www.youtube.com/results?search_query=TypeScript+7+Go+compiler" target="_blank" rel="noopener">TypeScript 7 Go compiler</a></td>
+<td>The native port explained</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=TypeScript+7+migration+guide" target="_blank" rel="noopener">TypeScript 7 migration</a></td>
+<td>Upgrading 6 → 7 in practice</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=tsgo+typescript+native+preview" target="_blank" rel="noopener">tsgo native preview</a></td>
+<td>The preview era and what replaced it</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=TypeScript+6+new+defaults+deprecations" target="_blank" rel="noopener">TypeScript 6 new defaults</a></td>
+<td>The bridge release</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=typescript-eslint+TypeScript+7" target="_blank" rel="noopener">typescript-eslint TypeScript 7</a></td>
+<td>Keeping lint working</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Volar+TypeScript+version+support" target="_blank" rel="noopener">Volar TypeScript version</a></td>
+<td>Framework tooling and the API gap</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=TypeScript+compiler+API+tutorial" target="_blank" rel="noopener">TypeScript compiler API</a></td>
+<td>What tools actually use</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=tsc+extendedDiagnostics+performance" target="_blank" rel="noopener">tsc extendedDiagnostics</a></td>
+<td>Measuring a type-check</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=TypeScript+project+references" target="_blank" rel="noopener">TypeScript project references</a></td>
+<td>Monorepo build shape</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Node+type+stripping+TypeScript" target="_blank" rel="noopener">Node type stripping TypeScript</a></td>
+<td>Running TS without the compiler</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--docs"><h2 id="written-references--docs">Written References &amp; Docs</h2>
+<p>Microsoft&#39;s own announcements are the primary source for every version claim here.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Announcing TypeScript 7.0</td>
+<td><code>https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/</code></td>
+</tr>
+<tr>
+<td>Announcing TypeScript 6.0</td>
+<td><code>https://devblogs.microsoft.com/typescript/announcing-typescript-6-0/</code></td>
+</tr>
+<tr>
+<td>TypeScript blog index (RC, beta, release notes)</td>
+<td><code>https://devblogs.microsoft.com/typescript/</code></td>
+</tr>
+<tr>
+<td>TypeScript releases (all versions and dates)</td>
+<td><code>https://github.com/microsoft/typescript/releases</code></td>
+</tr>
+<tr>
+<td>TypeScript Go port (staging repo)</td>
+<td><code>https://github.com/microsoft/typescript-go</code></td>
+</tr>
+<tr>
+<td><code>tsconfig</code> reference</td>
+<td><code>https://www.typescriptlang.org/tsconfig</code></td>
+</tr>
+<tr>
+<td><code>stableTypeOrdering</code></td>
+<td><code>https://www.typescriptlang.org/tsconfig/#stableTypeOrdering</code></td>
+</tr>
+<tr>
+<td><code>@typescript/typescript6</code> on npm</td>
+<td><code>https://www.npmjs.com/package/@typescript/typescript6</code></td>
+</tr>
+<tr>
+<td>TypeScript-ESLint</td>
+<td><code>https://typescript-eslint.io/</code></td>
+</tr>
+<tr>
+<td>Volar (Vue language tooling)</td>
+<td><code>https://github.com/vuejs/language-tools</code></td>
+</tr>
+<tr>
+<td>Node.js type stripping (the runtime side)</td>
+<td><code>https://nodejs.org/api/typescript.html</code></td>
+</tr>
+</tbody></table>
+<p><strong>Third-party, for context only:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Release-analysis blog posts</td>
+<td>Useful summaries; some repeat the benchmark table without labelling it vendor data</td>
+</tr>
+<tr>
+<td>Performance write-ups</td>
+<td>Often single-project; verify on your own repo</td>
+</tr>
+<tr>
+<td>Framework migration guides</td>
+<td>The real source for &quot;is my stack unblocked yet&quot;</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Verification tip:</strong> the speedup numbers are Microsoft&#39;s, measured on Microsoft&#39;s chosen projects. The only number that matters for your decision is the one you measure with <code>--extendedDiagnostics</code> on your own codebase.</p>
+</blockquote>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English definition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Corsa</td>
+<td>The codename for the Go port of TypeScript</td>
+</tr>
+<tr>
+<td>Native port</td>
+<td>Reimplementing the same logic in a compiled language</td>
+</tr>
+<tr>
+<td><code>tsgo</code></td>
+<td>The binary name used during the native preview</td>
+</tr>
+<tr>
+<td>Compiler API</td>
+<td>The programmatic interface tools use to read types and emit code</td>
+</tr>
+<tr>
+<td>Volar</td>
+<td>The language-tooling engine behind Vue, Svelte, and Astro support</td>
+</tr>
+<tr>
+<td><code>@typescript/typescript6</code></td>
+<td>The compatibility package providing <code>tsc6</code> and the TS 6 API</td>
+</tr>
+<tr>
+<td><code>tsc6</code></td>
+<td>The TypeScript 6 executable from that package</td>
+</tr>
+<tr>
+<td>npm alias</td>
+<td>Installing one package under another&#39;s name</td>
+</tr>
+<tr>
+<td><code>stableTypeOrdering</code></td>
+<td>A flag that makes declaration emit order deterministic</td>
+</tr>
+<tr>
+<td><code>ignoreDeprecations</code></td>
+<td>A flag that silences deprecation errors</td>
+</tr>
+<tr>
+<td>Hard error</td>
+<td>A removed option that now fails the build</td>
+</tr>
+<tr>
+<td><code>--checkers</code></td>
+<td>Experimental flag for parallel type-checking count</td>
+</tr>
+<tr>
+<td><code>--builders</code></td>
+<td>Experimental flag for parallel project building</td>
+</tr>
+<tr>
+<td><code>--singleThreaded</code></td>
+<td>Disables parallelisation for debugging</td>
+</tr>
+<tr>
+<td><code>--extendedDiagnostics</code></td>
+<td>Prints check time and file/type counts</td>
+</tr>
+<tr>
+<td>Declaration emit</td>
+<td>Producing <code>.d.ts</code> files for consumers</td>
+</tr>
+<tr>
+<td>Peer dependency</td>
+<td>A package your tool expects your project to provide</td>
+</tr>
+<tr>
+<td><code>erasableSyntaxOnly</code></td>
+<td>A flag that rejects TS syntax Node cannot strip</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Is TypeScript 7 a new language?</strong> No. It is the same compiler, ported to Go. The type system, syntax, and semantics are intended to be identical to 6.0.</p>
+<p><strong>Can I use it today?</strong> The CLI, yes. Anything that imports the compiler programmatically, no — not until the API ships, expected in 7.1.</p>
+<p><strong>Why do Vue, Svelte, Astro, MDX, and Angular not work?</strong> Their template type-checking runs through the compiler&#39;s API, which 7.0 does not expose. The CLI is fine; the tooling is blocked.</p>
+<p><strong>What is <code>tsc6</code>?</strong> The TypeScript 6 executable from <code>@typescript/typescript6</code>, installable alongside 7 so tools that need the old API keep working.</p>
+<p><strong>How do I keep <code>typescript-eslint</code> working?</strong> Use Setup B: alias <code>typescript</code> to the TS 6 package (<code>npm install -D typescript@npm:@typescript/typescript6 @typescript/typescript6</code>), then call the fast compiler explicitly with <code>npx -p typescript@7 tsc</code>. The alias also makes plain <code>tsc</code> run 6, which is the trade-off.</p>
+<p><strong>Will I really see 10×?</strong> Possibly, on a large project, for a full build. Measure with <code>--extendedDiagnostics</code>; small projects and I/O-bound builds see less.</p>
+<p><strong>Why is TypeScript 6 important if 7 is the goal?</strong> 6.0 is where the new defaults and deprecations were introduced, while you could still run the old engine. 7.0 makes them mandatory. Going through 6 turns one big breakage into two manageable ones.</p>
+<p><strong>What changed silently that could break me?</strong> <code>types</code> now defaults to <code>[]</code>, so implicit <code>@types</code> no longer load, and <code>rootDir</code> defaults to <code>./</code>. Both are easy to fix and easy to miss.</p>
+<p><strong>Should I delete <code>@typescript/native-preview</code>?</strong> Yes — it was retired at GA. Nightlies are <code>typescript@next</code> now.</p>
+<p><strong>Does this change how I run TypeScript?</strong> Not by itself. If you also run Node 24+, type stripping handles execution and the compiler becomes primarily a checker in CI.</p>
+<p><strong>Where do I check whether my framework is unblocked?</strong> The framework&#39;s own language-tools repository, then <code>microsoft/TypeScript</code> releases for 7.1. Not a blog post.</p>
+<h3 id="next-steps-in-order">Next steps, in order</h3>
+<ol>
+<li><strong>Today:</strong> confirm your version and whether your stack imports the compiler (<code>npx tsc --version</code>; check your plugins).</li>
+<li><strong>This week:</strong> get to TypeScript 6.0, remove <code>ignoreDeprecations</code>, and fix what surfaces.</li>
+<li><strong>Next week:</strong> fix the removed options (Part 2.3) and restore <code>types</code> explicitly.</li>
+<li><strong>Week 3:</strong> measure 6 vs 7 on your repo with <code>--extendedDiagnostics</code> and a declaration diff.</li>
+<li><strong>Week 4:</strong> install the side-by-side bridge, move CI&#39;s check step to <code>tsc</code>, and pin the editor SDK.</li>
+<li><strong>Month 2:</strong> check for TypeScript 7.1 and the framework language-tool releases, then retire the bridge.</li>
+</ol>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p><strong>Verified as of September 2026 from Microsoft&#39;s own announcements and the TypeScript repository:</strong></p>
+<ul>
+<li><strong>TypeScript 7.0 GA on 8 July 2026</strong>; beta 21 April 2026, RC 18 June 2026. It is a native port of the compiler and language service to Go, codename <strong>Corsa</strong>; the release announcement describes speedups &quot;between 8x and 12x on full builds&quot; and quotes roughly 10× in other places (<code>devblogs.microsoft.com/typescript/announcing-typescript-7-0/</code>).</li>
+<li><strong>Benchmark table</strong> (VS Code 125.7 s → 10.6 s, Sentry 139.8 s → 15.7 s, Bluesky 24.3 s → 2.8 s, Playwright 12.8 s → 1.47 s, tldraw 11.2 s → 1.46 s) is <strong>Microsoft&#39;s published comparison</strong>, not an independent audit.</li>
+<li><strong>TypeScript 7.0 ships without a public compiler API.</strong> Microsoft states 7.1 is expected to ship &quot;a new (and different) API&quot;, and that until then it prioritised running 6 and 7 side by side (<code>announcing-typescript-7-0</code>).</li>
+<li><strong><code>@typescript/typescript6</code></strong> provides a <code>tsc6</code> executable and re-exports the TypeScript 6.0 API; the recommended install for tools with a <code>typescript</code> peer dependency is the npm alias <code>npm install -D typescript@npm:@typescript/typescript6</code> (<code>announcing-typescript-7-0</code>).</li>
+<li><strong>TypeScript 6.0</strong> shipped in March 2026 and is the final JavaScript-codebase release; there is no 6.1, with only patches for security, high-severity regressions, and 6-to-7 compatibility (TypeScript release reporting; <code>github.com/microsoft/typescript/releases</code>).</li>
+<li><strong>Compatibility statement:</strong> with <code>stableTypeOrdering</code> on and <code>ignoreDeprecations</code> unset, &quot;virtually anything&quot; that compiles cleanly under 6.0 should compile identically under 7.0; <code>stableTypeOrdering</code> is on by default in 7.0 and cannot be disabled (<code>announcing-typescript-7-0</code>).</li>
+<li><strong>Removed or changed options in 7.0:</strong> <code>target: es5</code>, <code>downlevelIteration</code>, <code>moduleResolution: node</code>/<code>node10</code>, <code>module: amd</code>/<code>umd</code>/<code>systemjs</code>/<code>none</code>, and <code>baseUrl</code>; <code>types</code> defaults to <code>[]</code>; <code>rootDir</code> defaults to <code>./</code> (release-analysis reports citing the 6.0/7.0 announcements).</li>
+<li><strong>New flags:</strong> experimental <code>--checkers</code> and <code>--builders</code>, plus <code>--singleThreaded</code> (<code>announcing-typescript-7-0</code>).</li>
+<li><strong>Nightlies</strong> moved from <code>@typescript/native-preview</code> (last publish 7 July 2026) to the standard <code>typescript</code> package on the <code>next</code> tag, in the 7.1.0-dev line (<code>announcing-typescript-7-0</code>).</li>
+<li><strong>Blocked tooling:</strong> workflows using Vue, MDX, Astro, Svelte, and similar tools, plus specialised in-template checking such as Angular&#39;s, are stated to be unable to take advantage of TypeScript 7 yet (<code>announcing-typescript-7-0</code>).</li>
+<li><strong>TypeScript 6.0 beta included Temporal type definitions</strong> (Igalia, on the Temporal Stage 4 announcement).</li>
+</ul>
+<p><strong>Where I am relying on third-party analysis rather than a primary source:</strong> the exact patch-release dates and the current version number (7.0.2) come from the GitHub releases listing and release-analysis posts, which are not always perfectly aligned on the publication date. The migration playbook, the side-by-side layout, and the &quot;which group are you in&quot; table are my synthesis of the documented constraints, not Microsoft&#39;s guidance verbatim.</p>
+<p><strong>Vendor claims, not independently verified:</strong> every benchmark figure, including the 8–12× range and the five per-project numbers. All are Microsoft&#39;s, measured on projects Microsoft chose. Your ratio will differ; measure it.</p>
+<p><strong>Changes fast:</strong> TypeScript 7.1 and its new API are the gate on most of the ecosystem, and framework language tooling is migrating towards it. Re-check <code>microsoft/TypeScript</code> releases and the relevant framework&#39;s language-tools repository before assuming a stack is unblocked.</p>
+<p><strong>Not a compatibility guarantee.</strong> The 6-to-7 parity statement is qualified by Microsoft with the <code>stableTypeOrdering</code> and <code>ignoreDeprecations</code> conditions. Verify on your own code with the Part 4.3 commands rather than trusting the general claim.</p>
+<hr>
+</section><section id="your-setup-notes-mac--vs-code--opencode"><h2 id="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</h2>
+<p><strong>How I&#39;d fold this into my own stack.</strong></p>
+<table>
+<thead>
+<tr>
+<th>In my workspace</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Plain <code>.ts</code> Node service</td>
+<td>CLI to TypeScript 7 today; no blocker</td>
+</tr>
+<tr>
+<td><code>typescript</code> in devDependencies</td>
+<td>Upgrade to 7; add <code>@typescript/typescript6</code> as the bridge</td>
+</tr>
+<tr>
+<td><code>typescript-eslint</code> in CI</td>
+<td>Use Setup B: alias <code>typescript</code> to the TS 6 package, and run the fast check as <code>npx -p typescript@7 tsc</code></td>
+</tr>
+<tr>
+<td>VS Code&#39;s bundled TypeScript</td>
+<td>Pin the workspace SDK so editor and CI agree</td>
+</tr>
+<tr>
+<td>Any <code>.vue</code> / <code>.svelte</code> / <code>.astro</code> / <code>.mdx</code></td>
+<td>Template checking stays on TS 6 until 7.1</td>
+</tr>
+<tr>
+<td><code>target: es5</code> in an old tsconfig</td>
+<td>Fix before 7, or the build fails immediately</td>
+</tr>
+<tr>
+<td>Node 24+ running <code>.ts</code> directly</td>
+<td>Keep <code>tsc --noEmit</code>; the runtime does not check</td>
+</tr>
+<tr>
+<td>A library that ships <code>.d.ts</code></td>
+<td>Diff declarations between 6 and 7 before publishing</td>
+</tr>
+</tbody></table>
+<p><strong>Recommended setup:</strong></p>
+<ul>
+<li><strong>Two compilers, on purpose.</strong> <code>tsc</code> for the fast check, <code>tsc6</code> for the tools that need the API. Remove the bridge when 7.1 lands.</li>
+<li><strong><code>stableTypeOrdering: true</code></strong> while you are comparing, so ordering noise does not look like a real difference.</li>
+<li><strong><code>types</code> listed explicitly.</strong> The new <code>[]</code> default is a correctness win and a silent breakage if you forget it.</li>
+<li><strong><code>--extendedDiagnostics</code> in your notes.</strong> Paste the before/after into the PR that upgrades, so the speedup is evidence rather than folklore.</li>
+<li><strong>One CI step, one compiler.</strong> Decide which binary the <code>check</code> step runs and make the editor match.</li>
+<li><strong>What I would not do:</strong> upgrade a framework project to TypeScript 7 and expect template checking to work, or keep <code>@typescript/native-preview</code> pinned after GA. Both waste an afternoon.</li>
+</ul>
+<p><strong>Smoke test for the first session, in order:</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code># 1. where am I?
+npx tsc --version
+
+# 2. is my stack blocked? (does anything consume the compiler API?)
+node -e &quot;const p=require('./package.json');const d={...p.dependencies,...p.devDependencies};console.log(['typescript-eslint','vue','svelte','astro','@angular/compiler-cli','@mdx-js/mdx'].filter(k=&gt;d[k]).join('\n')||'no known API consumers')&quot;
+
+# 3. measure before you switch
+npx tsc --noEmit --extendedDiagnostics | tail -20
+npx -p typescript@6 tsc --noEmit --extendedDiagnostics | tail -20</code></pre></div>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Web Platform</span> · 7 parts · ~22 min · Generated from <code>markdown_docs/19-typescript-7-go-compiler-2026.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>

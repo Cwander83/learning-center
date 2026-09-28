@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Node.js Built-In Toolchain (24 &amp; 26) — Learning Center</title>
+<meta name="description" content="ts-node , dotenv , nodemon , and jest are now four dependencies you can delete. Node ships type stripping, an env loader, watch mode, a test runner, SQLite, and a permission sandbox in the standard binary. Here is what each one does, how to migrate, and where the built-in still loses to the tool it replaces.">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="18-nodejs-builtin-toolchain-2026">
+<header class="topbar">
+  <a class="homebtn" href="../index.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/></svg>Home</a>
+  <span class="brand">The Node.js Built-In Toolchain (24 &amp; 26)</span>
+  <button id="themeToggle" title="Toggle dark / light" aria-label="Toggle dark and light theme">
+    <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <span id="themeLabel">Dark</span>
+  </button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<details id="toc" class="toc" open>
+<summary class="tocsum">Contents<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#the-analogy-table" data-sec="the-analogy-table" class="sub">The analogy table</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-0--the-audit-what-can-you-delete" data-sec="part-0--the-audit-what-can-you-delete">Part 0 — The Audit: What Can You Delete?</a><a href="#part-1--type-stripping-run-typescript-without-a-build" data-sec="part-1--type-stripping-run-typescript-without-a-build">Part 1 — Type Stripping: Run TypeScript Without a Build</a><a href="#11-what-it-does" data-sec="11-what-it-does" class="sub">1.1 What it does</a><a href="#12-the-trade-you-are-making" data-sec="12-the-trade-you-are-making" class="sub">1.2 The trade you are making</a><a href="#13-the-tsconfig-that-works-with-it" data-sec="13-the-tsconfig-that-works-with-it" class="sub">1.3 The tsconfig that works with it</a><a href="#14-the-four-things-that-still-need-a-build" data-sec="14-the-four-things-that-still-need-a-build" class="sub">1.4 The four things that still need a build</a><a href="#part-2--env-watch-and-scripts" data-sec="part-2--env-watch-and-scripts">Part 2 — Env, Watch, and Scripts</a><a href="#21---env-file-is-stable" data-sec="21---env-file-is-stable" class="sub">2.1 <code>--env-file</code> is stable</a><a href="#22---watch-and---run" data-sec="22---watch-and---run" class="sub">2.2 <code>--watch</code> and <code>--run</code></a><a href="#23-a-packagejson-with-the-ritual-deleted" data-sec="23-a-packagejson-with-the-ritual-deleted" class="sub">2.3 A <code>package.json</code> with the ritual deleted</a><a href="#part-3--the-test-runner-that-replaced-the-framework" data-sec="part-3--the-test-runner-that-replaced-the-framework">Part 3 — The Test Runner That Replaced the Framework</a><a href="#31-the-shape" data-sec="31-the-shape" class="sub">3.1 The shape</a><a href="#32-what-actually-ships" data-sec="32-what-actually-ships" class="sub">3.2 What actually ships</a><a href="#33-mocking-briefly" data-sec="33-mocking-briefly" class="sub">3.3 Mocking, briefly</a><a href="#34-the-honest-comparison" data-sec="34-the-honest-comparison" class="sub">3.4 The honest comparison</a><a href="#part-4--nodesqlite-a-database-in-the-standard-library" data-sec="part-4--nodesqlite-a-database-in-the-standard-library">Part 4 — <code>node:sqlite</code>: A Database in the Standard Library</a><a href="#41-what-it-is" data-sec="41-what-it-is" class="sub">4.1 What it is</a><a href="#42-its-status-stated-plainly" data-sec="42-its-status-stated-plainly" class="sub">4.2 Its status, stated plainly</a><a href="#43-where-it-wins-and-where-it-loses" data-sec="43-where-it-wins-and-where-it-loses" class="sub">4.3 Where it wins and where it loses</a><a href="#part-5--the-permission-model-a-process-with-a-seatbelt" data-sec="part-5--the-permission-model-a-process-with-a-seatbelt">Part 5 — The Permission Model: A Process With a Seatbelt</a><a href="#51-stable-and-worth-turning-on" data-sec="51-stable-and-worth-turning-on" class="sub">5.1 Stable, and worth turning on</a><a href="#52-what-it-is-not" data-sec="52-what-it-is-not" class="sub">5.2 What it is not</a><a href="#part-6--esm-cjs-and-the-friction-that-finally-ended" data-sec="part-6--esm-cjs-and-the-friction-that-finally-ended">Part 6 — ESM, CJS, and the Friction That Finally Ended</a><a href="#61-requireesm-is-stable" data-sec="61-requireesm-is-stable" class="sub">6.1 <code>require(esm)</code> is stable</a><a href="#62-what-to-use-in-new-code" data-sec="62-what-to-use-in-new-code" class="sub">6.2 What to use in new code</a><a href="#63-the-deprecations-to-plan-for" data-sec="63-the-deprecations-to-plan-for" class="sub">6.3 The deprecations to plan for</a><a href="#part-7--release-cadence-one-major-per-year" data-sec="part-7--release-cadence-one-major-per-year">Part 7 — Release Cadence: One Major Per Year</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheet" data-sec="cheat-sheet">Cheat Sheet</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--docs" data-sec="written-references--docs">Written References &amp; Docs</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#next-steps-in-order" data-sec="next-steps-in-order" class="sub">Next steps, in order</a><a href="#verification-note" data-sec="verification-note">Verification Note</a><a href="#your-setup-notes-mac--vs-code--opencode" data-sec="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</a></div>
+</nav>
+</details>
+<main>
+<h1>The Node.js Built-In Toolchain (24 &amp; 26)</h1>
+<div class="callout lede"><code>ts-node</code>, <code>dotenv</code>, <code>nodemon</code>, and <code>jest</code> are now four dependencies you can delete. Node ships type stripping, an env loader, watch mode, a test runner, SQLite, and a permission sandbox in the standard binary. Here is what each one does, how to migrate, and where the built-in still loses to the tool it replaces.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>For most of its life, a new Node.js project started with the same five-install ritual: a TypeScript runner, an env loader, a file watcher, a test framework, and a database driver. Every one of those existed because the runtime did not ship it. That stopped being true somewhere between Node 22 and Node 26, and most teams have not noticed.</p>
+<p>The change is not a single feature. It is that <strong>the runtime now ships the batteries</strong>, and the batteries are good enough that the third-party package is the one that needs a justification. <code>node --test</code> has coverage, mocking, snapshots, and parallelism. <code>node --experimental-strip-types</code> — now just the default — runs <code>.ts</code> files with no build step. <code>node --env-file</code> is stable. <code>node --watch</code> restarts on change. <code>node:sqlite</code> is a release candidate inside the standard library.</p>
+<div class="codewrap"><pre data-lang=""><code>   THE FIVE-INSTALL RITUAL, BEFORE AND AFTER
+
+   BEFORE (Node 18)              AFTER (Node 24 / 26)
+   ────────────────              ────────────────────
+   ts-node / tsx            →    node app.ts          (type stripping, stable)
+   dotenv                   →    node --env-file=.env (.env flags, stable)
+   nodemon                  →    node --watch         (built in, stable)
+   jest / vitest            →    node --test          (runner + coverage + mocks)
+   better-sqlite3           →    node:sqlite          (RC, no native build)
+   cross-env / npm scripts  →    node --run build     (runs package.json scripts)
+   ────────────────              ────────────────────
+   5 deps + 3 config files      1 runtime, 0 build steps
+
+   WHAT YOU STILL NEED
+   tsc --noEmit      type CHECKING (stripping is not checking)
+   a bundler         for the browser, not the server
+   a linter          formatting/quality, unrelated to all of the above</code></pre></div>
+<p>The single most important idea: <strong>type stripping runs your TypeScript, it does not check it.</strong> Node erases the annotations and executes the JavaScript underneath. Your types are a build-time contract, and <code>tsc --noEmit</code> is still the thing that enforces it. If you take one sentence from this guide, take that one.</p>
+<h3 id="the-analogy-table">The analogy table</h3>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English analogy</th>
+<th>Why it matters to you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type stripping</strong></td>
+<td>Erasing pencil notes before photocopying</td>
+<td>Fast to run, but nothing verified the notes</td>
+</tr>
+<tr>
+<td><strong><code>tsc --noEmit</code></strong></td>
+<td>A proofreader who never edits the file</td>
+<td>The only thing that checks your types now</td>
+</tr>
+<tr>
+<td><strong><code>--env-file</code></strong></td>
+<td>A <code>.env</code> reader in the engine</td>
+<td>Deletes <code>dotenv</code> in greenfield code</td>
+</tr>
+<tr>
+<td><strong><code>--env-file-if-exists</code></strong></td>
+<td>The same, but forgiving</td>
+<td>The right flag for production, where no <code>.env</code> exists</td>
+</tr>
+<tr>
+<td><strong><code>node --watch</code></strong></td>
+<td>The file watcher nobody installs</td>
+<td>Deletes <code>nodemon</code></td>
+</tr>
+<tr>
+<td><strong><code>node --test</code></strong></td>
+<td>A test framework in the binary</td>
+<td>Deletes a test-runner dependency tree</td>
+</tr>
+<tr>
+<td><strong><code>node:sqlite</code></strong></td>
+<td>SQLite compiled into the runtime</td>
+<td>No native addon, no <code>node-gyp</code></td>
+</tr>
+<tr>
+<td><strong><code>--permission</code></strong></td>
+<td>A seatbelt for the process</td>
+<td>Limits files, network, children, workers</td>
+</tr>
+<tr>
+<td><strong><code>require(esm)</code></strong></td>
+<td>CJS and ESM finally shaking hands</td>
+<td>Removes the migration blocker</td>
+</tr>
+<tr>
+<td><strong><code>node --run</code></strong></td>
+<td>npm scripts without npm</td>
+<td>Faster, deterministic script running</td>
+</tr>
+<tr>
+<td><strong><code>node:bench</code></strong></td>
+<td>A benchmark runner, same shape as the tester</td>
+<td>Measure before you optimise</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The one-sentence version:</strong> audit your <code>package.json</code> for the packages Node now replaces, delete the ones that only wrap a built-in, and keep <code>tsc</code> because stripping runs TypeScript without ever checking it.</p>
+</blockquote>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>Node.js 24 is Active LTS</strong> (codename Krypton, 30-month support window). <strong>Node.js 26 is Current</strong>, released 5 May 2026, entering LTS in October 2026.</li>
+<li><strong>Type stripping is stable</strong> (v24.12.0 / v25.2.0) and on by default since v23.6.0. <code>node app.ts</code> just works — for erasable syntax.</li>
+<li><strong>It does not type-check.</strong> <code>tsc --noEmit</code> in CI is still mandatory; the runtime will happily run a type error.</li>
+<li><strong>Four syntax families still need transformation</strong>, not stripping: <code>enum</code>, <code>namespace</code> with runtime code, parameter properties, and decorators. They error at parse time.</li>
+<li><strong><code>--env-file</code> is stable</strong> since v24.10.0 / v22.21.0. Use <code>--env-file-if-exists</code> in production so a missing file is not fatal. No <code>${VAR}</code> interpolation.</li>
+<li><strong><code>node --watch</code> is stable</strong> and deletes <code>nodemon</code>. <strong><code>node --run</code></strong> runs <code>package.json</code> scripts without npm.</li>
+<li><strong><code>node --test</code> is production-quality</strong>: <code>describe</code>/<code>it</code>, mocks, snapshots, coverage, sharding, and randomized order (v26.1.0).</li>
+<li><strong><code>node:sqlite</code> is a release candidate</strong> (stability 1.2) with a fully synchronous <code>DatabaseSync</code> API. No native addon, no <code>node-gyp</code>.</li>
+<li><strong>The Permission Model is stable</strong> (v23.5.0 / v22.13.0). <code>--permission</code> plus <code>--allow-fs-read</code>, <code>--allow-net</code>, <code>--allow-child-process</code>, <code>--allow-worker</code>.</li>
+<li><strong>Node is moving to one release per year</strong> from the 27.x line: 27.0.0 Current in April 2027, LTS in October 2027.</li>
+</ol>
+<p>If you read nothing else, read <strong>Part 1 (type stripping)</strong> and <strong>Part 3 (the test runner)</strong>.</p>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Why</th>
+<th>Check</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Node.js 24 LTS or 26 Current</td>
+<td>Everything here needs one of them</td>
+<td><code>node --version</code></td>
+</tr>
+<tr>
+<td>A project with a <code>package.json</code></td>
+<td>So the audit in Part 0 is real</td>
+<td><code>ls package.json</code></td>
+</tr>
+<tr>
+<td>One existing test file</td>
+<td>To port to <code>node:test</code> and feel the difference</td>
+<td>any test file</td>
+</tr>
+<tr>
+<td>~10 minutes</td>
+<td>The whole migration is small</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Pick your target deliberately.</strong> Node 24 LTS is the boring, supportable choice. Node 26 Current gets you <code>Temporal</code> by default and the newest V8, at the cost of a shorter support window until October 2026. If you have CI on 20 or 18, upgrading to 24 is the single highest-value change in this guide.</p>
+</blockquote>
+<hr>
+</section><section id="part-0--the-audit-what-can-you-delete"><h2 id="part-0--the-audit-what-can-you-delete">Part 0 — The Audit: What Can You Delete?</h2>
+<p>Before anything else, read your own <code>package.json</code> and sort every dependency into three buckets: <strong>replaced by the runtime</strong>, <strong>still necessary</strong>, or <strong>unclear</strong>.</p>
+<div class="codewrap"><pre data-lang="bash"><code># what am I currently carrying?
+node -e &quot;const p=require('./package.json'); console.log(Object.keys({...p.dependencies,...p.devDependencies}).sort().join('\n'))&quot;</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>You have</th>
+<th>Verdict on Node 24+</th>
+<th>Replace with</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ts-node</code>, <code>tsx</code>, <code>ts-node-dev</code></td>
+<td><strong>Delete</strong> for erasable TS</td>
+<td><code>node app.ts</code> (keep <code>tsc --noEmit</code>)</td>
+</tr>
+<tr>
+<td><code>dotenv</code></td>
+<td><strong>Delete</strong> in greenfield</td>
+<td><code>node --env-file=.env</code></td>
+</tr>
+<tr>
+<td><code>nodemon</code>, <code>node-dev</code></td>
+<td><strong>Delete</strong></td>
+<td><code>node --watch</code></td>
+</tr>
+<tr>
+<td><code>jest</code>, <code>mocha</code>, <code>vitest</code></td>
+<td><strong>Consider deleting</strong></td>
+<td><code>node --test</code></td>
+</tr>
+<tr>
+<td><code>better-sqlite3</code>, <code>sqlite3</code></td>
+<td><strong>Consider deleting</strong></td>
+<td><code>node:sqlite</code></td>
+</tr>
+<tr>
+<td><code>cross-env</code></td>
+<td><strong>Delete</strong></td>
+<td><code>node --env-file</code> plus <code>node --run</code></td>
+</tr>
+<tr>
+<td><code>tsc</code></td>
+<td><strong>Keep</strong></td>
+<td>type checking only</td>
+</tr>
+<tr>
+<td>a bundler (esbuild, Vite)</td>
+<td><strong>Keep</strong></td>
+<td>Node cannot bundle for the browser</td>
+</tr>
+<tr>
+<td>an ORM (Prisma, Drizzle)</td>
+<td><strong>Keep</strong></td>
+<td><code>node:sqlite</code> is a driver, not an ORM</td>
+</tr>
+<tr>
+<td><code>supertest</code>, <code>@playwright/test</code></td>
+<td><strong>Keep</strong></td>
+<td><code>node:test</code> runs your tests, not HTTP fixtures</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The rule for the &quot;consider&quot; rows:</strong> delete the dependency only if you are not using the 20% of it that the built-in lacks. Jest&#39;s snapshot ergonomics, Vitest&#39;s browser mode, and any ORM&#39;s migrations are reasons to keep the package, not reasons the built-in failed.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--type-stripping-run-typescript-without-a-build"><h2 id="part-1--type-stripping-run-typescript-without-a-build">Part 1 — Type Stripping: Run TypeScript Without a Build</h2>
+<h3 id="11-what-it-does">1.1 What it does</h3>
+<p>Node replaces TypeScript syntax with whitespace and executes the result. No source maps, no build directory, no transpiler in the middle.</p>
+<div class="codewrap"><pre data-lang="bash"><code># before: a runner, a config, a cache directory, a watch flag from a different tool
+npx tsx watch src/server.ts
+
+# after
+node --watch src/server.ts</code></pre></div>
+<p>Type stripping became <strong>stable in v24.12.0 and v25.2.0</strong>, and it has been <strong>enabled by default since v23.6.0 / v22.18.0</strong>. There is no flag to add. <code>--no-strip-types</code> disables it.</p>
+<h3 id="12-the-trade-you-are-making">1.2 The trade you are making</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Type stripping</th>
+<th><code>tsc</code> / <code>tsx</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Runs <code>.ts</code> immediately</td>
+<td><strong>Yes</strong></td>
+<td>After a build or a transform</td>
+</tr>
+<tr>
+<td>Type checking</td>
+<td><strong>No</strong></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>enum</code>, <code>namespace</code> (runtime), parameter properties</td>
+<td><strong>No</strong></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Decorators</td>
+<td><strong>No</strong></td>
+<td>With the right config</td>
+</tr>
+<tr>
+<td>JSX</td>
+<td><strong>No</strong></td>
+<td>With the right config</td>
+</tr>
+<tr>
+<td>Source maps needed</td>
+<td><strong>No</strong></td>
+<td>Usually</td>
+</tr>
+<tr>
+<td>Respects <code>tsconfig.json</code> paths</td>
+<td><strong>No</strong></td>
+<td>Yes</td>
+</tr>
+</tbody></table>
+<p>Node <strong>ignores <code>tsconfig.json</code> entirely.</strong> Path aliases, <code>target</code> downlevelling, and anything else that depends on compiler settings are unsupported by design. It also refuses to process TypeScript files under <code>node_modules</code>, deliberately, to discourage publishing TS-only packages.</p>
+<h3 id="13-the-tsconfig-that-works-with-it">1.3 The tsconfig that works with it</h3>
+<p>Use <code>erasableSyntaxOnly</code> so the compiler rejects the syntax Node cannot strip, and <code>verbatimModuleSyntax</code> so <code>import type</code> is explicit.</p>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;compilerOptions&quot;: {
+    &quot;noEmit&quot;: true,
+    &quot;target&quot;: &quot;esnext&quot;,
+    &quot;module&quot;: &quot;nodenext&quot;,
+    &quot;rewriteRelativeImportExtensions&quot;: true,
+    &quot;erasableSyntaxOnly&quot;: true,
+    &quot;verbatimModuleSyntax&quot;: true
+  }
+}</code></pre></div>
+<p><code>rewriteRelativeImportExtensions</code> lets you write <code>./util.ts</code> in source and have the compiler emit <code>./util.js</code> for tools that need it. <code>verbatimModuleSyntax</code> forces you to mark type-only imports, which is exactly what a stripper needs.</p>
+<h3 id="14-the-four-things-that-still-need-a-build">1.4 The four things that still need a build</h3>
+<p>If you use any of these, you need a real transpiler for that file:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why stripping fails</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>enum</code></td>
+<td>Generating the reverse-mapping object is code <em>generation</em></td>
+</tr>
+<tr>
+<td><code>namespace</code> with runtime code</td>
+<td>Same — it emits a closure and an object</td>
+</tr>
+<tr>
+<td>Parameter properties (<code>constructor(private x)</code>)</td>
+<td>The <code>this.x = x</code> assignment is generated</td>
+</tr>
+<tr>
+<td>Decorators</td>
+<td>They wrap and replace, which is generated code</td>
+</tr>
+</tbody></table>
+<p><code>erasableSyntaxOnly: true</code> makes the compiler flag all four at author time rather than leaving you to discover them at <code>node app.ts</code> time.</p>
+<blockquote>
+<p><strong>The honest verdict:</strong> type stripping is excellent for scripts, CLIs, small services, and internal tools — the places where <code>ts-node</code> used to live. It is not a full replacement for a TypeScript build when you use enums, decorators, or namespace-based DI.</p>
+</blockquote>
+<hr>
+</section><section id="part-2--env-watch-and-scripts"><h2 id="part-2--env-watch-and-scripts">Part 2 — Env, Watch, and Scripts</h2>
+<h3 id="21---env-file-is-stable">2.1 <code>--env-file</code> is stable</h3>
+<div class="codewrap"><pre data-lang="bash"><code># development
+node --env-file=.env src/server.ts
+
+# multiple files, later ones win
+node --env-file=.env --env-file=.env.local src/server.ts
+
+# production: do not crash when .env is absent
+node --env-file-if-exists=.env src/server.ts</code></pre></div>
+<p><code>--env-file</code> was added in v20.6.0 and <strong>became stable in v24.10.0 / v22.21.0</strong>. <code>--env-file-if-exists</code> was added in v22.9.0 and is stable alongside it. <code>process.loadEnvFile()</code> does the same from code — and it still throws on a missing file.</p>
+<p><strong>Two limits to know.</strong> There is <strong>no <code>${VAR}</code> interpolation</strong> inside the file, and the file format does not expand variables. If you rely on <code>dotenv</code>&#39;s expansion or its <code>dotenv-expand</code> extension, that is a reason to keep the package.</p>
+<blockquote>
+<p><strong>Precedence rule:</strong> if a variable exists in both the real environment and the file, the <strong>environment wins</strong>. That is what makes <code>--env-file=.env</code> safe in a container where the platform injects real secrets.</p>
+</blockquote>
+<h3 id="22---watch-and---run">2.2 <code>--watch</code> and <code>--run</code></h3>
+<div class="codewrap"><pre data-lang="bash"><code>node --watch src/server.ts        # restart on change
+node --run build                  # run the &quot;build&quot; script from package.json
+node --run                       # (v26.9.0+) list available scripts and exit non-zero
+node --run test -- --verbose      # arguments after -- are appended</code></pre></div>
+<p><code>--run</code> was added in v22.0.0 and is stable. It traverses up to find a <code>package.json</code>, prepends <code>./node_modules/.bin</code> for every ancestor so monorepo binaries resolve, and runs in the <code>package.json</code>&#39;s directory. It sets <code>NODE_RUN_SCRIPT_NAME</code> and <code>NODE_RUN_PACKAGE_JSON_PATH</code> for the script.</p>
+<h3 id="23-a-packagejson-with-the-ritual-deleted">2.3 A <code>package.json</code> with the ritual deleted</h3>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;type&quot;: &quot;module&quot;,
+  &quot;scripts&quot;: {
+    &quot;dev&quot;: &quot;node --watch --env-file=.env src/server.ts&quot;,
+    &quot;start&quot;: &quot;node --env-file-if-exists=.env src/server.ts&quot;,
+    &quot;test&quot;: &quot;node --test&quot;,
+    &quot;test:cov&quot;: &quot;node --test --experimental-test-coverage --test-coverage-lines=85&quot;,
+    &quot;check&quot;: &quot;tsc --noEmit&quot;,
+    &quot;ci&quot;: &quot;node --run check &amp;&amp; node --run test&quot;
+  },
+  &quot;devDependencies&quot;: {
+    &quot;typescript&quot;: &quot;^5.9.0&quot;
+  }
+}</code></pre></div>
+<p>One dev dependency. It is <code>tsc</code>, and it is there to check what the runtime refuses to.</p>
+<hr>
+</section><section id="part-3--the-test-runner-that-replaced-the-framework"><h2 id="part-3--the-test-runner-that-replaced-the-framework">Part 3 — The Test Runner That Replaced the Framework</h2>
+<h3 id="31-the-shape">3.1 The shape</h3>
+<p><code>node:test</code> is stable and the API will look familiar. Assertions come from <code>node:assert</code>, not from the runner.</p>
+<div class="codewrap"><pre data-lang="js"><code>// src/math.test.ts
+import { test, describe, it, beforeEach } from &quot;node:test&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+import { sum, divide } from &quot;./math.ts&quot;;
+
+describe(&quot;sum&quot;, () =&gt; {
+  it(&quot;adds numbers&quot;, () =&gt; {
+    assert.equal(sum(2, 3), 5);
+  });
+
+  it(&quot;rejects a non-number&quot;, () =&gt; {
+    // a table of cases, no framework needed
+    for (const bad of [null, &quot;2&quot;, {}]) {
+      assert.throws(() =&gt; sum(bad, 1), TypeError);
+    }
+  });
+});
+
+test(&quot;divide throws on zero&quot;, () =&gt; {
+  assert.throws(() =&gt; divide(1, 0), /divide by zero/);
+});</code></pre></div>
+<div class="codewrap"><pre data-lang="bash"><code>node --test                      # discovers *.test.*, test-*, test/**/*, etc.
+node --test &quot;src/**/*.test.ts&quot;   # explicit globs
+node --test --test-name-pattern=&quot;divide&quot;   # filter by name</code></pre></div>
+<p>By default it discovers <code>**/*.test.{js,mjs,cjs}</code>, <code>**/*-test.*</code>, <code>**/*_test.*</code>, <code>**/test-*.*</code>, <code>**/test.*</code>, and <code>**/test/**/*.*</code>.</p>
+<h3 id="32-what-actually-ships">3.2 What actually ships</h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Flag or API</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Suites and hooks</td>
+<td><code>describe</code>, <code>it</code>, <code>beforeEach</code>, <code>after</code></td>
+<td>Stable</td>
+</tr>
+<tr>
+<td>Assertions</td>
+<td><code>node:assert</code> / <code>node:assert/strict</code></td>
+<td>Stable</td>
+</tr>
+<tr>
+<td>Function and object mocks</td>
+<td>top-level <code>mock</code> from <code>node:test</code></td>
+<td>Stable</td>
+</tr>
+<tr>
+<td>Module mocking</td>
+<td><code>--experimental-test-module-mocks</code></td>
+<td>Early development</td>
+</tr>
+<tr>
+<td>Coverage with thresholds</td>
+<td><code>--experimental-test-coverage</code>, <code>--test-coverage-lines</code></td>
+<td>Experimental (flag-gated)</td>
+</tr>
+<tr>
+<td>LCOV output</td>
+<td><code>--test-reporter=lcov</code></td>
+<td>Stable</td>
+</tr>
+<tr>
+<td>Snapshots</td>
+<td><code>--test-update-snapshots</code>, <code>t.assert.snapshot</code></td>
+<td>Stable</td>
+</tr>
+<tr>
+<td>Watch mode</td>
+<td><code>--test --watch</code></td>
+<td>Stable</td>
+</tr>
+<tr>
+<td>Randomised order</td>
+<td><code>--test-randomize</code>, <code>--test-random-seed=&lt;n&gt;</code></td>
+<td>Added v26.1.0</td>
+</tr>
+<tr>
+<td>Sharding</td>
+<td><code>shard</code> option</td>
+<td>Stable</td>
+</tr>
+<tr>
+<td>Tag filtering</td>
+<td><code>--test-tag-filter</code></td>
+<td>Stable</td>
+</tr>
+<tr>
+<td>Benchmark runner</td>
+<td><code>--experimental-bench</code> / <code>node:bench</code></td>
+<td>Experimental, v26.9.0</td>
+</tr>
+</tbody></table>
+<div class="codewrap"><pre data-lang="bash"><code># the CI command people actually want
+node --test --experimental-test-coverage --test-coverage-lines=85 --test-reporter=lcov</code></pre></div>
+<h3 id="33-mocking-briefly">3.3 Mocking, briefly</h3>
+<div class="codewrap"><pre data-lang="js"><code>import { test, mock } from &quot;node:test&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+test(&quot;sends a request&quot;, async (t) =&gt; {
+  const spy = t.mock.fn(() =&gt; ({ ok: true }));
+  const result = spy(&quot;payload&quot;);
+
+  assert.equal(result.ok, true);
+  assert.equal(spy.mock.callCount(), 1);
+  assert.deepEqual(spy.mock.calls[0].arguments, [&quot;payload&quot;]);
+});</code></pre></div>
+<p><code>t.mock</code> is scoped to the test, so mocks are torn down automatically. Module mocking is behind <code>--experimental-test-module-mocks</code> and needs <code>--allow-worker</code> if you are also running the permission model.</p>
+<h3 id="34-the-honest-comparison">3.4 The honest comparison</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>node:test</code></th>
+<th>Jest / Vitest</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Install size</td>
+<td>0</td>
+<td>A dependency tree</td>
+</tr>
+<tr>
+<td>Watchers, coverage, mocks</td>
+<td>Built in</td>
+<td>Built in, more mature</td>
+</tr>
+<tr>
+<td>Snapshot ergonomics</td>
+<td>Basic</td>
+<td>Richer</td>
+</tr>
+<tr>
+<td>Browser / DOM environment</td>
+<td>None</td>
+<td>Vitest, Jest jsdom</td>
+</tr>
+<tr>
+<td>Framework integrations</td>
+<td>Minimal</td>
+<td>Extensive (React, Vue, etc.)</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Very good</td>
+<td>Comparable or better with caching</td>
+</tr>
+</tbody></table>
+<p><strong>Use <code>node:test</code> for server-side code, libraries, and CLIs.</strong> Keep a framework when you test components, need a DOM, or lean on an integration the built-in does not offer. This is a genuine fork in the road, not a &quot;built-in always wins&quot; claim.</p>
+<blockquote>
+<p><strong>One gotcha worth repeating from the docs:</strong> <code>Date</code> and timer mocks share a single simulated clock. Advancing the mocked time also advances the mocked date. That surprises people who mock only <code>setTimeout</code>.</p>
+</blockquote>
+<hr>
+</section><section id="part-4--nodesqlite-a-database-in-the-standard-library"><h2 id="part-4--nodesqlite-a-database-in-the-standard-library">Part 4 — <code>node:sqlite</code>: A Database in the Standard Library</h2>
+<h3 id="41-what-it-is">4.1 What it is</h3>
+<p><code>node:sqlite</code> exposes a <strong>synchronous</strong> API, matching how SQLite is meant to be used.</p>
+<div class="codewrap"><pre data-lang="js"><code>import { DatabaseSync } from &quot;node:sqlite&quot;;
+
+const db = new DatabaseSync(&quot;app.db&quot;);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS notes (
+    id    INTEGER PRIMARY KEY,
+    body  TEXT NOT NULL
+  ) STRICT
+`);
+
+const insert = db.prepare(&quot;INSERT INTO notes (body) VALUES (?)&quot;);
+insert.run(&quot;first note&quot;);
+
+const rows = db.prepare(&quot;SELECT id, body FROM notes ORDER BY id&quot;).all();
+console.log(rows); // [ { id: 1, body: 'first note' } ]</code></pre></div>
+<p><code>DatabaseSync</code> is the connection; <code>StatementSync</code> is a prepared statement with <code>.run()</code>, <code>.get()</code>, <code>.all()</code>, and <code>.iterate()</code>.</p>
+<h3 id="42-its-status-stated-plainly">4.2 Its status, stated plainly</h3>
+<p><strong>Stability 1.2 — Release candidate</strong>, reached in Node.js v25.7.0. It stopped being flag-gated in v23.4.0 but remained experimental. RC means the API is close to frozen, not that it is finished.</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Answer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Is it production-ready?</td>
+<td>It is an RC — usable, with a small chance of API change</td>
+</tr>
+<tr>
+<td>Does it need a native build?</td>
+<td>No. It is compiled into the runtime</td>
+</tr>
+<tr>
+<td>Sync or async?</td>
+<td>Synchronous</td>
+</tr>
+<tr>
+<td>Does it replace an ORM?</td>
+<td>No — it is a driver, not a query builder</td>
+</tr>
+<tr>
+<td>Does the permission model cover it?</td>
+<td>Not fully; the docs say the permission model does not guarantee it blocks <code>node:sqlite</code></td>
+</tr>
+<tr>
+<td>In-memory support</td>
+<td>Yes: <code>new DatabaseSync(&quot;:memory:&quot;)</code></td>
+</tr>
+<tr>
+<td>Backups</td>
+<td><code>DatabaseSync.prototype.backup()</code> wraps SQLite&#39;s backup API</td>
+</tr>
+</tbody></table>
+<h3 id="43-where-it-wins-and-where-it-loses">4.3 Where it wins and where it loses</h3>
+<p><strong>Wins:</strong> scripts, CLIs, tests, local caching, embedded storage, anything where you currently shell out to the <code>sqlite3</code> binary or ship <code>better-sqlite3</code>. Zero install friction. It also avoids the <code>node-gyp</code> class of CI failure entirely.</p>
+<p><strong>Loses:</strong> you still want an ORM for migrations, relations, and typed queries; you still want a server database for concurrency; and the sync API blocks the event loop, so it is wrong for a hot path under load.</p>
+<blockquote>
+<p><strong>The migration is trivial and reversible.</strong> The <code>@photostructure/sqlite</code> package is API-compatible with <code>node:sqlite</code> and works on older Node, so you can adopt the API now and swap the import later, or vice versa.</p>
+</blockquote>
+<hr>
+</section><section id="part-5--the-permission-model-a-process-with-a-seatbelt"><h2 id="part-5--the-permission-model-a-process-with-a-seatbelt">Part 5 — The Permission Model: A Process With a Seatbelt</h2>
+<h3 id="51-stable-and-worth-turning-on">5.1 Stable, and worth turning on</h3>
+<p>The Permission Model is <strong>stable since v23.5.0 / v22.13.0</strong>. When enabled, the process cannot touch the filesystem, network, child processes, workers, WASI, or native addons unless you allow it.</p>
+<div class="codewrap"><pre data-lang="bash"><code>node --permission \
+  --allow-fs-read=/app \
+  --allow-fs-read=/app/data \
+  --allow-fs-write=/app/data \
+  --allow-net \
+  src/server.ts</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Restricts</th>
+<th>Stability</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--permission</code></td>
+<td>Turns the model on (deny by default)</td>
+<td>Stable</td>
+</tr>
+<tr>
+<td><code>--allow-fs-read=&lt;paths&gt;</code></td>
+<td>Filesystem reads</td>
+<td>Stable</td>
+</tr>
+<tr>
+<td><code>--allow-fs-write=&lt;paths&gt;</code></td>
+<td>Filesystem writes</td>
+<td>Stable</td>
+</tr>
+<tr>
+<td><code>--allow-child-process</code></td>
+<td><code>child_process</code></td>
+<td>Stable</td>
+</tr>
+<tr>
+<td><code>--allow-worker</code></td>
+<td><code>worker_threads</code></td>
+<td>Stable</td>
+</tr>
+<tr>
+<td><code>--allow-addons</code></td>
+<td>Native addons</td>
+<td>Stable</td>
+</tr>
+<tr>
+<td><code>--allow-wasi</code></td>
+<td>WASI</td>
+<td>Stable</td>
+</tr>
+<tr>
+<td><code>--allow-net</code></td>
+<td>Network</td>
+<td>Added v25.0.0, active development</td>
+</tr>
+</tbody></table>
+<p>Path arguments accept <code>*</code>, relative paths, absolute paths, and wildcards. Multiple <code>--allow-fs-read</code> flags accumulate. The entry point is implicitly readable (since v24.2.0 / v22.17.0).</p>
+<h3 id="52-what-it-is-not">5.2 What it is not</h3>
+<p>The docs are explicit: this is a <strong>restriction mechanism, not a sandbox</strong>. It does not contain a determined attacker — the <code>node:sqlite</code> caveat is the honest example of a hole in the model. Treat it as defense in depth, alongside containers and OS-level isolation, never as the boundary itself.</p>
+<blockquote>
+<p><strong>Where it pays off immediately:</strong> scripts that parse untrusted input, CI jobs that run third-party tooling, and any code that loads a plugin. <code>--allow-fs-read=* --allow-net</code> is a five-minute change that turns &quot;any file on the box&quot; into &quot;these files on the box&quot;.</p>
+</blockquote>
+<hr>
+</section><section id="part-6--esm-cjs-and-the-friction-that-finally-ended"><h2 id="part-6--esm-cjs-and-the-friction-that-finally-ended">Part 6 — ESM, CJS, and the Friction That Finally Ended</h2>
+<h3 id="61-requireesm-is-stable">6.1 <code>require(esm)</code> is stable</h3>
+<p>CommonJS can synchronously <code>require()</code> an ES module. This landed stable in v24 (marked stable in v24.15.0) and was backported to v20.19.0 and v22.12.0. The one exception: a module graph containing <strong>top-level <code>await</code></strong> cannot be required — that still needs <code>import()</code>.</p>
+<div class="codewrap"><pre data-lang="js"><code>// commonjs/legacy.cjs
+const { thing } = require(&quot;./modern.mjs&quot;); // works</code></pre></div>
+<h3 id="62-what-to-use-in-new-code">6.2 What to use in new code</h3>
+<div class="codewrap"><pre data-lang="json"><code>{ &quot;type&quot;: &quot;module&quot; }</code></pre></div>
+<p>In ESM you get <code>top-level await</code>, and you replace the old globals:</p>
+<table>
+<thead>
+<tr>
+<th>Old</th>
+<th>New (ESM)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>__dirname</code></td>
+<td><code>import.meta.dirname</code></td>
+</tr>
+<tr>
+<td><code>__filename</code></td>
+<td><code>import.meta.filename</code></td>
+</tr>
+<tr>
+<td><code>require.resolve(&quot;x&quot;)</code></td>
+<td><code>import.meta.resolve(&quot;x&quot;)</code></td>
+</tr>
+<tr>
+<td><code>require(&quot;./data.json&quot;)</code></td>
+<td><code>import data from &quot;./data.json&quot; with { type: &quot;json&quot; }</code></td>
+</tr>
+</tbody></table>
+<h3 id="63-the-deprecations-to-plan-for">6.3 The deprecations to plan for</h3>
+<p>Node 26 removed a batch of long-deprecated APIs. Check your dependency tree before upgrading:</p>
+<ul>
+<li><code>http.Server.prototype.writeHeader()</code> — removed; use <code>writeHead()</code>.</li>
+<li>The legacy <code>_stream_wrap</code>, <code>_stream_readable</code>, <code>_stream_writable</code>, <code>_stream_duplex</code>, <code>_stream_transform</code>, <code>_stream_passthrough</code> modules — removed.</li>
+<li>The <code>--experimental-transform-types</code> flag — removed (type stripping is stable).</li>
+<li><code>module.register()</code> — runtime-deprecated (DEP0205); use the loader hooks replacement.</li>
+<li><strong><code>NODE_MODULE_VERSION</code> is now 147</strong> in Node 26, so prebuilt native addons must be rebuilt.</li>
+</ul>
+<blockquote>
+<p><strong>The one line that saves an upgrade:</strong> <code>npm rebuild</code> (or delete <code>node_modules</code> and reinstall) after moving to Node 26. ABI changes in V8 are the usual cause of &quot;works locally, crashes in CI&quot;.</p>
+</blockquote>
+<hr>
+</section><section id="part-7--release-cadence-one-major-per-year"><h2 id="part-7--release-cadence-one-major-per-year">Part 7 — Release Cadence: One Major Per Year</h2>
+<p>Node.js is simplifying its schedule. Starting with the <strong>27.x line</strong>, it moves from two majors a year to one:</p>
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Event</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>October 2026</td>
+<td>Node.js 27 <strong>Alpha</strong> phase begins</td>
+</tr>
+<tr>
+<td>April 2027</td>
+<td>Node.js <strong>27.0.0</strong> becomes Current</td>
+</tr>
+<tr>
+<td>October 2027</td>
+<td>Node.js 27 enters <strong>LTS</strong></td>
+</tr>
+</tbody></table>
+<p>Node.js 26 is the last release under the old odd/even two-per-year rules. Practically: fewer upgrade cycles per year, a longer tail on each one, and less churn in your native-addon rebuilds. Plan for one big upgrade a year rather than two small ones.</p>
+<hr>
+</section><section id="cheat-sheet"><h2 id="cheat-sheet">Cheat Sheet</h2>
+<div class="codewrap"><pre data-lang="bash"><code># ─── RUN ────────────────────────────────────────────────────────────
+node app.ts                          # type stripping, stable, default on
+node --watch src/server.ts           # replaces nodemon
+node --env-file=.env src/server.ts   # stable since 24.10.0 / 22.21.0
+node --env-file-if-exists=.env app.ts # production-safe
+node --run build                     # package.json scripts without npm
+node --run                           # list scripts (v26.9.0+)
+node --run test -- --verbose         # pass args after --
+
+# ─── CHECK / TEST ───────────────────────────────────────────────────
+tsc --noEmit                         # the type check stripping never does
+node --test                          # discovery + suites + hooks
+node --test --watch                  # re-run on change
+node --test --test-name-pattern=&quot;foo&quot;
+node --test --experimental-test-coverage --test-coverage-lines=85
+node --test --test-randomize --test-random-seed=12345
+node --test --experimental-test-module-mocks
+node --test --experimental-bench      # node:bench (experimental)
+
+# ─── PERMISSIONS ────────────────────────────────────────────────────
+node --permission --allow-fs-read=/app --allow-fs-write=/app/data --allow-net app.ts
+node --permission --allow-fs-read=* --allow-net app.ts   # looser, still bounded
+
+# ─── TYPESCRIPT CONFIG THAT MATCHES THE RUNTIME ─────────────────────</code></pre></div>
+<div class="codewrap"><pre data-lang="json"><code>{
+  &quot;compilerOptions&quot;: {
+    &quot;noEmit&quot;: true,
+    &quot;target&quot;: &quot;esnext&quot;,
+    &quot;module&quot;: &quot;nodenext&quot;,
+    &quot;rewriteRelativeImportExtensions&quot;: true,
+    &quot;erasableSyntaxOnly&quot;: true,
+    &quot;verbatimModuleSyntax&quot;: true
+  }
+}</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>I need to…</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Run a <code>.ts</code> file</td>
+<td><code>node file.ts</code></td>
+</tr>
+<tr>
+<td>Check types</td>
+<td><code>tsc --noEmit</code></td>
+</tr>
+<tr>
+<td>Restart on change</td>
+<td><code>node --watch</code></td>
+</tr>
+<tr>
+<td>Load <code>.env</code></td>
+<td><code>node --env-file=.env</code></td>
+</tr>
+<tr>
+<td>Load <code>.env</code> if present</td>
+<td><code>node --env-file-if-exists=.env</code></td>
+</tr>
+<tr>
+<td>Run an npm script</td>
+<td><code>node --run &lt;script&gt;</code></td>
+</tr>
+<tr>
+<td>Write a test</td>
+<td><code>node --test</code> + <code>node:assert/strict</code></td>
+</tr>
+<tr>
+<td>Mock a function</td>
+<td><code>t.mock.fn()</code> from <code>node:test</code></td>
+</tr>
+<tr>
+<td>Mock a module</td>
+<td><code>--experimental-test-module-mocks</code></td>
+</tr>
+<tr>
+<td>Measure coverage</td>
+<td><code>--experimental-test-coverage</code></td>
+</tr>
+<tr>
+<td>Store data locally</td>
+<td><code>node:sqlite</code></td>
+</tr>
+<tr>
+<td>Sandbox a process</td>
+<td><code>--permission</code> + <code>--allow-*</code></td>
+</tr>
+<tr>
+<td><code>require</code> an ESM module</td>
+<td>Works (no top-level <code>await</code>)</td>
+</tr>
+<tr>
+<td>Find the current directory in ESM</td>
+<td><code>import.meta.dirname</code></td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX</code></td>
+<td>An <code>enum</code>, runtime <code>namespace</code>, parameter property, or decorator</td>
+<td>Set <code>erasableSyntaxOnly: true</code> and rewrite, or add a transform step</td>
+</tr>
+<tr>
+<td>Path alias <code>@/x</code> fails at runtime</td>
+<td>Node ignores <code>tsconfig.json</code></td>
+<td>Use relative imports or <code>imports</code> in <code>package.json</code></td>
+</tr>
+<tr>
+<td>Types wrong but code ran</td>
+<td>Stripping does not check</td>
+<td>Run <code>tsc --noEmit</code> in CI</td>
+</tr>
+<tr>
+<td><code>Cannot find module &#39;./x.js&#39;</code> in TS source</td>
+<td>Extension mismatch</td>
+<td>Use <code>rewriteRelativeImportExtensions</code> and import <code>./x.ts</code></td>
+</tr>
+<tr>
+<td><code>.env</code> missing crashes the process</td>
+<td><code>--env-file</code> throws by design</td>
+<td>Use <code>--env-file-if-exists</code> in production</td>
+</tr>
+<tr>
+<td><code>${VAR}</code> in <code>.env</code> is literal</td>
+<td>No interpolation in the native loader</td>
+<td>Keep <code>dotenv</code> + <code>dotenv-expand</code>, or avoid interpolation</td>
+</tr>
+<tr>
+<td>Test file not discovered</td>
+<td>Not matching the default patterns</td>
+<td>Rename to <code>*.test.ts</code>, or pass an explicit glob</td>
+</tr>
+<tr>
+<td>Mocking a module errors</td>
+<td>Module mocks are flag-gated</td>
+<td>Add <code>--experimental-test-module-mocks</code> (and <code>--allow-worker</code> under <code>--permission</code>)</td>
+</tr>
+<tr>
+<td>Coverage flag unrecognised</td>
+<td>Older Node</td>
+<td>Upgrade to 24+, or use a coverage tool</td>
+</tr>
+<tr>
+<td>Advancing a mocked timer moved the date</td>
+<td><code>Date</code> and timers share one clock</td>
+<td>Mock one, or account for both</td>
+</tr>
+<tr>
+<td><code>node:sqlite</code> missing</td>
+<td>Node &lt; 22.5</td>
+<td>Upgrade; the module is built in from v22.5.0</td>
+</tr>
+<tr>
+<td>Native addon crashes after upgrade</td>
+<td><code>NODE_MODULE_VERSION</code> changed to 147</td>
+<td><code>npm rebuild</code>, or delete <code>node_modules</code> and reinstall</td>
+</tr>
+<tr>
+<td><code>ERR_ACCESS_DENIED</code> under <code>--permission</code></td>
+<td>A needed path or capability is not allowed</td>
+<td>Add the narrowest <code>--allow-*</code> flag that unblocks it</td>
+</tr>
+<tr>
+<td><code>node --run</code> cannot find a binary</td>
+<td>Script lives in an ancestor <code>node_modules/.bin</code></td>
+<td><code>--run</code> prepends ancestors automatically; check the script name</td>
+</tr>
+<tr>
+<td><code>import defer</code> syntax error</td>
+<td>Stage 3, not shipped in your runtime</td>
+<td>Do not use it in library code yet</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>YouTube <strong>search</strong> links only — runtime versions move fast.</p>
+<table>
+<thead>
+<tr>
+<th>Search</th>
+<th>What you&#39;ll find</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://www.youtube.com/results?search_query=Node.js+type+stripping+TypeScript" target="_blank" rel="noopener">Node.js type stripping</a></td>
+<td>Running TS without a build</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=node+test+runner+tutorial" target="_blank" rel="noopener">node --test tutorial</a></td>
+<td>The built-in test runner</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=node+sqlite+Node.js" target="_blank" rel="noopener">node:sqlite Node.js</a></td>
+<td>Built-in SQLite in practice</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Node.js+permission+model+allow-fs-read" target="_blank" rel="noopener">Node.js permission model</a></td>
+<td>Sandboxing a process</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=require+esm+Node.js" target="_blank" rel="noopener">require esm Node.js</a></td>
+<td>CommonJS and ESM together</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=node+env-file+dotenv" target="_blank" rel="noopener">node --env-file</a></td>
+<td>Replacing <code>dotenv</code></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Node.js+24+LTS+what%27s+new" target="_blank" rel="noopener">Node.js 24 LTS what&#39;s new</a></td>
+<td>The LTS feature set</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Node.js+26+release+what%27s+new" target="_blank" rel="noopener">Node.js 26 release</a></td>
+<td>Temporal, V8 14.6, removals</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=tsc+noEmit+CI+type+check" target="_blank" rel="noopener">tsc --noEmit CI</a></td>
+<td>Type checking without emitting</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Node.js+test+runner+coverage" target="_blank" rel="noopener">Node.js test coverage</a></td>
+<td>Thresholds and reporters</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--docs"><h2 id="written-references--docs">Written References &amp; Docs</h2>
+<p>The Node.js API docs are the primary source; everything else is commentary.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Node.js TypeScript (type stripping)</td>
+<td><code>https://nodejs.org/api/typescript.html</code></td>
+</tr>
+<tr>
+<td>Node.js CLI options (<code>--env-file</code>, <code>--run</code>, <code>--permission</code>, <code>--test</code>)</td>
+<td><code>https://nodejs.org/api/cli.html</code></td>
+</tr>
+<tr>
+<td><code>node:test</code> — the test runner</td>
+<td><code>https://nodejs.org/api/test.html</code></td>
+</tr>
+<tr>
+<td>Collecting code coverage</td>
+<td><code>https://nodejs.org/learn/test-runner/collecting-code-coverage</code></td>
+</tr>
+<tr>
+<td>Run scripts from the command line</td>
+<td><code>https://nodejs.org/learn/command-line/run-nodejs-scripts-from-the-command-line</code></td>
+</tr>
+<tr>
+<td><code>node:sqlite</code></td>
+<td><code>https://nodejs.org/api/sqlite.html</code></td>
+</tr>
+<tr>
+<td>Permission Model</td>
+<td><code>https://nodejs.org/api/permissions.html</code></td>
+</tr>
+<tr>
+<td>Node.js 26.0.0 release notes</td>
+<td><code>https://nodejs.org/en/blog/release/v26.0.0</code></td>
+</tr>
+<tr>
+<td>Node.js 24.15.0 (LTS) release notes</td>
+<td><code>https://nodejs.org/en/blog/release/v24.15.0</code></td>
+</tr>
+<tr>
+<td>Node.js releases and schedule</td>
+<td><code>https://nodejs.org/en/about/previous-releases</code></td>
+</tr>
+<tr>
+<td>Node.js Interactive 2026 recap (release cadence)</td>
+<td><code>https://nodejs.org/en/blog/events/nodejs-interactive-2026</code></td>
+</tr>
+<tr>
+<td>TypeScript <code>tsconfig</code> reference</td>
+<td><code>https://www.typescriptlang.org/tsconfig</code></td>
+</tr>
+<tr>
+<td>TypeScript <code>erasableSyntaxOnly</code></td>
+<td><code>https://www.typescriptlang.org/tsconfig/#erasableSyntaxOnly</code></td>
+</tr>
+<tr>
+<td><code>@photostructure/sqlite</code> (API-compatible fallback)</td>
+<td><code>https://www.npmjs.com/package/@photostructure/sqlite</code></td>
+</tr>
+</tbody></table>
+<p><strong>Third-party, for context only:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Runtime comparison articles</td>
+<td>Useful for orientation; vendor-flavoured, verify on Node&#39;s own docs</td>
+</tr>
+<tr>
+<td>Migration blog posts</td>
+<td>Good for tips; version claims often drift</td>
+</tr>
+<tr>
+<td><code>dotenv</code> / <code>nodemon</code> READMEs</td>
+<td>Still correct for the behaviour the built-ins lack</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Verification tip:</strong> version-tagged &quot;Added in&quot; and &quot;History&quot; tables in the Node.js API docs are the cleanest per-version record in the ecosystem. When a blog and that table disagree, the table is right.</p>
+</blockquote>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English definition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Type stripping</td>
+<td>Erasing TypeScript syntax and running the JavaScript underneath</td>
+</tr>
+<tr>
+<td><code>erasableSyntaxOnly</code></td>
+<td>A tsconfig flag that rejects syntax Node cannot strip</td>
+</tr>
+<tr>
+<td><code>tsc --noEmit</code></td>
+<td>Type checking with no JavaScript output</td>
+</tr>
+<tr>
+<td><code>--env-file</code></td>
+<td>The native <code>.env</code> loader</td>
+</tr>
+<tr>
+<td><code>--env-file-if-exists</code></td>
+<td>The same loader, non-fatal when the file is missing</td>
+</tr>
+<tr>
+<td><code>node --watch</code></td>
+<td>The built-in restart-on-change watcher</td>
+</tr>
+<tr>
+<td><code>node --run</code></td>
+<td>Run a <code>package.json</code> script without npm</td>
+</tr>
+<tr>
+<td><code>node:test</code></td>
+<td>The built-in test runner</td>
+</tr>
+<tr>
+<td><code>node:assert</code></td>
+<td>The built-in assertion library the runner uses</td>
+</tr>
+<tr>
+<td><code>t.mock</code></td>
+<td>A test-scoped mock factory</td>
+</tr>
+<tr>
+<td>Sharding</td>
+<td>Splitting tests across processes or machines</td>
+</tr>
+<tr>
+<td>Randomised order</td>
+<td>Running tests in a shuffled order to expose coupling</td>
+</tr>
+<tr>
+<td><code>node:sqlite</code></td>
+<td>The built-in synchronous SQLite driver</td>
+</tr>
+<tr>
+<td><code>DatabaseSync</code></td>
+<td>A single synchronous SQLite connection</td>
+</tr>
+<tr>
+<td>Stability 1.2</td>
+<td>Node&#39;s &quot;release candidate&quot; stability level</td>
+</tr>
+<tr>
+<td>Permission Model</td>
+<td><code>--permission</code> plus <code>--allow-*</code> process restrictions</td>
+</tr>
+<tr>
+<td><code>require(esm)</code></td>
+<td>Synchronous ESM loading from CommonJS</td>
+</tr>
+<tr>
+<td><code>import.meta.dirname</code></td>
+<td>The ESM replacement for <code>__dirname</code></td>
+</tr>
+<tr>
+<td><code>NODE_MODULE_VERSION</code></td>
+<td>The native-addon ABI number; 147 in Node 26</td>
+</tr>
+<tr>
+<td><code>node:bench</code></td>
+<td>The experimental built-in benchmark runner</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Does Node still need <code>ts-node</code> or <code>tsx</code>?</strong> Only if you use <code>enum</code>, runtime <code>namespace</code>, parameter properties, or decorators — or if you rely on <code>tsconfig.json</code> path aliases. For erasable TypeScript, <code>node app.ts</code> is enough.</p>
+<p><strong>Does type stripping check my types?</strong> No. It erases annotations. <code>tsc --noEmit</code> is still required, in CI and in pre-commit.</p>
+<p><strong>Can I delete <code>dotenv</code>?</strong> In greenfield code, yes — <code>--env-file</code> is stable and <code>--env-file-if-exists</code> is production-safe. If you depend on variable interpolation inside the file, keep <code>dotenv</code> plus <code>dotenv-expand</code>.</p>
+<p><strong>Is <code>node:sqlite</code> production-ready?</strong> It is a release candidate (stability 1.2), not finished. Use it for scripts, CLIs, and tests now; be deliberate about it as a primary datastore.</p>
+<p><strong>Can I replace Jest entirely?</strong> For server-side code and libraries, often yes. Keep a framework if you test components, need a DOM, or rely on an integration the built-in does not have.</p>
+<p><strong>Is the Permission Model a sandbox?</strong> No. Node documents it as a restriction mechanism, and it explicitly does not guarantee coverage of every route to a resource. Pair it with containers.</p>
+<p><strong>Why did native addons break after I upgraded?</strong> <code>NODE_MODULE_VERSION</code> changed (147 in Node 26). Run <code>npm rebuild</code> or reinstall <code>node_modules</code>.</p>
+<p><strong>Which Node should I run in production?</strong> Node 24 LTS for the long window; Node 26 once it enters LTS in October 2026. If you are on 18 or 20, moving to 24 is the priority.</p>
+<p><strong>What is changing about the release schedule?</strong> From the 27.x line, one major per year: 27.0.0 Current in April 2027, LTS in October 2027. Node 26 is the last two-per-year release.</p>
+<p><strong>Where do I verify a version claim?</strong> The Node.js API docs&#39; &quot;Added in&quot; / &quot;History&quot; tables, then the release notes for the major you target.</p>
+<h3 id="next-steps-in-order">Next steps, in order</h3>
+<ol>
+<li><strong>Today:</strong> audit <code>package.json</code> with the Part 0 table and delete anything that only wraps a built-in.</li>
+<li><strong>This week:</strong> switch <code>npm run dev</code> to <code>node --watch --env-file=.env</code> and add <code>tsc --noEmit</code> to CI.</li>
+<li><strong>Next week:</strong> port one test file to <code>node --test</code> and turn on coverage with a threshold.</li>
+<li><strong>Week 3:</strong> set <code>erasableSyntaxOnly: true</code> and fix whatever it flags.</li>
+<li><strong>Week 4:</strong> try <code>node:sqlite</code> in a script that currently shells out to <code>sqlite3</code>.</li>
+<li><strong>Month 2:</strong> wrap one untrusted-input script in <code>--permission</code> with the narrowest allow-list that works.</li>
+</ol>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p><strong>Verified as of September 2026 from Node.js primary sources:</strong></p>
+<ul>
+<li><strong>Type stripping</strong> is stable (v25.2.0 / v24.12.0), enabled by default since v23.6.0 / v22.18.0; <code>--no-strip-types</code> disables it; Node ignores <code>tsconfig.json</code>; it refuses to process TypeScript under <code>node_modules</code>; recommended tsconfig includes <code>noEmit</code>, <code>target: esnext</code>, <code>module: nodenext</code>, <code>rewriteRelativeImportExtensions</code>, <code>erasableSyntaxOnly</code>, and <code>verbatimModuleSyntax</code>; unsupported features include <code>enum</code>, runtime <code>namespace</code>, parameter properties, and (by implication of code generation) decorators and JSX (<code>nodejs.org/api/typescript.html</code>).</li>
+<li><strong><code>--env-file</code></strong> added v20.6.0, no longer experimental as of <strong>v24.10.0 / v22.21.0</strong>; <strong><code>--env-file-if-exists</code></strong> added v22.9.0, non-experimental in the same releases; no variable interpolation; environment values take precedence over file values (<code>nodejs.org/api/cli.html</code>).</li>
+<li><strong><code>--run</code></strong> added v22.0.0; v22.3.0 added <code>NODE_RUN_SCRIPT_NAME</code> / <code>NODE_RUN_PACKAGE_JSON_PATH</code> and ancestor <code>node_modules/.bin</code> traversal; <strong>v26.9.0</strong> added listing scripts when no command is given (<code>nodejs.org/api/cli.html</code>).</li>
+<li><strong><code>node:test</code></strong> is stable (runner stable since v20.0.0); supports suites, hooks, mocks, snapshots, coverage with thresholds, LCOV reporters, sharding, and tag filtering; <strong>randomised order and <code>--test-random-seed</code> added in v26.1.0</strong>; module mocking requires <code>--experimental-test-module-mocks</code> and <code>--allow-worker</code> under the Permission Model (<code>nodejs.org/api/test.html</code>, <code>nodejs.org/learn/test-runner/collecting-code-coverage</code>).</li>
+<li><strong><code>node:bench</code> / <code>--experimental-bench</code></strong> were added in <strong>v26.9.0</strong>, stability 1 — Experimental (<code>nodejs.org/api/cli.html</code>).</li>
+<li><strong><code>node:sqlite</code></strong> is <strong>stability 1.2 — Release candidate</strong>; the API documentation attributes the RC status to <strong>v25.7.0</strong>, and the v24.15.0 release notes also carry a &quot;sqlite: mark as release candidate&quot; commit, so the exact major that first reached RC is best confirmed against the version you run. It is no longer behind <code>--experimental-sqlite</code> since v23.4.0; synchronous <code>DatabaseSync</code> / <code>StatementSync</code> API; in-memory and backup support; the Permission Model does not guarantee it blocks <code>node:sqlite</code> (<code>nodejs.org/api/sqlite.html</code>, <code>nodejs.org/api/permissions.html</code>).</li>
+<li><strong>Permission Model</strong> is <strong>stable since v23.5.0 / v22.13.0</strong>; <code>--allow-net</code> was added in <strong>v25.0.0</strong> with stability 1.1 — Active development; entrypoints are implicitly readable since v24.2.0 / v22.17.0 (<code>nodejs.org/api/permissions.html</code>, <code>nodejs.org/api/cli.html</code>).</li>
+<li><strong><code>require(esm)</code></strong> was marked stable in v24.15.0 and backported to v20.19.0 / v22.12.0; a graph containing top-level <code>await</code> cannot be <code>require</code>d (<code>nodejs.org/en/blog/release/v24.15.0</code>).</li>
+<li><strong>Node.js 26.0.0</strong> was released 2026-05-05: V8 14.6, Undici 8.0, Temporal enabled by default, <code>http.Server.prototype.writeHeader()</code> and the legacy <code>_stream_*</code> modules removed, <code>--experimental-transform-types</code> removed, <code>module.register()</code> runtime-deprecated, <code>NODE_MODULE_VERSION</code> 147 (<code>nodejs.org/en/blog/release/v26.0.0</code>).</li>
+<li><strong>Release cadence:</strong> from the 27.x line, one major per year — alpha October 2026, 27.0.0 Current April 2027, LTS October 2027 (<code>nodejs.org/en/blog/events/nodejs-interactive-2026</code>).</li>
+</ul>
+<p><strong>Where I am relying on third-party analysis rather than a primary source:</strong> the &quot;delete this dependency&quot; verdicts, the Jest/Vitest comparison table, and the adoption order are my synthesis. The <code>@photostructure/sqlite</code> compatibility claim is the package&#39;s own. Community runtime comparison articles informed the framing but not a single version number above.</p>
+<p><strong>Vendor and third-party claims, not independently verified:</strong> the <code>@photostructure/sqlite</code> API-compatibility statement, and any community benchmark implying <code>node:test</code> speed relative to a framework.</p>
+<p><strong>Changes fast:</strong> <code>node:sqlite</code> and the Permission Model are still moving; the release cadence change takes effect with the 27.x line; deprecations reach end-of-life on Node&#39;s own clock. Re-check the Node.js API docs and the target major&#39;s release notes before depending on any flag or stability number here.</p>
+<p><strong>Not security advice.</strong> The Permission Model is documented by Node as a restriction mechanism, not a sandbox. Pair it with OS- or container-level isolation and treat it as one layer.</p>
+<hr>
+</section><section id="your-setup-notes-mac--vs-code--opencode"><h2 id="your-setup-notes-mac--vs-code--opencode">Your Setup Notes (Mac · VS Code · opencode)</h2>
+<p><strong>How I&#39;d fold this into my own stack.</strong></p>
+<table>
+<thead>
+<tr>
+<th>In my workspace</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ts-node</code> / <code>tsx</code> in devDependencies</td>
+<td>Delete for erasable TS; keep for enums/decorators</td>
+</tr>
+<tr>
+<td><code>dotenv</code></td>
+<td>Delete in greenfield; <code>--env-file</code> is stable</td>
+</tr>
+<tr>
+<td><code>nodemon</code></td>
+<td>Delete; <code>node --watch</code></td>
+</tr>
+<tr>
+<td>Jest or Vitest</td>
+<td>Trial <code>node --test</code> on one server-side package before committing</td>
+</tr>
+<tr>
+<td><code>sqlite3</code> / <code>better-sqlite3</code> in a script</td>
+<td>Move to <code>node:sqlite</code></td>
+</tr>
+<tr>
+<td><code>tsc</code></td>
+<td>Keep — it is the only type check left</td>
+</tr>
+<tr>
+<td>A bundler</td>
+<td>Keep — Node does not bundle for the browser</td>
+</tr>
+<tr>
+<td>Long-running agent scripts</td>
+<td>Wrap in <code>--permission</code> with narrow allow-lists</td>
+</tr>
+</tbody></table>
+<p><strong>Recommended setup:</strong></p>
+<ul>
+<li><strong>Pin the LTS.</strong> Node 24 in production, Node 26 for local experimentation until it is LTS.</li>
+<li><strong><code>tsc --noEmit</code> in CI and pre-commit.</strong> Stripping will run a type error; only the compiler catches it.</li>
+<li><strong><code>erasableSyntaxOnly: true</code></strong> from day one, so you never discover a runtime-stripping failure at deploy.</li>
+<li><strong><code>node --test</code> for server work, a framework for UI.</strong> Two tools, two jobs, no guilt.</li>
+<li><strong><code>node:sqlite</code> behind a thin repository module.</strong> The API may still shift before it leaves RC.</li>
+<li><strong><code>--permission</code> on anything that touches untrusted input.</strong> Narrow allow-list, then widen only when something breaks.</li>
+<li><strong>What I would not do:</strong> delete a test framework before you have ported a single suite across, or adopt <code>node:sqlite</code> as a primary datastore while it is still a release candidate.</li>
+</ul>
+<p><strong>Smoke test for the first session, in order:</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code># 1. what am I on, and does it strip types?
+node --version
+printf 'const n: number = 1;\nconsole.log(n + 1);\n' &gt; /tmp/t.ts &amp;&amp; node /tmp/t.ts
+
+# 2. does the env loader work?
+printf 'GREETING=hello\n' &gt; /tmp/.env &amp;&amp; node --env-file=/tmp/.env -e &quot;console.log(process.env.GREETING)&quot;
+
+# 3. do the runner and SQLite exist?
+node --test --test-name-pattern=__none__ 2&gt;&amp;1 | head -1
+node -e &quot;const {DatabaseSync}=require('node:sqlite'); new DatabaseSync(':memory:'); console.log('sqlite ok')&quot;</code></pre></div>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Infra &amp; Dev Env</span> · 8 parts · ~20 min · Generated from <code>markdown_docs/18-nodejs-builtin-toolchain-2026.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>
