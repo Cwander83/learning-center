@@ -34,6 +34,7 @@ export const GUIDES = {
   "18-nodejs-builtin-toolchain-2026": { category: "Infra & Dev Env", order: 18 },
   "19-typescript-7-go-compiler-2026": { category: "Web Platform", order: 19 },
   "20-angular-beginners-guide": { category: "Web Platform", order: 20 },
+  "21-zed-editor-guide": { category: "Workflow", order: 21 },
 };
 
 // Docs that are not reader-facing guides (meta / tooling material).
