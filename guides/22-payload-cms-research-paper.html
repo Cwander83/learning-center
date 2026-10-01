@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payload CMS — The Research Paper — Learning Center</title>
+<meta name="description" content="Payload installs into your Next.js app, generates its admin panel from your TypeScript config, and exposes your database through three APIs that share one query language. Here is how it actually works — and the kinks nobody mentions until you hit them.">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="22-payload-cms-research-paper">
+<header class="topbar">
+  <a class="homebtn" href="../index.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/></svg>Home</a>
+  <span class="brand">Payload CMS — The Research Paper</span>
+  <button id="themeToggle" title="Toggle dark / light" aria-label="Toggle dark and light theme">
+    <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <span id="themeLabel">Dark</span>
+  </button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<details id="toc" class="toc" open>
+<summary class="tocsum">Contents<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#the-analogy-table" data-sec="the-analogy-table" class="sub">The analogy table</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--what-payload-actually-is" data-sec="part-1--what-payload-actually-is">Part 1 — What Payload Actually Is</a><a href="#the-comparison-in-one-table" data-sec="the-comparison-in-one-table" class="sub">The comparison in one table</a><a href="#part-2--the-anatomy-of-a-payload-app" data-sec="part-2--the-anatomy-of-a-payload-app">Part 2 — The Anatomy of a Payload App</a><a href="#part-3--the-three-apis" data-sec="part-3--the-three-apis">Part 3 — The Three APIs</a><a href="#part-4--data-databases-and-the-migration-question" data-sec="part-4--data-databases-and-the-migration-question">Part 4 — Data, Databases, and the Migration Question</a><a href="#part-5--auth-access-control-and-uploads" data-sec="part-5--auth-access-control-and-uploads">Part 5 — Auth, Access Control, and Uploads</a><a href="#part-6--content-workflows-drafts-versions-localization-jobs" data-sec="part-6--content-workflows-drafts-versions-localization-jobs">Part 6 — Content Workflows: Drafts, Versions, Localization, Jobs</a><a href="#part-7--the-ecosystem-admin-live-preview-plugins-mcp" data-sec="part-7--the-ecosystem-admin-live-preview-plugins-mcp">Part 7 — The Ecosystem: Admin, Live Preview, Plugins, MCP</a><a href="#part-8--the-kinks-the-honest-section" data-sec="part-8--the-kinks-the-honest-section">Part 8 — The Kinks (The Honest Section)</a><a href="#81-the-nextjs-coupling-is-real" data-sec="81-the-nextjs-coupling-is-real" class="sub">8.1 The Next.js coupling is real</a><a href="#82-esm-everywhere" data-sec="82-esm-everywhere" class="sub">8.2 ESM, everywhere</a><a href="#83-the-overrideaccess-default-will-bite-you-eventually" data-sec="83-the-overrideaccess-default-will-bite-you-eventually" class="sub">8.3 The <code>overrideAccess</code> default will bite you eventually</a><a href="#84-migrations-discipline-relational-databases" data-sec="84-migrations-discipline-relational-databases" class="sub">8.4 Migrations discipline (relational databases)</a><a href="#85-serverless-uploads-need-a-plan" data-sec="85-serverless-uploads-need-a-plan" class="sub">8.5 Serverless uploads need a plan</a><a href="#86-lexical-is-powerful-and-different" data-sec="86-lexical-is-powerful-and-different" class="sub">8.6 Lexical is powerful and different</a><a href="#87-custom-admin-work-means-react" data-sec="87-custom-admin-work-means-react" class="sub">8.7 Custom admin work means React</a><a href="#88-the-access-operations-null-fields" data-sec="88-the-access-operations-null-fields" class="sub">8.8 The Access Operation&#39;s null fields</a><a href="#89-the-release-cadence-is-fast--read-the-security-notes" data-sec="89-the-release-cadence-is-fast--read-the-security-notes" class="sub">8.9 The release cadence is fast — read the security notes</a><a href="#810-figma-owns-it-now" data-sec="810-figma-owns-it-now" class="sub">8.10 Figma owns it now</a><a href="#part-9--should-you-use-it-and-the-40-question" data-sec="part-9--should-you-use-it-and-the-40-question">Part 9 — Should You Use It? (and the 4.0 Question)</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheet" data-sec="cheat-sheet">Cheat Sheet</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--docs" data-sec="written-references--docs">Written References &amp; Docs</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#verification-note" data-sec="verification-note">Verification Note</a><a href="#your-setup-notes" data-sec="your-setup-notes">Your Setup Notes</a></div>
+</nav>
+</details>
+<main>
+<h1>Payload CMS — The Research Paper</h1>
+<div class="callout lede">Payload installs into your Next.js app, generates its admin panel from your TypeScript config, and exposes your database through three APIs that share one query language. Here is how it actually works — and the kinks nobody mentions until you hit them.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>Payload is not a CMS you log into at some vendor&#39;s domain. It is a <strong>config-as-code application framework</strong> that installs <em>inside</em> your Next.js app. You write one TypeScript file — the Payload Config — and out of it falls: a full React admin panel, a REST API, a GraphQL API, a straight-to-database Node API, authentication, access control, file uploads, versioning, localization, and a database schema with migrations. You own all of it, and it all deploys together with your app.</p>
+<p>The mental model that unlocks everything else: <strong>Payload is an ORM with superpowers.</strong> At its core is a <code>payload</code> package that knows how to run operations — <code>find</code>, <code>create</code>, <code>update</code>, <code>delete</code> — and every one of those operations executes your access control, your hooks, and your validation on the way through. The admin panel and the REST/GraphQL APIs are just <em>clients</em> of those same operations. That is why a rule you write once secures both your API and your editor UI.</p>
+<div class="codewrap"><pre data-lang=""><code>   ONE REPO, ONE APP — WHAT PAYLOAD ADDS TO A NEXT.JS PROJECT
+
+   ┌───────────────────────────────────────────────────────────────┐
+   │  YOUR NEXT.JS APP                                             │
+   │                                                               │
+   │   app/(payload)/                 app/(my-app)/                │
+   │   ┌──────────────────┐           ┌──────────────────┐         │
+   │   │  /admin          │           │  your pages,     │         │
+   │   │  /api   (REST)   │           │  server comps,   │         │
+   │   │  /api/graphql    │           │  server actions  │         │
+   │   └────────┬─────────┘           └────────┬─────────┘         │
+   │            │                              │                   │
+   │            ▼                              ▼                   │
+   │      ┌─────────────────────────────────────────────┐          │
+   │      │  payload.config.ts — the single source      │          │
+   │      │  collections · globals · fields · access    │          │
+   │      │  hooks · auth · localization · jobs         │          │
+   │      └───────────────────┬─────────────────────────┘          │
+   │                          ▼                                    │
+   │      ┌─────────────────────────────────────────────┐          │
+   │      │  Local API: payload.find / create / ...     │          │
+   │      │  (no HTTP — straight to the database)       │          │
+   │      └───────────────────┬─────────────────────────┘          │
+   └──────────────────────────┼────────────────────────────────────┘
+                              ▼
+                   ┌───────────────────────┐
+                   │   Database Adapter    │
+                   │  MongoDB · Postgres   │
+                   │  SQLite               │
+                   └───────────────────────┘</code></pre></div>
+<p>The single most important idea: <strong>the config is the product.</strong> Collections, fields, access rules, hooks, and the admin UI are all derived from one typed object. When you change the config, the admin panel, the APIs, and the generated TypeScript types all change with it — and when you use the Local API, you are calling the same machinery the admin panel calls, just without the HTTP hop.</p>
+<h3 id="the-analogy-table">The analogy table</h3>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English analogy</th>
+<th>Why it matters to you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Payload Config</strong></td>
+<td>The blueprint for the whole building</td>
+<td>One file drives the admin UI, APIs, and DB schema</td>
+</tr>
+<tr>
+<td><strong>Collection</strong></td>
+<td>A table + its form + its API endpoint, in one</td>
+<td>Where you model <code>posts</code>, <code>orders</code>, <code>users</code></td>
+</tr>
+<tr>
+<td><strong>Document</strong></td>
+<td>One row / one record</td>
+<td>What CRUD operations act on</td>
+</tr>
+<tr>
+<td><strong>Global</strong></td>
+<td>A table with exactly one row</td>
+<td>Settings, navigation, footer</td>
+</tr>
+<tr>
+<td><strong>Field</strong></td>
+<td>A column that also knows how to edit itself</td>
+<td>Auto-generates the matching admin input</td>
+</tr>
+<tr>
+<td><strong>Local API</strong></td>
+<td>A phone line inside the building</td>
+<td>Server-side queries with zero HTTP overhead</td>
+</tr>
+<tr>
+<td><strong>REST / GraphQL</strong></td>
+<td>The public entrances</td>
+<td>Same data, for any client</td>
+</tr>
+<tr>
+<td><strong>Hook</strong></td>
+<td>A checkpoint at the door</td>
+<td>Run your code at exact points in a document&#39;s life</td>
+</tr>
+<tr>
+<td><strong>Access Control</strong></td>
+<td>The bouncer, at every door</td>
+<td>Secures APIs and hides UI, from the same function</td>
+</tr>
+<tr>
+<td><strong>Database Adapter</strong></td>
+<td>The foundation you chose</td>
+<td>MongoDB, Postgres, or SQLite behind one API</td>
+</tr>
+<tr>
+<td><strong>Migration</strong></td>
+<td>A construction permit</td>
+<td>Versioned schema changes for relational databases</td>
+</tr>
+<tr>
+<td><strong>Draft / Version</strong></td>
+<td>Save-for-later and the undo history</td>
+<td>Real editorial workflows, not just autosave</td>
+</tr>
+<tr>
+<td><strong>Job / Task</strong></td>
+<td>An outbox and a to-do routine</td>
+<td>Background work and scheduled publishing</td>
+</tr>
+<tr>
+<td><strong>Lexical</strong></td>
+<td>The word processor engine</td>
+<td>Rich text stored as JSON, rendered by you</td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td>A socket for AI agents</td>
+<td>Let agents read and write your content safely</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The one-sentence version:</strong> Payload is a config-as-code CMS that lives inside your Next.js app — one TypeScript file generates the admin panel, the APIs, and the schema, and the same access functions that secure your API also decide what your editors see.</p>
+</blockquote>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>Payload 3.x is the stable line; latest is 3.90.2 (23 September 2026).</strong> Payload <strong>4.0 is in beta</strong> — plan for it, don&#39;t build on it yet. Section 8 and Part 9 cover the upgrade story.</li>
+<li><strong>It installs into a Next.js app.</strong> <code>npx create-payload-app</code> scaffolds one; the install requires <strong>Node 20.9+</strong> and a supported Next.js version range — currently <strong>15.2.9–15.2.x, 15.3.9–15.3.x, 15.4.11–15.4.x, or 16.2.6+</strong>. This coupling is the #1 kink (see 8.1).</li>
+<li><strong>Your database is yours.</strong> Pick MongoDB, Postgres, or SQLite through an adapter. Postgres/SQLite use Drizzle; migrations are first-party and written in TypeScript.</li>
+<li><strong>Three APIs, one query language.</strong> Local API (fastest, server-only), REST at <code>/api</code>, GraphQL at <code>/api/graphql-playground</code>. The same <code>where</code> syntax works in all three.</li>
+<li><strong>The Local API skips access control by default in 3.x</strong> (<code>overrideAccess: true</code>). This is a documented footgun — and in 4.0 the default <strong>flips to <code>false</code></strong>. Be explicit today (8.3).</li>
+<li><strong>Rich text is Lexical, stored as JSON.</strong> You convert to JSX/HTML/Markdown when rendering. Slate is legacy and <strong>will be removed in 4.0</strong>.</li>
+<li><strong>A critical security release shipped 18 September 2026 (3.90.0 / 4.0 line).</strong> If you run Payload, be on 3.90.1+ and read those notes — password/session behavior, upload hardening, and API-key visibility all changed.</li>
+<li><strong>Keep every <code>@payloadcms/*</code> package on the same version.</strong> They are published in lockstep; mixing versions is a classic self-inflicted wound.</li>
+<li><strong>Payload joined Figma in March 2025.</strong> It remains open source and self-hostable; the enterprise motion (SSO, workflows, AI features) has grown alongside. Microsoft, ASICS, and Blue Origin are public customers.</li>
+<li><strong>The ecosystem is real:</strong> plugins for SEO, search, redirects, forms, multi-tenancy, ecommerce, and MCP; official Vercel and Cloudflare deployment paths; and <code>llms.txt</code> / agent-skill files so your AI tools stay accurate.</li>
+</ol>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Why</th>
+<th>How to check / get</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Node.js <strong>20.9.0+</strong></td>
+<td>Payload&#39;s floor</td>
+<td><code>node --version</code></td>
+</tr>
+<tr>
+<td>A package manager</td>
+<td>pnpm is preferred; <strong>yarn 1.x is not supported</strong></td>
+<td><code>pnpm --version</code></td>
+</tr>
+<tr>
+<td>Next.js in a supported range</td>
+<td>Payload 3 mounts inside the app</td>
+<td><code>15.2.9–15.2.x</code>, <code>15.3.9–15.3.x</code>, <code>15.4.11–15.4.x</code>, <code>16.2.6+</code></td>
+</tr>
+<tr>
+<td>A database</td>
+<td>Pick one adapter</td>
+<td>MongoDB, Postgres, or SQLite (local is fine to start)</td>
+</tr>
+<tr>
+<td><code>sharp</code> (optional)</td>
+<td>Image resizing, cropping, focal point</td>
+<td><code>pnpm i sharp</code></td>
+</tr>
+<tr>
+<td><code>graphql</code> (optional)</td>
+<td>Only if you want the GraphQL API</td>
+<td><code>pnpm i graphql</code></td>
+</tr>
+<tr>
+<td>An editor + AI agent</td>
+<td>Not required, but the docs ship <code>llms.txt</code></td>
+<td>Your agent reads version-matched docs</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Before you start:</strong> decide your database adapter before you model anything. Switching MongoDB → Postgres later is a data migration project, not a config change.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--what-payload-actually-is"><h2 id="part-1--what-payload-actually-is">Part 1 — What Payload Actually Is</h2>
+<p><strong>It is a framework first, a CMS second.</strong> Payload&#39;s own docs open with: <em>&quot;Payload is the Next.js fullstack framework.&quot;</em> The CMS story — content modeling, editorial workflow, media — is one use case among several (internal tools, headless commerce, digital asset management). That framing matters because it tells you who this is for: developers who want to <em>build on</em> their CMS, not just install one.</p>
+<p><strong>The history in five beats.</strong> Payload 1.0 launched in June 2022 as an Express-based CMS. Version 2.0 (September 2023) added Postgres, Live Preview, and the Lexical rich text editor. Version 3.0 (October 2024) was the big pivot: Payload stopped being a standalone server and became something that <strong>installs directly into any Next.js app</strong> — the admin panel became React Server Components served from your own <code>/admin</code> route. In March 2025, Payload joined Figma. And through 2025–2026 the 3.x line matured toward 4.0 (currently in beta), which adds an admin UI redesign, TanStack Start support, MCP, and a few breaking changes we&#39;ll get to.</p>
+<p><strong>It is genuinely open source.</strong> The core is MIT-licensed TypeScript on GitHub — ~45k stars as of September 2026 — with an enterprise tier layered on top (SSO, publishing workflows, visual editor, A/B testing). You can read every line that touches your data.</p>
+<p><strong>Who it is for.</strong> Teams already living in Next.js and TypeScript who want content and application logic in <em>one</em> codebase, one deploy, one type system. Agencies who want to hand clients a clean editing UI without maintaining a CMS fork. Solo builders (hello) who refuse to run a second server for content.</p>
+<p><strong>Who it is not for.</strong> If your stack is PHP-first, Payload means adopting Node. If you want zero code and a click-only setup, this is the wrong tool. If you want a hosted SaaS where someone else runs the database, that is Contentful/Sanity territory — Payload&#39;s bet is the opposite: <em>you own it.</em></p>
+<h3 id="the-comparison-in-one-table">The comparison in one table</h3>
+<table>
+<thead>
+<tr>
+<th>Alternative</th>
+<th>The honest difference</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>WordPress + ACF</strong></td>
+<td>Payload is the &quot;you never fight the CMS&quot; version: no plugins of plugins, config is code, APIs are typed</td>
+</tr>
+<tr>
+<td><strong>Strapi</strong></td>
+<td>Both are Node CMSes; Strapi is admin-first with a plugin market, Payload is code-first and lives inside your Next app</td>
+</tr>
+<tr>
+<td><strong>Directus</strong></td>
+<td>Directus wraps an existing SQL database with a no-code admin; Payload defines schema in code and manages migrations for you</td>
+</tr>
+<tr>
+<td><strong>Contentful / Sanity</strong></td>
+<td>Hosted SaaS with editorial polish; Payload is self-hosted OSS with unlimited seats and full data ownership</td>
+</tr>
+<tr>
+<td><strong>Building it yourself</strong></td>
+<td>You get Payload&#39;s admin UI, auth, access control, uploads, versions, and jobs for free instead of re-inventing them</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="part-2--the-anatomy-of-a-payload-app"><h2 id="part-2--the-anatomy-of-a-payload-app">Part 2 — The Anatomy of a Payload App</h2>
+<p><strong>Installation, the honest version.</strong> <code>npx create-payload-app</code> scaffolds everything. To add Payload to an existing Next.js app, you install <code>payload</code> and <code>@payloadcms/next</code>, plus a database adapter, then copy a small set of files into a <code>(payload)</code> route group in your <code>app/</code> folder. Those files never regenerate and you never edit them — they just wire the REST/GraphQL routes and admin panel into Next.js. Your own pages move into their own route group (commonly <code>(my-app)</code> or <code>(frontend)</code>), and the two coexist:</p>
+<div class="codewrap"><pre data-lang="text"><code>app/
+├─ (payload)/
+│  ├─ admin/[[...segments]]/   ← the auto-generated admin panel
+│  ├─ api/[...slug]/           ← REST API
+│  └─ api/graphql/             ← GraphQL API (optional)
+└─ (my-app)/
+   ├─ layout.tsx               ← your frontend
+   └─ page.tsx</code></pre></div>
+<p><strong>The Next.js plugin.</strong> You wrap your Next config with <code>withPayload</code>:</p>
+<div class="codewrap"><pre data-lang="ts"><code>// next.config.mjs  — note the ESM requirement
+import { withPayload } from '@payloadcms/next/withPayload'
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {}
+
+export default withPayload(nextConfig)</code></pre></div>
+<p>Two gotchas live in those four lines. First, <code>withPayload</code> is <strong>ESM-only</strong> — your <code>next.config</code> needs to be <code>.mjs</code>, or your <code>package.json</code> needs <code>&quot;type&quot;: &quot;module&quot;</code>, and any <code>require</code>/<code>module.exports</code> must become <code>import</code>/<code>export</code>. Second, Payload&#39;s own packages are ESM too; that is why the plugin exists at all (it teaches Next to bundle things like <code>mongodb</code> and <code>drizzle-kit</code> correctly).</p>
+<p><strong>The config.</strong> Every project has one <code>payload.config.ts</code>, usually at the repo root, usually wired to a tsconfig path alias:</p>
+<div class="codewrap"><pre data-lang="ts"><code>// payload.config.ts — the minimum viable config
+import { buildConfig } from 'payload'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import sharp from 'sharp'
+
+export default buildConfig({
+  editor: lexicalEditor(),          // rich text engine (optional)
+  collections: [],                   // your data model goes here
+  secret: process.env.PAYLOAD_SECRET || '',
+  db: mongooseAdapter({
+    url: process.env.DATABASE_URL || '',
+  }),
+  sharp,                             // image manipulation (optional)
+})</code></pre></div>
+<div class="codewrap"><pre data-lang="json"><code>// tsconfig.json — so `@payload-config` resolves everywhere
+{ &quot;compilerOptions&quot;: { &quot;paths&quot;: { &quot;@payload-config&quot;: [&quot;./payload.config.ts&quot;] } } }</code></pre></div>
+<p>Then <code>pnpm dev</code>, open <code>http://localhost:3000/admin</code>, and create the first user. That is the entire bootstrap.</p>
+<p><strong>Collections and globals.</strong> A <strong>Collection</strong> is a group of documents sharing a schema — <code>posts</code>, <code>media</code>, <code>users</code>. A <strong>Global</strong> is the degenerate case: exactly one document, for settings and nav. Both are defined with <strong>Fields</strong>, and the field list is long enough to model almost anything without plugins: text, textarea, number, email, select, radio, checkbox, date, point, json, code, richText, upload, relationship, join, array, blocks (the layout builder), group, row, collapsible, tabs, and UI (presentational). Every field auto-generates its own admin input, and field-level options control validation, defaults, access, and hooks.</p>
+<p><strong>Type generation.</strong> The config is typed at runtime; your <em>data</em> gets typed by a command:</p>
+<div class="codewrap"><pre data-lang="bash"><code>pnpm payload generate:types
+# → src/payload-types.ts — Post, Media, User interfaces from your config</code></pre></div>
+<p>Local API calls then infer their return types from those generated interfaces, which is the closest thing to &quot;the CMS has types&quot; you will find.</p>
+<hr>
+</section><section id="part-3--the-three-apis"><h2 id="part-3--the-three-apis">Part 3 — The Three APIs</h2>
+<p>Payload exposes everything through three doors, and <strong>all three share one query language</strong> — same <code>where</code> operators, same sort, same pagination shape.</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Where</th>
+<th>Use it when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Local API</strong></td>
+<td>In-process, any server context</td>
+<td>Server Components, hooks, access control, seed scripts — always your first choice on the server</td>
+</tr>
+<tr>
+<td><strong>REST</strong></td>
+<td><code>/api</code> in your app</td>
+<td>External clients, mobile apps, webhooks, anything that speaks HTTP</td>
+</tr>
+<tr>
+<td><strong>GraphQL</strong></td>
+<td><code>/api/graphql-playground</code></td>
+<td>Clients that already live in GraphQL; requires installing <code>graphql</code></td>
+</tr>
+</tbody></table>
+<p><strong>The Local API is the headline.</strong> There is no HTTP hop — you are calling operations that go straight to the database:</p>
+<div class="codewrap"><pre data-lang="ts"><code>// Inside a React Server Component or a hook
+import { getPayload } from 'payload'
+import config from '@payload-config'
+
+const payload = await getPayload({ config })
+
+const posts = await payload.find({
+  collection: 'posts',
+  where: { status: { equals: 'published' } },
+  sort: '-publishedAt',
+  limit: 10,
+})</code></pre></div>
+<p>Inside hooks and access functions you don&#39;t even import it — it is handed to you as <code>req.payload</code>. The operations cover the full lifecycle: <code>create</code>, <code>find</code>, <code>findByID</code>, <code>count</code>, <code>findDistinct</code>, <code>update</code> (single and many), <code>delete</code> (single and many), plus auth operations (<code>login</code>, <code>forgotPassword</code>, <code>resetPassword</code>, <code>verifyEmail</code>, <code>unlock</code>, <code>auth</code>) and globals (<code>findGlobal</code>, <code>updateGlobal</code>).</p>
+<p><strong>The options list is where the power is.</strong> Every operation accepts a common set: <code>depth</code> (how far to auto-populate relationships), <code>locale</code> / <code>fallbackLocale</code>, <code>select</code> (field projection), <code>populate</code>, <code>showHiddenFields</code>, <code>context</code> (passed through to hooks), <code>disableErrors</code>, <code>disableTransaction</code>, <code>overrideLock</code>, <code>user</code>, and — the important one — <code>overrideAccess</code>.</p>
+<p><strong>Access control is skipped by default in the Local API (3.x).</strong> This surprises everyone. The Local API assumes <em>your server code is trusted</em>, so <code>overrideAccess</code> defaults to <code>true</code>. If you are querying on behalf of a user, you must opt back in:</p>
+<div class="codewrap"><pre data-lang="ts"><code>const posts = await payload.find({
+  collection: 'posts',
+  overrideAccess: false,   // enforce access control…
+  user,                    // …as this user
+})</code></pre></div>
+<p>In <strong>Payload 4.0 the default flips to <code>false</code></strong> (access control enforced unless you opt out). The release notes list it as a breaking change and the codemod flags it — meaning the 3.x default is now officially the legacy behavior. Start being explicit today; it is the single best upgrade-prep habit (see 8.3).</p>
+<p><strong>Transactions thread through <code>req</code>.</strong> If your database supports transactions (Postgres always; MongoDB with replica sets), pass <code>req</code> into nested Local API calls so they join the same transaction:</p>
+<div class="codewrap"><pre data-lang="ts"><code>await payload.update({
+  collection: 'orders',
+  id: order.id,
+  data: { status: 'paid' },
+  req,   // stay inside the current transaction
+})</code></pre></div>
+<hr>
+</section><section id="part-4--data-databases-and-the-migration-question"><h2 id="part-4--data-databases-and-the-migration-question">Part 4 — Data, Databases, and the Migration Question</h2>
+<p><strong>Bring your own database.</strong> Payload is database-agnostic behind the adapter interface, and each adapter is a real, first-class implementation:</p>
+<table>
+<thead>
+<tr>
+<th>Adapter</th>
+<th>Package</th>
+<th>Character</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>MongoDB</strong></td>
+<td><code>@payloadcms/db-mongodb</code></td>
+<td>Payload&#39;s native home; flexible documents suit blocks/arrays; transactions need a replica set</td>
+</tr>
+<tr>
+<td><strong>Postgres</strong></td>
+<td><code>@payloadcms/db-postgres</code></td>
+<td>Drizzle ORM under the hood; relational rigor; migrations are mandatory in production</td>
+</tr>
+<tr>
+<td><strong>SQLite</strong></td>
+<td><code>@payloadcms/db-sqlite</code></td>
+<td>Drizzle too; perfect for local dev and small deploys</td>
+</tr>
+<tr>
+<td><strong>Vercel Postgres</strong></td>
+<td><code>@payloadcms/db-vercel-postgres</code></td>
+<td>The Postgres adapter aimed at Vercel&#39;s storage</td>
+</tr>
+</tbody></table>
+<p><strong>Migrations are a first-party, TypeScript affair.</strong> In development, relational adapters can push schema changes automatically. In production, you generate and run migrations:</p>
+<div class="codewrap"><pre data-lang="bash"><code>pnpm payload migrate:create add-reset-password-requested-at
+pnpm payload migrate</code></pre></div>
+<p>The 3.90.0 security release is a perfect illustration: it added a <code>resetPasswordRequestedAt</code> field to auth collections and told every relational-database user to run a migration. If you skip migrations, your schema drifts and things break in exactly the places you can&#39;t debug quickly.</p>
+<p><strong>Indexes, transactions, and the sharp edges.</strong> Payload lets you declare indexes per field (do this for anything you filter on). Transactions are supported — but they are opt-in per request path, and you have to thread <code>req</code> (see Part 3). And there is one genuinely sharp relational edge: <strong>polymorphic joins got stricter <code>where</code> validation in 3.90.0</strong> — filters that traverse relationships, hit localized fields, or reach into nested arrays now throw a <code>QueryError</code> instead of silently doing something approximate. If you lean on joins with multiple target collections, read that release note.</p>
+<p><strong>The decision, made simple.</strong> Starting fresh and unsure? <strong>Postgres</strong> if your team already lives in SQL, <strong>MongoDB</strong> if you love document flexibility and want Payload&#39;s oldest, most-exercised path. SQLite is a gift for local development regardless of where you deploy.</p>
+<hr>
+</section><section id="part-5--auth-access-control-and-uploads"><h2 id="part-5--auth-access-control-and-uploads">Part 5 — Auth, Access Control, and Uploads</h2>
+<p><strong>Authentication is built in.</strong> Mark a collection with <code>auth: true</code> and it becomes a user collection with login, logout, email verification, password reset, lockout handling, and your choice of cookie/JWT/API-key strategies. The admin panel needs at least one auth-enabled collection; your own frontends can reuse the same users — that portability (&quot;one auth system for the CMS <em>and</em> your app&quot;) is a deliberate design goal.</p>
+<p><strong>Access control is the best idea in Payload.</strong> Three scopes — <strong>collection</strong>, <strong>global</strong>, and <strong>field</strong> — each an async function that answers one question: <em>can this request do this operation?</em></p>
+<div class="codewrap"><pre data-lang="ts"><code>// Collection-level: anyone can read published posts; only admins write
+const Posts = {
+  slug: 'posts',
+  access: {
+    read: ({ req: { user } }) =&gt; {
+      if (user) return true
+      return { status: { equals: 'published' } }   // a WHERE query, not a boolean
+    },
+    create: ({ req: { user } }) =&gt; user?.role === 'admin',
+    update: ({ req: { user } }) =&gt; user?.role === 'admin',
+    delete: ({ req: { user } }) =&gt; user?.role === 'admin',
+  },
+  fields: [ /* ... */ ],
+}</code></pre></div>
+<p>Two details make this more powerful than it looks. First, access functions can return <strong>query constraints</strong>, not just booleans — &quot;this user may read <em>their own</em> orders&quot; is one return value. Second, <strong>the admin panel reflects your access rules</strong>: hide a collection from a role and it disappears from their sidebar, using the same function that protects your API. That is why Payload calls it &quot;the Access Operation&quot; — on login, it runs every access function across collections, globals, and fields to build a map of what the user can do.</p>
+<p><strong>The Access Operation caveat.</strong> When your functions run at the top level like that, there is no specific document, so <code>id</code>, <code>data</code>, <code>siblingData</code>, <code>blockData</code>, and <code>doc</code> are <code>undefined</code> — and any <code>where</code> query you return is <em>not run</em>; Payload assumes no access instead. Guard accordingly:</p>
+<div class="codewrap"><pre data-lang="ts"><code>const access = ({ req: { user }, id }) =&gt; {
+  if (!id) return Boolean(user)     // top-level check — no document yet
+  return user?.id === id            // document-level check
+}</code></pre></div>
+<p><strong>Uploads are a first-class field type.</strong> An upload-enabled collection stores files locally by default; swap in storage adapters for S3, GCS, Azure, Vercel Blob, and more when you deploy serverless. With <code>sharp</code> installed you get image resizing, cropping, and focal-point selection. Upload collections get the same access control as everything else — files are not a special case.</p>
+<p>And because this is September 2026: the 3.90.0 security release hardened this entire surface. SVG/XML uploads are now strictly validated, client uploads across all adapters are hardened, external file fetches must come from a trusted origin, filenames are sanitized, and <strong>multipart uploads are capped at 50 MB by default</strong> (raise <code>requestSizeLimit</code> if you legitimately need more). If you built an upload pipeline before mid-September, read those notes.</p>
+<hr>
+</section><section id="part-6--content-workflows-drafts-versions-localization-jobs"><h2 id="part-6--content-workflows-drafts-versions-localization-jobs">Part 6 — Content Workflows: Drafts, Versions, Localization, Jobs</h2>
+<p><strong>Drafts and versions are built into the document model.</strong> Enable <code>versions</code> on a collection and you get a version history with diffs and restore; enable <code>drafts</code> and documents gain a <code>_status</code> field (<code>draft</code> / <code>published</code>), plus autosave and <strong>scheduled publishing</strong>. The subtle part is querying drafts: fetching unpublished content requires <code>draft: true</code> <em>and</em> <code>overrideAccess: false</code> with a real user — the preview path is exactly where you want access control live.</p>
+<p><strong>Localization is field-level.</strong> Declare locales once in the config, then mark any field <code>localized: true</code>; Payload stores per-locale values and serves them by <code>locale</code> with <code>fallbackLocale</code> chains. You can even write locale-specific access control by reading <code>req.locale</code> in your access functions.</p>
+<p><strong>Jobs turn Payload into a worker queue.</strong> The jobs system has four nouns worth memorizing: <strong>queues</strong> (ordered groups), <strong>jobs</strong> (units of offloaded work), <strong>tasks</strong> (typed function declarations with input/output, runnable inside jobs), and <strong>schedules</strong> (cron-style recurring jobs). Scheduled publishing rides on this system, and long-running work (transcodes, syncs, emails) belongs here rather than in a hook that blocks the request.</p>
+<p><strong>Folders, Trash, and Query Presets</strong> are the admin-side quality-of-life trio added across the 3.x line: group documents across collections, soft-delete with a recoverable trash, and save/share list filters and columns for your editors.</p>
+<hr>
+</section><section id="part-7--the-ecosystem-admin-live-preview-plugins-mcp"><h2 id="part-7--the-ecosystem-admin-live-preview-plugins-mcp">Part 7 — The Ecosystem: Admin, Live Preview, Plugins, MCP</h2>
+<p><strong>The admin panel is a React app you can bend.</strong> Every field has a generated UI, but you can swap in custom components for fields, cells, labels, views, the dashboard, and the root layout. <code>@payloadcms/ui</code> exports the panel&#39;s own component library — Button, Banner, Pill, Table, DatePicker, Modals, and a few dozen more — which is exactly what powers custom admin work. (Fittingly, the docs for those components only fully landed in June 2026; before that, custom admin work meant reading source. It is much better now.)</p>
+<p><strong>Live Preview renders your real frontend inside the admin.</strong> You configure a URL pattern, Payload iframes your app beside the editor, and changes stream through as the editor types — no save required. There are server-side and client-side integration guides, and on Vercel the Content Link integration closes the loop from rendered page back to the exact field.</p>
+<p><strong>Plugins cover the boring 20%.</strong> Official plugins include SEO, search, redirects, nested docs, form builder, import/export, multi-tenant scaffolding, Sentry, Stripe, cloud storage adapters, the full ecommerce suite, and — the one I care about most — <strong>MCP</strong>.</p>
+<p><strong>MCP is the agent-native move.</strong> The MCP plugin exposes your Payload instance as a Model Context Protocol server, so AI agents (the ones living in your editor, or your own harnesses) can read and write content through a defined, permissioned interface instead of you scripting ad-hoc API calls. Combined with the fact that Payload ships <code>llms.txt</code> files and — in 4.0 — an <strong>agent skill inside the <code>payload</code> package itself</strong>, this is a CMS built by people who assume you code with agents now. More on that in the advanced guide.</p>
+<p><strong>Enterprise features exist</strong> (SSO, publishing workflows, visual editor, static A/B testing, AI auto-embedding) and are the paid layer on top of the OSS core. Nothing in this paper depends on them.</p>
+<hr>
+</section><section id="part-8--the-kinks-the-honest-section"><h2 id="part-8--the-kinks-the-honest-section">Part 8 — The Kinks (The Honest Section)</h2>
+<p>Every framework has a tax. Here is Payload&#39;s, in the order you will meet it.</p>
+<h3 id="81-the-nextjs-coupling-is-real">8.1 The Next.js coupling is real</h3>
+<p>Payload 3 doesn&#39;t just <em>work with</em> Next.js — it lives inside it, and the version compatibility window is explicit: <code>15.2.9–15.2.x</code>, <code>15.3.9–15.3.x</code>, <code>15.4.11–15.4.x</code>, <code>16.2.6+</code>. Notice the <em>patch floors</em>. You cannot blindly ride the newest Next.js canary, and when Next ships a security patch, Payload ships a matching bump across core and templates. Practical consequences: keep an eye on Payload release notes when upgrading Next, and know that <code>cacheComponents</code> (Next 16&#39;s caching model) can run alongside Payload without admin-panel errors, but full compatibility is explicitly not guaranteed yet.</p>
+<h3 id="82-esm-everywhere">8.2 ESM, everywhere</h3>
+<p><code>withPayload</code> is an ECMAScript module. Your <code>next.config</code> must be <code>.mjs</code> (or your package must be <code>&quot;type&quot;: &quot;module&quot;</code>), and old <code>require</code>/<code>module.exports</code> habits in that file must become <code>import</code>/<code>export</code>. Five-minute fix, guaranteed first-run papercut.</p>
+<h3 id="83-the-overrideaccess-default-will-bite-you-eventually">8.3 The <code>overrideAccess</code> default will bite you eventually</h3>
+<p>In 3.x, Local API calls skip access control by default. Server code that <em>assumes</em> access control is enforced — say, a custom endpoint that queries with a user&#39;s session — will happily leak unpublished drafts or other users&#39; rows until you pass <code>overrideAccess: false</code>. This is not hypothetical; it is why 4.0 flips the default. <strong>Habit to adopt today: every Local API call on behalf of a user is explicit</strong> — <code>overrideAccess: false, user</code> — even when it feels redundant.</p>
+<h3 id="84-migrations-discipline-relational-databases">8.4 Migrations discipline (relational databases)</h3>
+<p>Dev-mode schema push is convenient and dangerous: it is not a migration, and it does not exist in production. Every config change to a relational schema needs <code>migrate:create</code> → review the generated SQL → <code>migrate</code> in the deploy. The 3.90.0 release is the case study: new auth fields, an explicit migration command in the notes, and a population of users who had to learn this quickly. Also regenerate types after config changes (<code>generate:types</code>), or your editor will lie to you.</p>
+<h3 id="85-serverless-uploads-need-a-plan">8.5 Serverless uploads need a plan</h3>
+<p>Default local-disk storage plus serverless functions equals disappearing files. If you deploy to Vercel or Cloudflare, budget time for a storage adapter (S3, Vercel Blob, R2…) and know the September 2026 hardening changes: 50 MB multipart cap by default, strict SVG/XML validation, trusted-origin checks on external fetches.</p>
+<h3 id="86-lexical-is-powerful-and-different">8.6 Lexical is powerful and different</h3>
+<p>Rich text is stored as <strong>JSON</strong>, not HTML — rendering means running converters (<code>@payloadcms/richtext-lexical</code> ships JSX, HTML, Markdown, and plaintext converters). Custom editor features are a genuine learning curve (Lexical is a framework, not a textarea), and one rule is non-negotiable: <strong>never install <code>lexical</code> yourself</strong> — use Payload&#39;s re-exports (<code>@payloadcms/richtext-lexical/lexical</code>), because version mismatches corrupt the editor. Also note: Slate is legacy and <strong>removed in 4.0</strong>.</p>
+<h3 id="87-custom-admin-work-means-react">8.7 Custom admin work means React</h3>
+<p>The config covers 95% of admin needs; the last 5% means writing React components inside Next.js&#39;s server/client component split, with <code>@payloadcms/ui</code> as your kit. It is well-documented <em>now</em> (June 2026 onward) — but it is still app code with app-code complexity.</p>
+<h3 id="88-the-access-operations-null-fields">8.8 The Access Operation&#39;s null fields</h3>
+<p>Covered in Part 5, repeated here because it causes real bugs: top-level access checks run with <code>id</code>, <code>data</code>, <code>doc</code> all <code>undefined</code>, and returned <code>where</code> queries are not executed. If your access function does <code>user.id === doc.author</code> without guarding, it will throw on login.</p>
+<h3 id="89-the-release-cadence-is-fast--read-the-security-notes">8.9 The release cadence is fast — read the security notes</h3>
+<p>There have been dozens of 3.x minors and hundreds of patches; the changelog is a firehose. But some releases are not routine. <strong>18 September 2026 (3.90.0)</strong> was a critical security release: password changes now revoke other sessions, password reset clears lockouts and is throttled (with a new field), API keys are no longer readable after generation (restore old behavior with <code>auth.useAPIKey.reveal</code>), scheduled-publish jobs now preserve the scheduling user&#39;s auth collection, and the upload hardening in 8.5 landed. If you run Payload and have not upgraded past 3.90.1, that is your next task.</p>
+<h3 id="810-figma-owns-it-now">8.10 Figma owns it now</h3>
+<p>Payload joined Figma in March 2025 — a company whose design-tool ethos is a decent cultural match, and so far the open-source posture has held (still MIT, still self-hostable, still shipping weekly). But be clear-eyed: the center of gravity is moving upmarket (SSO, workflows, enterprise AI). The 4.0 beta&#39;s headline features — admin redesign, TanStack, MCP — are framework investments, which is a good sign for people building on it. Nothing in this paper assumes the acquisition changes your self-hosted deployment.</p>
+<hr>
+</section><section id="part-9--should-you-use-it-and-the-40-question"><h2 id="part-9--should-you-use-it-and-the-40-question">Part 9 — Should You Use It? (and the 4.0 Question)</h2>
+<p><strong>Pick Payload if:</strong> you ship Next.js, you want content and app in one repo, you value typed access to your own database, and you would rather write a config than click through an installer.</p>
+<p><strong>Skip it if:</strong> your team is not in JavaScript, you need a click-only setup, or you want someone else to host and operate the CMS.</p>
+<p><strong>The 4.0 decision, plainly:</strong></p>
+<ul>
+<li><strong>New project today: start on 3.90.x.</strong> It is the stable line, it is where the docs&#39; <code>v3</code> set points, and it is what production users run. Do not start on the 4.0 beta.</li>
+<li><strong>Existing project:</strong> upgrade to at least 3.90.1 for the security fixes. Then do the prep work that makes 4.0 a boring upgrade — be explicit about <code>overrideAccess</code>, know whether you use Slate rich text (it is removed in 4.0), and keep packages in sync.</li>
+<li><strong>Watch for:</strong> the admin UI redesign, TanStack Start as a supported framework (v4 docs already show auth server functions for &quot;Next.js or TanStack Start&quot;), the MCP plugin&#39;s maturity, the <code>overrideAccess</code> default flip, locale publish behavior changes, and the 3.0→4.0 migration guide — which already exists in the v4 docs, alongside an agent-assisted upgrade codemod.</li>
+</ul>
+<p>The short version: 3.x is the product you can build on; 4.0 is the direction of travel. Both facts are stable enough to plan around.</p>
+<hr>
+</section><section id="cheat-sheet"><h2 id="cheat-sheet">Cheat Sheet</h2>
+<p><strong>Commands</strong></p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>npx create-payload-app</code></td>
+<td>Scaffold a new Payload project</td>
+</tr>
+<tr>
+<td><code>pnpm payload generate:types</code></td>
+<td>Regenerate <code>payload-types.ts</code> from your config</td>
+</tr>
+<tr>
+<td><code>pnpm payload migrate:create &lt;name&gt;</code></td>
+<td>Create a migration (relational DBs)</td>
+</tr>
+<tr>
+<td><code>pnpm payload migrate</code></td>
+<td>Run pending migrations</td>
+</tr>
+<tr>
+<td><code>pnpm payload migrate:status</code></td>
+<td>See what is pending</td>
+</tr>
+<tr>
+<td><code>pnpm dev</code> → <code>localhost:3000/admin</code></td>
+<td>First user, then everything</td>
+</tr>
+</tbody></table>
+<p><strong>Config snippet bank</strong></p>
+<div class="codewrap"><pre data-lang="ts"><code>// Auth-enabled collection (the admin panel needs one)
+const Users = {
+  slug: 'users',
+  auth: true,
+  admin: { useAsTitle: 'email' },
+  fields: [{ name: 'role', type: 'select', options: ['admin', 'editor'], defaultValue: 'editor' }],
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="ts"><code>// Drafts + versions on a content collection
+const Posts = {
+  slug: 'posts',
+  versions: { drafts: { autosave: true } },
+  // documents now carry _status: 'draft' | 'published'
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="ts"><code>// Local API on behalf of a user — be explicit, always
+const mine = await payload.find({
+  collection: 'orders',
+  overrideAccess: false,
+  user,
+  where: { customer: { equals: user.id } },
+})</code></pre></div>
+<p><strong>Where operators (same in all three APIs):</strong> <code>equals</code>, <code>not_equals</code>, <code>greater_than(_equal)</code>, <code>less_than(_equal)</code>, <code>in</code>, <code>not_in</code>, <code>exists</code>, <code>like</code>, <code>contains</code>, <code>all</code>, <code>near</code>, <code>within</code>, <code>intersects</code> — combined with <code>AND</code> / <code>OR</code>.</p>
+<p><strong>Query tuning:</strong> <code>depth</code> (relationship population), <code>select</code> (projection), <code>populate</code> (lean relationship reads), <code>pagination: false</code> (skip counts), <code>limit</code>.</p>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>withPayload</code> import error on boot</td>
+<td><code>next.config</code> is CommonJS</td>
+<td>Rename to <code>.mjs</code> or set <code>&quot;type&quot;: &quot;module&quot;</code>; convert <code>require</code>s</td>
+</tr>
+<tr>
+<td>Admin panel 404s after install</td>
+<td><code>(payload)</code> files not copied / route group misplaced</td>
+<td>Re-copy from the Blank Template; check <code>app/(payload)/</code></td>
+</tr>
+<tr>
+<td>&quot;Unsupported Next.js version&quot;</td>
+<td>Next outside the supported ranges</td>
+<td>Pin to a supported range (e.g. 16.2.6+), then rebuild</td>
+</tr>
+<tr>
+<td>Custom endpoint leaks drafts/other users&#39; data</td>
+<td>Local API <code>overrideAccess</code> defaults to <code>true</code></td>
+<td>Pass <code>overrideAccess: false</code> + <code>user</code>; audit every user-facing query</td>
+</tr>
+<tr>
+<td>Schema drift in production</td>
+<td>Used dev push instead of migrations</td>
+<td><code>migrate:create</code>, review SQL, run <code>migrate</code> in deploy</td>
+</tr>
+<tr>
+<td>Types out of date after a config change</td>
+<td>Forgot to regenerate</td>
+<td><code>pnpm payload generate:types</code>; wire it into CI</td>
+</tr>
+<tr>
+<td>Editor crashes / weird paste behavior after installing <code>lexical</code></td>
+<td>Direct dependency on Lexical</td>
+<td>Remove it; import from <code>@payloadcms/richtext-lexical/lexical</code></td>
+</tr>
+<tr>
+<td>Uploads vanish on serverless</td>
+<td>Local-disk storage</td>
+<td>Add a storage adapter (S3 / Vercel Blob / R2 / …)</td>
+</tr>
+<tr>
+<td>413 on large multipart uploads</td>
+<td>New 50 MB default cap</td>
+<td>Raise <code>upload.requestSizeLimit</code> deliberately</td>
+</tr>
+<tr>
+<td>Access function throws on login</td>
+<td>Access Operation runs with <code>id</code>/<code>doc</code> undefined</td>
+<td>Guard for the top-level case first</td>
+</tr>
+<tr>
+<td>Join query suddenly throws <code>QueryError</code></td>
+<td>Stricter polymorphic join validation (3.90.0)</td>
+<td>Rewrite filters to direct, supported field paths</td>
+</tr>
+<tr>
+<td>API keys unreadable in admin</td>
+<td>Security change in 3.90.0</td>
+<td>Expected; opt back in with <code>auth.useAPIKey.reveal</code> if truly needed</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>YouTube <strong>search</strong> links only — Payload moves fast, and fixed video links rot.</p>
+<table>
+<thead>
+<tr>
+<th>Search</th>
+<th>What you&#39;ll find</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://www.youtube.com/results?search_query=Payload+CMS+tutorial+2026" target="_blank" rel="noopener">Payload CMS tutorial 2026</a></td>
+<td>Current beginner walkthroughs</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Payload+CMS+Next.js+install" target="_blank" rel="noopener">Payload CMS Next.js install</a></td>
+<td>The v3-in-Next.js setup end to end</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Payload+CMS+vs+Strapi" target="_blank" rel="noopener">Payload CMS vs Strapi</a></td>
+<td>Head-to-head for Node CMS choices</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Payload+CMS+access+control" target="_blank" rel="noopener">Payload CMS access control</a></td>
+<td>Roles, field-level, and admin visibility</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Payload+CMS+local+API" target="_blank" rel="noopener">Payload CMS local API</a></td>
+<td>Querying from Server Components</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Payload+CMS+Postgres+migrations" target="_blank" rel="noopener">Payload CMS Postgres migrations</a></td>
+<td>The migrate workflow in practice</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Payload+CMS+drafts+versions" target="_blank" rel="noopener">Payload CMS drafts versions</a></td>
+<td>Editorial workflow setup</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Payload+CMS+Lexical+rich+text" target="_blank" rel="noopener">Payload CMS Lexical rich text</a></td>
+<td>Converters and custom features</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Payload+CMS+live+preview" target="_blank" rel="noopener">Payload CMS live preview</a></td>
+<td>Wiring preview into a frontend</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Payload+CMS+MCP+plugin" target="_blank" rel="noopener">Payload CMS MCP plugin</a></td>
+<td>Agents talking to your CMS</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--docs"><h2 id="written-references--docs">Written References &amp; Docs</h2>
+<p>Payload&#39;s docs are versioned (<code>/docs/v3/...</code>, <code>/docs/v4/...</code>) — match them to your installed major version.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Documentation home</td>
+<td><code>https://payloadcms.com/docs</code></td>
+</tr>
+<tr>
+<td>What is Payload?</td>
+<td><code>https://payloadcms.com/docs/v3/getting-started/what-is-payload</code></td>
+</tr>
+<tr>
+<td>Concepts</td>
+<td><code>https://payloadcms.com/docs/v3/getting-started/concepts</code></td>
+</tr>
+<tr>
+<td>Installation</td>
+<td><code>https://payloadcms.com/docs/v3/getting-started/installation</code></td>
+</tr>
+<tr>
+<td>The Payload Config</td>
+<td><code>https://payloadcms.com/docs/v3/configuration/overview</code></td>
+</tr>
+<tr>
+<td>Fields overview</td>
+<td><code>https://payloadcms.com/docs/v3/fields/overview</code></td>
+</tr>
+<tr>
+<td>Access control</td>
+<td><code>https://payloadcms.com/docs/v3/access-control/overview</code></td>
+</tr>
+<tr>
+<td>Hooks</td>
+<td><code>https://payloadcms.com/docs/v3/hooks/overview</code></td>
+</tr>
+<tr>
+<td>Local API</td>
+<td><code>https://payloadcms.com/docs/v3/local-api/overview</code></td>
+</tr>
+<tr>
+<td>REST API</td>
+<td><code>https://payloadcms.com/docs/v3/rest-api/overview</code></td>
+</tr>
+<tr>
+<td>GraphQL</td>
+<td><code>https://payloadcms.com/docs/v3/graphql/overview</code></td>
+</tr>
+<tr>
+<td>Queries</td>
+<td><code>https://payloadcms.com/docs/v3/queries/overview</code></td>
+</tr>
+<tr>
+<td>Database</td>
+<td><code>https://payloadcms.com/docs/v3/database/overview</code></td>
+</tr>
+<tr>
+<td>Migrations</td>
+<td><code>https://payloadcms.com/docs/v3/database/migrations</code></td>
+</tr>
+<tr>
+<td>Versions &amp; drafts</td>
+<td><code>https://payloadcms.com/docs/v3/versions/drafts</code></td>
+</tr>
+<tr>
+<td>Uploads</td>
+<td><code>https://payloadcms.com/docs/v3/upload/overview</code></td>
+</tr>
+<tr>
+<td>Jobs queue</td>
+<td><code>https://payloadcms.com/docs/v3/jobs-queue/overview</code></td>
+</tr>
+<tr>
+<td>Plugins</td>
+<td><code>https://payloadcms.com/docs/v3/plugins/overview</code></td>
+</tr>
+<tr>
+<td>MCP plugin</td>
+<td><code>https://payloadcms.com/docs/v3/plugins/mcp</code></td>
+</tr>
+<tr>
+<td>Rich text (Lexical)</td>
+<td><code>https://payloadcms.com/docs/v3/rich-text/overview</code></td>
+</tr>
+<tr>
+<td>Live Preview</td>
+<td><code>https://payloadcms.com/docs/v3/live-preview/overview</code></td>
+</tr>
+<tr>
+<td>Admin panel</td>
+<td><code>https://payloadcms.com/docs/v3/admin/overview</code></td>
+</tr>
+<tr>
+<td>Custom components</td>
+<td><code>https://payloadcms.com/docs/v3/custom-components/overview</code></td>
+</tr>
+<tr>
+<td>UI components</td>
+<td><code>https://payloadcms.com/docs/v3/ui-components/overview</code></td>
+</tr>
+<tr>
+<td>Deployment</td>
+<td><code>https://payloadcms.com/docs/v3/production/deployment</code></td>
+</tr>
+<tr>
+<td>Performance</td>
+<td><code>https://payloadcms.com/docs/v3/performance/overview</code></td>
+</tr>
+<tr>
+<td>Troubleshooting</td>
+<td><code>https://payloadcms.com/docs/v3/troubleshooting/troubleshooting</code></td>
+</tr>
+<tr>
+<td>3.0 → 4.0 migration guide</td>
+<td><code>https://payloadcms.com/docs/v4/migration-guide/v4</code></td>
+</tr>
+<tr>
+<td>Releases (changelogs)</td>
+<td><code>https://github.com/payloadcms/payload/releases</code></td>
+</tr>
+<tr>
+<td>GitHub</td>
+<td><code>https://github.com/payloadcms/payload</code></td>
+</tr>
+<tr>
+<td>Discord</td>
+<td><code>https://discord.com/invite/r6sCXqVk3v</code></td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Access Operation</strong></td>
+<td>The login-time run of every access function that maps what a user can do in the admin panel</td>
+</tr>
+<tr>
+<td><strong>Adapter</strong></td>
+<td>The package that connects Payload to your database or file storage</td>
+</tr>
+<tr>
+<td><strong>Collection</strong></td>
+<td>A group of documents sharing a schema</td>
+</tr>
+<tr>
+<td><strong>Config</strong></td>
+<td><code>payload.config.ts</code> — the single source of truth for the whole system</td>
+</tr>
+<tr>
+<td><strong>Depth</strong></td>
+<td>How many levels of related documents get auto-populated in a query</td>
+</tr>
+<tr>
+<td><strong>Draft</strong></td>
+<td>An unpublished document version, tracked via <code>_status</code></td>
+</tr>
+<tr>
+<td><strong>Field</strong></td>
+<td>A schema unit that also generates its own admin UI</td>
+</tr>
+<tr>
+<td><strong>Global</strong></td>
+<td>A one-document collection (settings, nav, footer)</td>
+</tr>
+<tr>
+<td><strong>Hook</strong></td>
+<td>Your code, run at defined points in a document&#39;s lifecycle</td>
+</tr>
+<tr>
+<td><strong>Job / Task / Queue / Schedule</strong></td>
+<td>The jobs system: offloaded work, typed routines, ordered groups, cron timing</td>
+</tr>
+<tr>
+<td><strong>Lexical</strong></td>
+<td>The rich text engine; stores JSON, converts to JSX/HTML/Markdown</td>
+</tr>
+<tr>
+<td><strong>Local API</strong></td>
+<td>In-process operations (<code>payload.find(...)</code>) with no HTTP overhead</td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td>Model Context Protocol — the plugin that exposes your content to AI agents</td>
+</tr>
+<tr>
+<td><strong>Migration</strong></td>
+<td>Versioned, reviewable schema change (relational databases)</td>
+</tr>
+<tr>
+<td><strong>overrideAccess</strong></td>
+<td>The Local API switch that skips access control — <code>true</code> by default in 3.x, flipping to <code>false</code> in 4.0</td>
+</tr>
+<tr>
+<td><strong>Select / Populate</strong></td>
+<td>Query projection: which fields to return, and how to lean out populated relationships</td>
+</tr>
+<tr>
+<td><strong>Slate</strong></td>
+<td>Payload&#39;s legacy rich text editor; removed in 4.0</td>
+</tr>
+<tr>
+<td><strong>Version</strong></td>
+<td>A stored historical revision of a document</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Is Payload free?</strong> The core is open source (MIT) and self-hostable with no seat limits. There is a paid enterprise tier (SSO, publishing workflows, visual editor, A/B testing, AI features) — nothing in this paper requires it.</p>
+<p><strong>Do I have to use Next.js?</strong> In 3.x, Next.js is the supported primary path — the admin panel <em>is</em> Next.js routes in your app. Payload can run outside Next.js for scripts and other frameworks (there&#39;s a dedicated docs page), and 4.0 broadens this further with TanStack Start support. If you hate Next.js, treat that as a real cost, not a footnote.</p>
+<p><strong>MongoDB or Postgres?</strong> Both are first-class. Postgres if your team is SQL-native or you want relational rigor plus Drizzle; MongoDB if you want document flexibility and the longest-trodden path. Decide before you model data.</p>
+<p><strong>How is this different from Strapi?</strong> Strapi is admin-first with a plugin market; Payload is code-first and installs into your app. If you want to write your CMS as TypeScript that lives next to your pages, Payload. If you want a standalone admin you configure mostly by clicking, Strapi.</p>
+<p><strong>Should I wait for 4.0?</strong> No — start on 3.90.x, and do the prep from Part 9 so the eventual upgrade is routine. 4.0 is in beta with a migration guide and a codemod already in the repo.</p>
+<p><strong>How do I keep my AI coding agent accurate about Payload?</strong> Point it at the versioned <code>llms.txt</code> (<code>https://payloadcms.com/docs/v3/llms.txt</code>), and watch the 4.0 line: the <code>payload</code> package itself now ships an agent skill for exactly this.</p>
+<p><strong>What should I read next in this series?</strong></p>
+<ul>
+<li><a href="23-payload-cms-mastered.html">Payload CMS, Mastered</a> — the working guide: Local API idioms, access recipes, hooks without footguns, and the 4.0 upgrade checklist.</li>
+<li><a href="13-nextjs-2026.html">Next.js in 2026</a> — the framework Payload installs into, including the caching model it currently plays nicest with.</li>
+<li><a href="03-postgres-as-the-whole-backend.html">Postgres as the Whole Backend</a> — if you pick the Postgres adapter, this is the database half of the story.</li>
+<li><a href="19-typescript-7-go-compiler-2026.html">TypeScript 7 and the Year the Compiler Learned Go</a> — the type system your config and generated types live in.</li>
+</ul>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p>Verified against Payload&#39;s official documentation (v3 and v4 sets, via <code>payloadcms.com/docs/v3/llms.txt</code> and <code>/docs/v4/llms.txt</code>), the official release notes for 3.90.0–3.90.2 and the 4.0 canary line, and Payload&#39;s own blog, in September 2026. Version numbers, supported Next.js ranges, and security-release details were taken from those primary sources; nothing has been invented. Payload ships frequently — treat the structural facts here as stable and the exact version numbers as moving. When in doubt, <code>llms.txt</code> for your installed major version is the fastest ground truth, and release notes are the source for breaking changes.</p>
+<hr>
+</section><section id="your-setup-notes"><h2 id="your-setup-notes">Your Setup Notes</h2>
+<p>Record your actual choices here, so future-you doesn&#39;t have to re-derive them.</p>
+<div class="codewrap"><pre data-lang="text"><code>Payload version installed:         ____________________
+Next.js version:                   ____________________
+Database adapter:                  ____________________
+  Mongo / Postgres / SQLite / Vercel Postgres
+
+AUTH
+  User collections:                ____________________
+  Strategies in use:               cookie / JWT / API key
+  First admin email:               ____________________
+
+CONTENT MODEL
+  Collections:                     ____________________
+  Globals:                         ____________________
+  Drafts + versions enabled on:    ____________________
+
+DEPLOY TARGET
+  Vercel / Cloudflare / Docker / other:  ____________________
+  File storage:                    local / S3 / Vercel Blob / R2 / other
+  Migrations in deploy pipeline?   [ ]
+
+UPGRADE WATCHLIST
+  On 3.90.1+?                      [ ]
+  overrideAccess made explicit everywhere?   [ ]
+  Slate anywhere in the project?   [ ] (must be gone before 4.0)</code></pre></div>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Data &amp; Backend</span> · 9 parts · ~23 min · Generated from <code>markdown_docs/22-payload-cms-research-paper.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>
