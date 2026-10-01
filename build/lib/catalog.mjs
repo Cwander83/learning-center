@@ -43,6 +43,7 @@ export const GUIDES = {
  "21-zed-editor-guide": { category: "Workflow", order: 21 },
  "22-payload-cms-research-paper": { category: "Data & Backend", order: 22 },
  "23-payload-cms-mastered": { category: "Data & Backend", order: 23 },
+ "24-bluehost-agent-hosting": { category: "Infra & Dev Env", order: 24 },
 };
 
 // Docs that are not reader-facing guides (meta / tooling material).

@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bluehost Agent Hosting — Learning Center</title>
+<meta name="description" content="Bluehost spent twenty years selling shared hosting to WordPress users, then started selling one-click VPS environments for OpenClaw, n8n, Claude Code, and Hermes Agent. Here is what the price actually means, what is included, and what can genuinely run on it.">
+<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/guide.css">
+</head>
+<body data-key="24-bluehost-agent-hosting">
+<header class="topbar">
+  <a class="homebtn" href="../index.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/></svg>Home</a>
+  <span class="brand">Bluehost Agent Hosting</span>
+  <button id="themeToggle" title="Toggle dark / light" aria-label="Toggle dark and light theme">
+    <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <span id="themeLabel">Dark</span>
+  </button>
+  <div class="readbar" aria-hidden="true"><i id="readbarFill"></i></div>
+</header>
+<div class="layout">
+<details id="toc" class="toc" open>
+<summary class="tocsum">Contents<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+<nav id="side" aria-label="Guide contents">
+<div class="navhead">Start</div><div class="navlinks"><a href="#the-big-picture" data-sec="the-big-picture">The Big Picture</a><a href="#the-analogy-table" data-sec="the-analogy-table" class="sub">The analogy table</a><a href="#prerequisites" data-sec="prerequisites">Prerequisites</a></div>
+<div class="navhead">Parts</div><div class="navlinks"><a href="#part-1--what-bluehost-actually-sells-now" data-sec="part-1--what-bluehost-actually-sells-now">Part 1 — What Bluehost Actually Sells Now</a><a href="#part-2--what-the-price-actually-means" data-sec="part-2--what-the-price-actually-means">Part 2 — What the Price Actually Means</a><a href="#the-main-vps-price-list-as-archived-23-september-2026" data-sec="the-main-vps-price-list-as-archived-23-september-2026" class="sub">The main VPS price list (as archived 23 September 2026)</a><a href="#the-agent-page-price-list-archived-springsummer-2026" data-sec="the-agent-page-price-list-archived-springsummer-2026" class="sub">The agent-page price list (archived spring–summer 2026)</a><a href="#what-else-the-price-includes--and-what-it-doesnt" data-sec="what-else-the-price-includes--and-what-it-doesnt" class="sub">What else the price includes — and what it doesn&#39;t</a><a href="#part-3--whats-included-feature-by-feature" data-sec="part-3--whats-included-feature-by-feature">Part 3 — What&#39;s Included, Feature by Feature</a><a href="#the-published-specification-table" data-sec="the-published-specification-table" class="sub">The published specification table</a><a href="#persistent-vector-memory" data-sec="persistent-vector-memory" class="sub">Persistent vector memory</a><a href="#the-api-gateway" data-sec="the-api-gateway" class="sub">The API gateway</a><a href="#zero-cold-start" data-sec="zero-cold-start" class="sub">Zero cold start</a><a href="#the-one-click-marketplace" data-sec="the-one-click-marketplace" class="sub">The one-click marketplace</a><a href="#what-is-conspicuously-not-advertised" data-sec="what-is-conspicuously-not-advertised" class="sub">What is conspicuously not advertised</a><a href="#part-4--what-can-actually-run-on-it" data-sec="part-4--what-can-actually-run-on-it">Part 4 — What Can Actually Run On It</a><a href="#the-one-click-catalog-as-advertised-september-2026" data-sec="the-one-click-catalog-as-advertised-september-2026" class="sub">The one-click catalog (as advertised, September 2026)</a><a href="#the-four-flagship-agent-products-honestly-compared" data-sec="the-four-flagship-agent-products-honestly-compared" class="sub">The four flagship agent products, honestly compared</a><a href="#what-cannot-run-or-will-disappoint" data-sec="what-cannot-run-or-will-disappoint" class="sub">What cannot run, or will disappoint</a><a href="#part-5--choosing-a-plan-for-your-agent" data-sec="part-5--choosing-a-plan-for-your-agent">Part 5 — Choosing a Plan for Your Agent</a><a href="#part-6--the-kinks-from-someone-who-read-the-fine-print" data-sec="part-6--the-kinks-from-someone-who-read-the-fine-print">Part 6 — The Kinks (From Someone Who Read the Fine Print)</a><a href="#part-7--deploying-your-first-agent-a-working-skeleton" data-sec="part-7--deploying-your-first-agent-a-working-skeleton">Part 7 — Deploying Your First Agent (A Working Skeleton)</a></div>
+<div class="navhead">Reference</div><div class="navlinks"><a href="#the-60-second-version-tldr" data-sec="the-60-second-version-tldr">The 60-Second Version (TL;DR)</a><a href="#cheat-sheet" data-sec="cheat-sheet">Cheat Sheet</a><a href="#troubleshooting" data-sec="troubleshooting">Troubleshooting</a><a href="#video-library" data-sec="video-library">Video Library</a><a href="#written-references--docs" data-sec="written-references--docs">Written References &amp; Docs</a><a href="#glossary" data-sec="glossary">Glossary</a><a href="#faq--next-steps" data-sec="faq--next-steps">FAQ &amp; Next Steps</a><a href="#verification-note" data-sec="verification-note">Verification Note</a><a href="#your-setup-notes" data-sec="your-setup-notes">Your Setup Notes</a></div>
+</nav>
+</details>
+<main>
+<h1>Bluehost Agent Hosting</h1>
+<div class="callout lede">Bluehost spent twenty years selling shared hosting to WordPress users, then started selling one-click VPS environments for OpenClaw, n8n, Claude Code, and Hermes Agent. Here is what the price actually means, what is included, and what can genuinely run on it.</div>
+<section id="the-big-picture"><h2 id="the-big-picture">The Big Picture</h2>
+<p>&quot;Agent Hosting&quot; is not a new kind of computer. It is a <strong>self-managed virtual private server (VPS) with an agent-friendly wrapper</strong>: a curated one-click catalog of AI apps, a persistent vector-memory service, an API gateway, and copy that speaks agent. Underneath the marketing you get an AMD EPYC virtual machine with full root SSH, 4–16 GB of DDR5 RAM, 100–450 GB of NVMe storage, a dedicated IPv4 address, unmetered bandwidth, and a 99.99% uptime promise — for a promotional price between roughly $4 and $33 per month depending on which page you buy from.</p>
+<p>The mental model that explains every price and every limitation: <strong>it is a Linux box, and you are still the sysadmin.</strong> Bluehost runs the hardware, the network, and the hypervisor. Everything above that — the OS, the packages, the agent, the memory store, the backups — is yours. The &quot;agent hosting&quot; layer is convenience, not abstraction:</p>
+<div class="codewrap"><pre data-lang=""><code>   WHAT YOU ARE ACTUALLY BUYING
+
+   ┌──────────────────────────────────────────────────────────────┐
+   │  YOUR AGENT                                                  │
+   │  OpenClaw · Hermes · n8n · Claude Code · your own Python/Node│
+   └───────────────────────────┬──────────────────────────────────┘
+                               ▼
+   ┌──────────────────────────────────────────────────────────────┐
+   │  API GATEWAY (included)                                      │
+   │  REST endpoint on your domain · auto SSL · rate limiting     │
+   │  API key / JWT / OAuth · request transform · webhooks        │
+   └───────────────────────────┬──────────────────────────────────┘
+                               ▼
+   ┌──────────────────────────────────────────────────────────────┐
+   │  THE VPS (you manage it)                                     │
+   │  root SSH + API · AMD EPYC vCPU · DDR5 RAM · NVMe SSD        │
+   │  dedicated IP · DDoS protection · 99.99% SLA · 5 data centers│
+   └───────────────────────────┬──────────────────────────────────┘
+                               ▼
+   ┌──────────────────────────────────────────────────────────────┐
+   │  PERSISTENT VECTOR MEMORY (included)                         │
+   │  pgvector or Chroma · survives restarts and upgrades         │
+   └──────────────────────────────────────────────────────────────┘
+
+   Fed by: ONE-CLICK MARKETPLACE (OpenClaw, n8n, Ollama, Docker,
+   Claude Code, Magento, LAMP, 40+ more) — install now, patch later.</code></pre></div>
+<p>The single most important idea: <strong>&quot;always-on&quot; is the product.</strong> Everything Bluehost sells here — the memory store, the gateway, the zero-cold-start language, the anti-Lambda comparisons — exists because agents want a process that never sleeps. A VPS is simply the cheapest honest way to sell that.</p>
+<h3 id="the-analogy-table">The analogy table</h3>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain-English analogy</th>
+<th>Why it matters to you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Agent Hosting</strong></td>
+<td>A pre-furnished workshop inside a rented warehouse</td>
+<td>You bring the agent; the building has power, locks, and a loading dock</td>
+</tr>
+<tr>
+<td><strong>Self-Managed VPS</strong></td>
+<td>The same warehouse, unfurnished</td>
+<td>Same hardware, you install everything yourself</td>
+</tr>
+<tr>
+<td><strong>Root access</strong></td>
+<td>The master key</td>
+<td>Install anything; also break anything</td>
+</tr>
+<tr>
+<td><strong>One-click deploy</strong></td>
+<td>IKEA furniture, pre-assembled</td>
+<td>App running in minutes; still your job to maintain</td>
+</tr>
+<tr>
+<td><strong>Persistent vector memory</strong></td>
+<td>A filing cabinet that survives power cuts</td>
+<td>Your agent remembers between sessions</td>
+</tr>
+<tr>
+<td><strong>API gateway</strong></td>
+<td>The building&#39;s reception desk</td>
+<td>Auth, rate limits, and webhooks handled before requests reach your agent</td>
+</tr>
+<tr>
+<td><strong>Zero cold start</strong></td>
+<td>A shop that never closes</td>
+<td>No wake-up delay on the first request, unlike serverless</td>
+</tr>
+<tr>
+<td><strong>Renewal price</strong></td>
+<td>The rent after the first year&#39;s discount</td>
+<td>The number that actually decides your budget</td>
+</tr>
+<tr>
+<td><strong>Due today</strong></td>
+<td>First and last month, in advance</td>
+<td>Intro price × term length, charged up front</td>
+</tr>
+<tr>
+<td><strong>Infrastructure-only support</strong></td>
+<td>The landlord fixes the pipes, not your furniture</td>
+<td>They debug the hypervisor; you debug your agent</td>
+</tr>
+<tr>
+<td><strong>Managed VPS</strong></td>
+<td>A serviced apartment</td>
+<td>Someone else patches and monitors; less control</td>
+</tr>
+<tr>
+<td><strong>The 25% / 90-second clause</strong></td>
+<td>The &quot;no loud parties&quot; line in the lease</td>
+<td>Sustained resource hogging can get your account flagged</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>The one-sentence version:</strong> Bluehost Agent Hosting is a self-managed VPS with a one-click AI app catalog, a persistent vector memory store, and an API gateway bolted on — so the price you see is a promotional rent on a Linux box you still have to run, and the renewal price is the one that matters.</p>
+</blockquote>
+<hr>
+</section><section id="the-60-second-version-tldr"><h2 id="the-60-second-version-tldr">The 60-Second Version (TL;DR)</h2>
+<ol>
+<li><strong>&quot;Agent Hosting&quot; is a wrapper, not a platform.</strong> Same NVMe VPS tiers as the main Self-Managed VPS line, plus a curated agent catalog, vector memory (pgvector or Chroma), and an API gateway. Full root SSH included.</li>
+<li><strong>There are two prices for everything: intro and renewal.</strong> From the September 2026 VPS page: NVMe 4 is <strong>$9.49/mo intro → renews at $11.99/mo</strong>; NVMe 8 is <strong>$12.99 → $28.99</strong> (a 123% jump); NVMe 16 is <strong>$25.99 → $49.99</strong>.</li>
+<li><strong>The term is 24 months and &quot;Due today&quot; is real money.</strong> NVMe 4: <code>$9.49 × 24 = $227.76</code> charged up front. The agent-branded pages have run their own (usually lower) tiers — <strong>$3.85 / $7.70 / $15.40 / $32.55</strong>, renewing <strong>$4.13 / $8.25 / $16.50 / $34.88</strong> in the spring–summer 2026 snapshots.</li>
+<li><strong>Headline prices are floors of floors.</strong> The OpenClaw and Hermes pages say &quot;starting at just $2.09/mo&quot; while their own tables start at $3.85; the Agent Hosting page&#39;s closing banner says &quot;From $4.18/mo&quot; while its cards say $7.70.</li>
+<li><strong>What every tier includes:</strong> root SSH + API, a dedicated static IP, DDoS protection, unmetered bandwidth, free auto-renewed SSL, 99.99% uptime SLA, five data centers, one-click deploys and one-click upgrades.</li>
+<li><strong>cPanel is not included</strong> on self-managed plans — it is a <strong>+$14.99/mo</strong> add-on (Admin tier, 5 accounts). The VPS FAQ notes plans run <strong>$4.69 to $99.99/mo</strong> across the range.</li>
+<li><strong>Support is &quot;infrastructure only&quot; on these plans.</strong> Bluehost maintains hardware, network, and virtualization; you manage the OS, configurations, and applications. Some agent pages list &quot;24/7 Support*&quot; — read the asterisk.</li>
+<li><strong>What can run: anything that runs on Linux.</strong> Node, Python, Go, and Docker are first-class; <code>pip</code>, <code>npm</code>, and <code>apt</code> are unrestricted. The one-click catalog covers OpenClaw, n8n, Claude Code, Hermes Agent, Ollama, Open WebUI, Dify, Langflow, DeepSeek, Coolify, Portainer, LAMP/LEMP, WordPress, Magento, Odoo, and more — the picker advertises &quot;45 apps.&quot;</li>
+<li><strong>What cannot run: GPU workloads, Windows, and anything you refuse to maintain.</strong> Ollama on these boxes is CPU inference — fine for small quantized models, slow for anything big. Backups, monitoring, and patching are not advertised as included on self-managed plans.</li>
+<li><strong>The honest bottom line:</strong> if you can run an agent on any $5–$10 VPS, you can run it here. You are paying for the catalog, the memory and gateway extras, and a big brand&#39;s support org — not for magic.</li>
+</ol>
+<hr>
+</section><section id="prerequisites"><h2 id="prerequisites">Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Why</th>
+<th>How to check / get</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Comfort with a terminal</td>
+<td>Self-managed means SSH is your control panel</td>
+<td><code>ssh root@your-vps</code></td>
+</tr>
+<tr>
+<td>A 24-month prepay budget</td>
+<td>Intro pricing requires the term; &quot;due today&quot; is charged up front</td>
+<td><code>$112.56</code>–<code>$623.76</code> at current promo prices</td>
+</tr>
+<tr>
+<td>Model access, purchased separately</td>
+<td>Bluehost hosts the agent, not the LLM</td>
+<td>Anthropic / OpenAI / OpenRouter keys, or local Ollama</td>
+</tr>
+<tr>
+<td>A domain (recommended)</td>
+<td>The API gateway wants a custom domain for its REST endpoint</td>
+<td>Any registrar; DNS A record to your dedicated IP</td>
+</tr>
+<tr>
+<td>Realistic sizing math</td>
+<td>Agents are RAM-hungry once memory and containers pile up</td>
+<td>Start at NVMe 4; see Part 5</td>
+</tr>
+<tr>
+<td>Backup discipline</td>
+<td>No managed backups are advertised on self-managed plans</td>
+<td><code>rsync</code>/<code>tar</code> to off-box storage, tested restores</td>
+</tr>
+<tr>
+<td>Tolerance for patching</td>
+<td>You own the OS and every package on it</td>
+<td><code>apt upgrade</code> is now your hobby</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Before you start:</strong> decide which half of the product you are buying. If you want someone else to run the server, that is Managed VPS (or a PaaS) — not this. Agent Hosting&#39;s &quot;one-click&quot; applies to the app, not the machine.</p>
+</blockquote>
+<hr>
+</section><section id="part-1--what-bluehost-actually-sells-now"><h2 id="part-1--what-bluehost-actually-sells-now">Part 1 — What Bluehost Actually Sells Now</h2>
+<p><strong>The old company and the new lineup.</strong> Bluehost is a two-decade-old shared-hosting brand (part of Newfold Digital) that built its reputation on WordPress — &quot;trusted by over 5 million WordPress users,&quot; its own footer says, with a WordPress.org recommendation badge. As of the September 2026 site, the catalog is:</p>
+<table>
+<thead>
+<tr>
+<th>Line</th>
+<th>What it is</th>
+<th>Headline intro price (Sept 2026)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Web Hosting (shared)</strong></td>
+<td>Starter / Business / eCommerce Essentials; 10–100 sites, 10–100 GB NVMe</td>
+<td>$3.99 / $6.99 / $14.99 per month, 36-month term</td>
+</tr>
+<tr>
+<td><strong>WordPress / WooCommerce / Cloud</strong></td>
+<td>Managed WordPress-shaped hosting</td>
+<td>Varies; not the agent story</td>
+</tr>
+<tr>
+<td><strong>Self-Managed VPS</strong></td>
+<td>Root-access NVMe VMs — the actual hardware under Agent Hosting</td>
+<td>$4.69 / $9.49 / $12.99 / $25.99 per month, 24-month term</td>
+</tr>
+<tr>
+<td><strong>OpenClaw VPS · n8n VPS · Claude Code VPS · Hermes Agent VPS</strong></td>
+<td>The same NVMe tiers sold through agent-branded landing pages</td>
+<td>$3.85 / $7.70 / $15.40 / $32.55 per month in the archived 2026 snapshots</td>
+</tr>
+<tr>
+<td><strong>Managed VPS / Dedicated / Virtual Dedicated / Agency</strong></td>
+<td>For teams that do not want self-management</td>
+<td>Quote-based to $99.99+/mo</td>
+</tr>
+<tr>
+<td><strong>AI Tools</strong></td>
+<td>AI All-Access Pack, AI Website Builder, AI Store, AI Domain Name Generator, AI Receptionist, <strong>Agent Hosting</strong></td>
+<td>Mixed; the pack is advertised at $20.00/mo</td>
+</tr>
+</tbody></table>
+<p><strong>Where Agent Hosting sits.</strong> The <code>/agent-hosting</code> page is a marketing umbrella over the self-managed VPS line. Its H1 reads &quot;Deploy AI agents. Host anything. Scale instantly,&quot; and it promises to &quot;run OpenClaw, Hermes, n8n, Claude Code and other AI applications in an always-on environment with full root access, NVMe speed and scalable resources.&quot; Four badges sit under it: <strong>always-on workloads, persistent vector memory, API gateway included, 1-click installation.</strong> That is the entire pitch — and, to be fair, it is an accurate description of what the plans contain.</p>
+<p><strong>This is a funded product line, not an experiment.</strong> The first Agent Hosting captures appear in the Internet Archive in <strong>April 2026</strong>; by <strong>September 2026</strong> the site-wide VPS banner reads &quot;NEW: Claude Code pre-installed on every plan,&quot; the navigation lists four agent-branded VPS products, and the one-click catalog has grown to dozens of AI apps. Whatever else you conclude about the pricing, Bluehost is betting real estate on agents.</p>
+<p><strong>Why agents can&#39;t live on the shared plans.</strong> Bluehost&#39;s own comparison table on the VPS page draws the line: shared hosting is &quot;pooled resources; no guaranteed vCPU/RAM&quot; with &quot;low control; limited stack changes.&quot; The VPS line is &quot;allocated resources (CPU, RAM, NVMe)&quot; with &quot;complete control to install custom software.&quot; An agent that must stay resident, hold memory, and accept webhooks needs allocated resources and a process supervisor — that is the VPS line by definition.</p>
+<hr>
+</section><section id="part-2--what-the-price-actually-means"><h2 id="part-2--what-the-price-actually-means">Part 2 — What the Price Actually Means</h2>
+<p>This is the part the product pages make deliberately fuzzy, so let&#39;s be concrete. Three different numbers appear for every plan, and they mean three different things.</p>
+<p><strong>1. The intro (promotional) price.</strong> Advertised as &quot;Save 18%&quot; to &quot;Save 60%,&quot; available only on a long term — 24 months for VPS, 36 months for shared. This is the number in the headline.</p>
+<p><strong>2. The renewal price.</strong> What you pay after the term, at &quot;the then current rate.&quot; This is the number your budget actually lives with, and it is typically 20%–125% higher than the intro price.</p>
+<p><strong>3. &quot;Due today.&quot;</strong> The intro price multiplied by the term length, charged up front. This is the number your credit card actually sees.</p>
+<h3 id="the-main-vps-price-list-as-archived-23-september-2026">The main VPS price list (as archived 23 September 2026)</h3>
+<table>
+<thead>
+<tr>
+<th>Plan</th>
+<th>Specs</th>
+<th>Intro /mo</th>
+<th>Renews at</th>
+<th>Due today (24 mo)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>NVMe 2</strong></td>
+<td>1 vCPU · 2 GB DDR5 · 50 GB NVMe</td>
+<td>$4.69</td>
+<td>$5.69</td>
+<td>$112.56</td>
+</tr>
+<tr>
+<td><strong>NVMe 4</strong></td>
+<td>2 vCPU · 4 GB DDR5 · 100 GB NVMe</td>
+<td>$9.49</td>
+<td>$11.99</td>
+<td>$227.76</td>
+</tr>
+<tr>
+<td><strong>NVMe 8</strong></td>
+<td>4 vCPU · 8 GB DDR5 · 200 GB NVMe</td>
+<td>$12.99</td>
+<td>$28.99</td>
+<td>$311.76</td>
+</tr>
+<tr>
+<td><strong>NVMe 16</strong></td>
+<td>8 vCPU · 16 GB DDR5 · 450 GB NVMe</td>
+<td>$25.99</td>
+<td>$49.99</td>
+<td>$623.76</td>
+</tr>
+</tbody></table>
+<p>All tiers: unmetered bandwidth, dedicated IP, DDoS protection, root SSH + API, multiple data centers. NVMe 4/8/16 carried limited-time Amazon gift-card offers ($50/$60/$75) in this snapshot.</p>
+<h3 id="the-agent-page-price-list-archived-springsummer-2026">The agent-page price list (archived spring–summer 2026)</h3>
+<p>The OpenClaw, Hermes Agent, and Claude Code landing pages sell the same four sizes at different numbers:</p>
+<table>
+<thead>
+<tr>
+<th>Plan</th>
+<th>Intro /mo</th>
+<th>Renews at</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>NVMe 2</strong></td>
+<td>$3.85</td>
+<td>$4.13</td>
+<td>&quot;Infrastructure/hardware support&quot;</td>
+</tr>
+<tr>
+<td><strong>NVMe 4</strong></td>
+<td>$7.70</td>
+<td>$8.25</td>
+<td>Recommended for Claude Code; $50 gift card</td>
+</tr>
+<tr>
+<td><strong>NVMe 8</strong></td>
+<td>$15.40</td>
+<td>$16.50</td>
+<td>$60 gift card</td>
+</tr>
+<tr>
+<td><strong>NVMe 16</strong></td>
+<td>$32.55</td>
+<td>$34.88</td>
+<td>$75 gift card; &quot;Best VPS, April 2026&quot; per the Claude Code page</td>
+</tr>
+</tbody></table>
+<p>The Agent Hosting page itself lists <strong>$7.70/mo</strong> tiers for Claude Code, n8n, and OpenClaw (2 vCPU / 4 GB / 100 GB), with n8n and OpenClaw renewing at <strong>$9.35/mo</strong> and &quot;Save 18%.&quot;</p>
+<blockquote>
+<p><strong>Read this twice:</strong> the same physical NVMe 4 has appeared at <strong>$9.49 intro / $11.99 renewal</strong> on the main VPS page and <strong>$7.70 intro / $8.25 renewal</strong> on the agent pages — and NVMe 8 at <strong>$28.99 renewal</strong> versus <strong>$16.50 renewal</strong>. The snapshots are from different months, so some of the gap is price drift over time; some of it is different bundles and promos. The practical rule survives either way: <strong>the page you land on decides the price you get, and the cart decides the truth.</strong> Screenshot the cart and the renewal line before you pay.</p>
+</blockquote>
+<h3 id="what-else-the-price-includes--and-what-it-doesnt">What else the price includes — and what it doesn&#39;t</h3>
+<p><strong>Included in every number:</strong> root SSH + API access, a dedicated static IP per instance, always-on DDoS protection, unmetered bandwidth, free auto-renewed SSL, the 99.99% uptime SLA, five data centers (USA–Virginia, USA–Arizona, London, Toronto, Amsterdam), one-click app installs, and one-click resource upgrades.</p>
+<p><strong>Not included, or costs extra:</strong></p>
+<ul>
+<li><strong>cPanel</strong> — <strong>+$14.99/mo</strong> for the Admin tier (5 accounts); other tiers &quot;also available.&quot; Self-managed plans ship as plain Linux (AlmaLinux 9 by default) unless you add a panel or pick one from the marketplace.</li>
+<li><strong>Your model bill</strong> — Claude Code requires its own access/account; every hosted-LLM agent needs your API keys.</li>
+<li><strong>VAT/GST</strong> — advertised prices exclude both; EU and Indian customers see tax itemized at checkout.</li>
+<li><strong>A domain</strong> — the free-domain-for-one-year offer belongs to the shared hosting plans (redeem within 90 days, specific TLDs only). The VPS line does not advertise a free domain.</li>
+<li><strong>Backups</strong> — not advertised for self-managed plans. Assume you are the backup strategy.</li>
+<li><strong>Managed support</strong> — &quot;premium support is available if you contact sales.&quot; The included tier is infrastructure-only (see below).</li>
+</ul>
+<p><strong>The guarantees, precisely.</strong> The 99.99% uptime SLA is published with a modest remedy: if uptime drops below the promise, you can claim <strong>a single 5% monthly credit within 30 days</strong> (that credit language lives on the shared-hosting page, and the VPS pages repeat the 99.99% figure). The <strong>30-day money-back guarantee</strong> is also a shared-hosting term — on the VPS and agent pages I could not find an equivalent refund clause in the archived snapshots. Treat a 24-month prepay as committed money unless checkout says otherwise in writing.</p>
+<p><strong>Support semantics — the asterisk matters.</strong> The VPS and agent pages state it plainly under &quot;Infrastructure Only Support&quot;: <em>&quot;We maintain the hardware, network, and virtualization layer. You manage your OS, configurations, and applications.&quot;</em> Meanwhile the Claude Code page lists &quot;24/7 Support*&quot; as a plan bullet and the Agent Hosting banner claims &quot;24/7 developer support.&quot; Both can be true — you can reach someone at 3 a.m. about the hypervisor — but nobody at Bluehost is going to debug your agent&#39;s Python traceback on a self-managed plan. If that sentence worries you, the correct products are Managed VPS or Dedicated.</p>
+<p><strong>The fine print that bites agents specifically.</strong> Every VPS and agent page carries the bandwidth FAQ verbatim: <em>&quot;we do require all customers to be fully compliant with our Terms of Service and to not exceed 25% or more of system resources for longer than 90 seconds.&quot;</em> The VPS pages soften it — &quot;most customers running websites, applications, APIs, or business workloads on a VPS remain well within our acceptable usage guidelines&quot; — but the clause is the clause. A healthy always-on agent is bursty and mostly idle; a runaway loop or a CPU-bound model server is neither. If your workload plans to sit hot, get written clarity from sales before you prepay two years.</p>
+<hr>
+</section><section id="part-3--whats-included-feature-by-feature"><h2 id="part-3--whats-included-feature-by-feature">Part 3 — What&#39;s Included, Feature by Feature</h2>
+<h3 id="the-published-specification-table">The published specification table</h3>
+<p>Straight from the Agent Hosting page:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Item</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Compute &amp; memory</strong></td>
+<td>CPU</td>
+<td>AMD EPYC vCPU</td>
+</tr>
+<tr>
+<td></td>
+<td>RAM</td>
+<td>4 GB – 16 GB DDR5</td>
+</tr>
+<tr>
+<td></td>
+<td>Storage</td>
+<td>100 GB – 450 GB NVMe SSD</td>
+</tr>
+<tr>
+<td><strong>Deployment</strong></td>
+<td>Install</td>
+<td>One-click from marketplace</td>
+</tr>
+<tr>
+<td></td>
+<td>Runtimes</td>
+<td>Node, Python, Go, Docker</td>
+</tr>
+<tr>
+<td></td>
+<td>Updates</td>
+<td>One-click upgrade</td>
+</tr>
+<tr>
+<td><strong>API gateway &amp; networking</strong></td>
+<td>Bandwidth</td>
+<td>Unmetered</td>
+</tr>
+<tr>
+<td></td>
+<td>SSL</td>
+<td>Auto-renewed, free</td>
+</tr>
+<tr>
+<td></td>
+<td>IP</td>
+<td>Dedicated static IP per instance</td>
+</tr>
+<tr>
+<td><strong>Security &amp; access</strong></td>
+<td>Access</td>
+<td>Full root + SSH</td>
+</tr>
+<tr>
+<td></td>
+<td>DDoS</td>
+<td>Always-on</td>
+</tr>
+<tr>
+<td></td>
+<td>Uptime SLA</td>
+<td>99.99%</td>
+</tr>
+</tbody></table>
+<h3 id="persistent-vector-memory">Persistent vector memory</h3>
+<p>Every Agent Hosting plan includes <em>&quot;a vector memory store, powered by pgvector or Chroma, based on your choice,&quot;</em> which <em>&quot;persists across restarts, deployments and updates.&quot;</em> The point is architectural, not cosmetic: your agent can write embeddings in one session and retrieve them weeks later without you running a separate database service. In practice this is Postgres+pgvector or Chroma running on your box — which means it lives on your NVMe, dies with your box, and is exactly as backed up as you made it. Design it like the production datastore it is.</p>
+<h3 id="the-api-gateway">The API gateway</h3>
+<p>The FAQ describes it as <em>&quot;a clean REST endpoint on your custom domain with automatic SSL,&quot;</em> with configurable <strong>rate limiting, authentication (API key, JWT, or OAuth), request/response transformation, and webhook listeners</strong> — &quot;without deploying separate infrastructure.&quot; This is the single most agent-shaped piece of the offering: agents live on webhooks and HTTP surfaces, and this saves you writing and hardening a reverse proxy before day one. It does not replace authorization logic inside the agent. Auth at the gate, decisions in the app.</p>
+<h3 id="zero-cold-start">Zero cold start</h3>
+<p>Bluehost&#39;s sharpest, truest marketing: <em>&quot;Unlike serverless tools such as AWS Lambda or Vercel Edge, Agent Hosting keeps your environment always warm, so the first request is as fast as the thousandth.&quot;</em> That is simply what owning a VPS means. If your agent&#39;s job is answering a chat message or reacting to a webhook in under a second, a serverless cold start is a product defect, and this is the fix.</p>
+<h3 id="the-one-click-marketplace">The one-click marketplace</h3>
+<p>&quot;Deploy in one click&quot; installs preconfigured containers with dependencies and settings — OpenClaw&#39;s FAQ describes the flow as <em>&quot;pick your provider, select your AI model, add your API keys, and you&#39;re ready to go.&quot;</em> The same catalog serves OS images (Ubuntu, AlmaLinux, Debian, CentOS, Fedora, Rocky), control panels (cPanel, CyberPanel, CloudPanel, HestiaCP, Webuzo, and more), and the app list below. One-click is real for install day; it says nothing about day 90, when the container needs an update and the app&#39;s own release notes are your problem.</p>
+<h3 id="what-is-conspicuously-not-advertised">What is conspicuously not advertised</h3>
+<p>Backups, snapshots, monitoring, alerting, OS patching, malware scanning (a shared-hosting feature), and load balancing are absent from the self-managed VPS and Agent Hosting pages. Absent from marketing does not always mean absent from the product — but it means absent from the promise. Build the missing half yourself, or buy Managed VPS.</p>
+<hr>
+</section><section id="part-4--what-can-actually-run-on-it"><h2 id="part-4--what-can-actually-run-on-it">Part 4 — What Can Actually Run On It</h2>
+<p><strong>The runtime truth is broad and simple.</strong> The FAQ says the platform <em>&quot;supports any framework that runs on Linux,&quot;</em> with full root access so you can <em>&quot;install dependencies with pip, npm or apt without restrictions.&quot;</em> The use-case banner puts it more casually: <em>&quot;Any agent, any framework, any workflow. If it runs in Python or Node.js, it runs here.&quot;</em> Node, Python, Go, and Docker are the named runtimes. That covers essentially every open-source agent framework in existence — the constraint is resources, not compatibility.</p>
+<h3 id="the-one-click-catalog-as-advertised-september-2026">The one-click catalog (as advertised, September 2026)</h3>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Apps</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Agents &amp; agent tooling</strong></td>
+<td>OpenClaw, Hermes Agent, Hermes Agent + Open WebUI, GatorClaw, NanoClaw (&quot;always-on AI agent&quot;), BMAD (AI agent development framework), Paperclip</td>
+</tr>
+<tr>
+<td><strong>Automation &amp; orchestration</strong></td>
+<td>n8n, Sim, Dify, Langflow</td>
+</tr>
+<tr>
+<td><strong>Models &amp; model UIs</strong></td>
+<td>Ollama, DeepSeek, Open WebUI</td>
+</tr>
+<tr>
+<td><strong>Developer tools</strong></td>
+<td>Claude Code, Coolify, Portainer, gstack, OpenLiteSpeed + Node.js</td>
+</tr>
+<tr>
+<td><strong>Commerce</strong></td>
+<td>Magento, Odoo, WooCommerce (WordPress)</td>
+</tr>
+<tr>
+<td><strong>Content, comms &amp; learning</strong></td>
+<td>WordPress, Ghost, Moodle, Chatwoot, Rocket.Chat, Jitsi Meet</td>
+</tr>
+<tr>
+<td><strong>Classic stacks</strong></td>
+<td>LAMP, LEMP</td>
+</tr>
+<tr>
+<td><strong>Control panels</strong></td>
+<td>cPanel, aaPanel, CloudPanel, Cloudron, CyberPanel, Easypanel, HestiaCP, ISPConfig 3, WebAdmin, AdminBolt, Webuzo</td>
+</tr>
+<tr>
+<td><strong>Operating systems</strong></td>
+<td>AlmaLinux, Ubuntu, CentOS, Debian, Fedora, Rocky Linux</td>
+</tr>
+</tbody></table>
+<p>The picker&#39;s own header says &quot;Show all 45 apps&quot; — treat that as the current catalog size, because the list has grown with every snapshot.</p>
+<h3 id="the-four-flagship-agent-products-honestly-compared">The four flagship agent products, honestly compared</h3>
+<table>
+<thead>
+<tr>
+<th>Product</th>
+<th>What it is</th>
+<th>Best at</th>
+<th>The catch</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>OpenClaw</strong></td>
+<td>Self-hosted agent with messaging integrations</td>
+<td>Always-on multi-step agents; WhatsApp, Telegram, Discord, Slack; RBAC + audit logs</td>
+<td>Page title says &quot;self-managed,&quot; body copy says &quot;fully managed&quot; — the app is one-click, the server is still yours</td>
+</tr>
+<tr>
+<td><strong>n8n</strong></td>
+<td>Visual workflow automation</td>
+<td>Always-on webhooks, scheduled flows with retry logic, &quot;no timeout limits&quot;</td>
+<td>Workflows are only as reliable as the box; you own upgrades</td>
+</tr>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td>Terminal-first coding agent in a persistent workspace</td>
+<td>Repo work, refactors, long test runs that outlive your laptop</td>
+<td>Requires Claude Code access/account separately; it is a coding environment, not a chatbot host</td>
+</tr>
+<tr>
+<td><strong>Hermes Agent</strong></td>
+<td>Agent-first assistant with persistent memory and reusable skills</td>
+<td>Scheduled and recurring workflows; cron-driven tasks; OpenAI/OpenRouter/custom providers</td>
+<td>Its own comparison concedes OpenClaw is the stronger pick for orchestration-heavy pipelines</td>
+</tr>
+</tbody></table>
+<p>A useful way to read Bluehost&#39;s own positioning: <strong>Hermes is &quot;agent-first&quot; (memory and skills), OpenClaw is &quot;gateway-first&quot; (routing and orchestration), n8n is the workflow glue, and Claude Code is the developer.</strong> They coexist happily on one box — the FAQ confirms you can run &quot;n8n for workflow automation, OpenClaw for agentic app workflows and Claude Code for repo work from one persistent environment,&quot; best separated with containers, ports, or subdomains.</p>
+<h3 id="what-cannot-run-or-will-disappoint">What cannot run, or will disappoint</h3>
+<ul>
+<li><strong>No GPUs anywhere in the lineup.</strong> The Hermes FAQ is candid: <em>&quot;A GPU becomes more relevant if you plan to run local LLM inference directly on the same server.&quot;</em> Ollama works on these plans, but it is CPU inference — fine for small quantized models on light traffic, painful for anything larger. Bluehost&#39;s own suggested pattern is to &quot;pair it with a private local model&quot; for cost control, which is true, provided your expectations are sized to the CPU.</li>
+<li><strong>No Windows.</strong> Linux distributions only.</li>
+<li><strong>No high availability.</strong> One instance, one IP, one point of failure. Nothing on the pages advertises failover, load balancing, or multi-node orchestration — &quot;high availability ready&quot; on the VPS page means <em>you</em> can architect it, not that it ships.</li>
+<li><strong>No escape from the 25%/90-second clause</strong> described in Part 2.</li>
+<li><strong>No managed anything on self-managed plans</strong> — including the security patches, which matter more when the box holds your agent&#39;s memory and API keys.</li>
+</ul>
+<hr>
+</section><section id="part-5--choosing-a-plan-for-your-agent"><h2 id="part-5--choosing-a-plan-for-your-agent">Part 5 — Choosing a Plan for Your Agent</h2>
+<p><strong>The sizing question is not &quot;how big is my agent&quot; — it is &quot;how many processes, how much memory, and is there a local model.&quot;</strong> Agents themselves are light; embeddings, containers, browsers, and models are heavy.</p>
+<table>
+<thead>
+<tr>
+<th>Your workload</th>
+<th>Plan</th>
+<th>Why</th>
+<th>Monthly after renewal</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>One n8n instance with webhooks and a few workflows</td>
+<td>NVMe 4</td>
+<td>2 vCPU / 4 GB is the recommended starting tier in Bluehost&#39;s own Claude Code FAQ</td>
+<td>$8.25–$11.99</td>
+</tr>
+<tr>
+<td>Claude Code as a persistent dev box for one repo</td>
+<td>NVMe 4</td>
+<td>Their FAQ: &quot;start with the NVMe 4 plan&quot;</td>
+<td>$8.25–$11.99</td>
+</tr>
+<tr>
+<td>OpenClaw single agent + memory + a couple of integrations</td>
+<td>NVMe 4</td>
+<td>Memory store and agent fit comfortably; containers fit if lean</td>
+<td>$8.25–$11.99</td>
+</tr>
+<tr>
+<td>n8n + OpenClaw + memory + a panel or Coolify</td>
+<td>NVMe 8</td>
+<td>4 vCPU / 8 GB is the first comfortable multi-container size</td>
+<td>$16.50–$28.99</td>
+</tr>
+<tr>
+<td>Ollama with small local models, or Magento/Odoo</td>
+<td>NVMe 16</td>
+<td>8 vCPU / 16 GB; still CPU-only inference</td>
+<td>$34.88–$49.99</td>
+</tr>
+<tr>
+<td>Team workflows, compliance, &quot;just make it work&quot;</td>
+<td>Managed VPS / Dedicated</td>
+<td>Someone else holds the pager</td>
+<td>Quote</td>
+</tr>
+</tbody></table>
+<p><strong>Do the two-year math before you commit.</strong> Worked examples at the archived promo prices:</p>
+<div class="codewrap"><pre data-lang="text"><code>NVMe 8 on the main VPS page (Sept 2026 pricing)
+  First 24 months:   $12.99 x 24 = $311.76 due today
+  Months 25-36:      $28.99 x 12 = $347.88
+  Three-year total:  $659.64   (effective ~$18.32/mo)
+
+NVMe 4 on the agent pages (spring-summer 2026 pricing)
+  First 24 months:   $7.70 x 24  = $184.80
+  Months 25-36:      $8.25 x 12  = $99.00
+  Three-year total:  $283.80    (effective ~$7.88/mo)</code></pre></div>
+<p>Both are legitimate ways to host an agent. The first is a bigger box on a steeper renewal curve; the second is the &quot;agent bundle&quot; pricing that may or may not still be available when you read this. The lesson is not which number is right — it is that <strong>you cannot evaluate these plans from the headline month, and you should price the full 36 months before clicking.</strong></p>
+<p><strong>One upgrade note in your favor:</strong> scaling is genuinely one-click and preserves your data and IP. The sensible strategy is to start at NVMe 4, watch <code>htop</code> and disk for a month, and size up when the numbers — not the vibes — say so.</p>
+<hr>
+</section><section id="part-6--the-kinks-from-someone-who-read-the-fine-print"><h2 id="part-6--the-kinks-from-someone-who-read-the-fine-print">Part 6 — The Kinks (From Someone Who Read the Fine Print)</h2>
+<ol>
+<li><strong>The Agent Hosting page shipped with placeholder prices.</strong> In both the April and July 2026 archived snapshots, its pricing cards literally read <code>$xx/mo</code>, <code>Save XX%</code>, and <code>Renews at $x.xx /mo</code> in the Claude Code card. If a live page ever shows you something like that, trust the cart, not the card.</li>
+<li><strong>The same plan is priced differently depending on which page you buy from.</strong> NVMe 4: $9.49/renews $11.99 on the VPS page; $7.70/renews $8.25 on the agent pages. NVMe 8&#39;s renewal differs by more than $12/month between the two. Compare before you buy, and check whether the cheaper price is tied to a different term or bundle.</li>
+<li><strong>Headline prices are the cheapest corner of the matrix.</strong> &quot;Starting at just $2.09/mo&quot; (OpenClaw/Hermes heroes) sits above a table whose cheapest row is $3.85; &quot;From $4.18/mo&quot; (Agent Hosting CTA) sits above cards priced $7.70. Neither number is a lie — both are the smallest configuration, longest term, best promo — but neither is the price of the plan you will actually pick.</li>
+<li><strong>Renewal shock is real and steep on the bigger tiers.</strong> NVMe 8 goes $12.99 → $28.99 (+123%). Set a calendar reminder for month 23 and re-shop the market; renewal prices are &quot;the then current rate,&quot; and there is no published cap.</li>
+<li><strong>&quot;Self-managed&quot; and &quot;fully managed&quot; appear in the same breath.</strong> The OpenClaw page&#39;s own subtitle reads &quot;Deploy fully managed OpenClaw… no setup, no DevOps,&quot; while the page&#39;s title and support section say self-managed and infrastructure-only. The reconciliation: the <em>application</em> is one-click; the <em>server</em> is yours forever.</li>
+<li><strong>Support scope needs to be read, not assumed.</strong> &quot;24/7 Support*&quot; bullets, &quot;24/7 developer support&quot; banners, and &quot;Infrastructure Only Support&quot; sections coexist on the same properties. The asterisk is doing a lot of work.</li>
+<li><strong>The 25%-of-resources-for-90-seconds clause rides along on the agent pages too.</strong> It is a shared-hosting-shaped term on a product pitched at always-on workloads. Ask sales in writing what it means for your specific agent before prepaying.</li>
+<li><strong>No GPUs, and the FAQs admit it.</strong> Plan for hosted model providers, or small local models with modest expectations.</li>
+<li><strong>The documentation is the FAQ.</strong> The richest technical material Bluehost publishes for these products is the accordion FAQ on each landing page plus a handful of blog guides. The practical knowledge for running your stack will come from the open-source projects themselves — budget for that, not for vendor docs.</li>
+<li><strong>Taxes, gift cards, and add-ons are all &quot;checkout-time&quot; facts.</strong> VAT/GST excluded, gift-card promos are limited-time with their own terms, cPanel is +$14.99/mo, and premium support is a sales conversation. Read the cart line by line.</li>
+</ol>
+<hr>
+</section><section id="part-7--deploying-your-first-agent-a-working-skeleton"><h2 id="part-7--deploying-your-first-agent-a-working-skeleton">Part 7 — Deploying Your First Agent (A Working Skeleton)</h2>
+<p>The vendor&#39;s flow is three steps: buy a plan, click Manage, add API keys. That gets you a running app. This gets you a running app that survives the week.</p>
+<p><strong>1. Buy, then pick your stack.</strong> Choose the NVMe size (Part 5), then in the marketplace pick your app — OpenClaw, n8n, Hermes, Claude Code, or plain Ubuntu if you want to build it yourself. You land with root SSH and a dedicated IP.</p>
+<p><strong>2. First hour: harden the box.</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code># As root, on the fresh VPS
+adduser chris &amp;&amp; usermod -aG sudo chris
+rsync --archive --chown=chris:chris ~/.ssh /home/chris
+# then, as chris:
+ssh-copy-id chris@your-vps-ip   # from your laptop, if keys aren't in place
+
+# On the server: lock the front door
+sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
+sudo apt update &amp;&amp; sudo apt install -y ufw unattended-upgrades
+sudo ufw allow OpenSSH &amp;&amp; sudo ufw allow 80,443/tcp &amp;&amp; sudo ufw enable
+sudo dpkg-reconfigure -plow unattended-upgrades   # automatic security patches</code></pre></div>
+<p><strong>3. Install your runtime.</strong> For Node-based agents, either the app&#39;s own installer from the marketplace or:</p>
+<div class="codewrap"><pre data-lang="bash"><code>curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt install -y nodejs
+node --version</code></pre></div>
+<p>Docker-based stacks skip this — the one-click catalog already delivered containers; manage them with <code>docker compose</code>.</p>
+<p><strong>4. Run the agent as a service — the single most important step.</strong> An agent started in an SSH session dies with the session. systemd is what makes &quot;always-on&quot; true:</p>
+<div class="codewrap"><pre data-lang="ini"><code># /etc/systemd/system/my-agent.service
+[Unit]
+Description=My AI agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=chris
+WorkingDirectory=/home/chris/agent
+EnvironmentFile=/home/chris/agent/.env
+ExecStart=/usr/bin/node /home/chris/agent/index.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target</code></pre></div>
+<div class="codewrap"><pre data-lang="bash"><code>sudo systemctl daemon-reload
+sudo systemctl enable --now my-agent
+systemctl status my-agent --no-pager
+journalctl -u my-agent -f          # live logs</code></pre></div>
+<p><strong>5. Put the API gateway (or nginx) in front.</strong> If your plan&#39;s gateway is configured, point your custom domain at it and set auth and rate limits. If you are fronting the agent yourself:</p>
+<div class="codewrap"><pre data-lang="nginx"><code># /etc/nginx/sites-available/agent
+server {
+  listen 443 ssl;
+  server_name agent.example.com;
+
+  location / {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection &quot;upgrade&quot;;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+}</code></pre></div>
+<div class="codewrap"><pre data-lang="bash"><code>sudo ln -s /etc/nginx/sites-available/agent /etc/nginx/sites-enabled/
+sudo nginx -t &amp;&amp; sudo systemctl reload nginx
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d agent.example.com</code></pre></div>
+<p><strong>6. Give it memory that survives.</strong> If you use the included pgvector/Chroma service, treat its data directory as production data — it lives on your NVMe and nowhere else. If you are rolling your own:</p>
+<div class="codewrap"><pre data-lang="yaml"><code># docker-compose.yml — pgvector as agent memory
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: change-me
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:</code></pre></div>
+<p><strong>7. Schedule the recurring work with cron, not vibes.</strong></p>
+<div class="codewrap"><pre data-lang="bash"><code>crontab -e
+# Every 15 minutes: run the agent's queue drain
+*/15 * * * * cd /home/chris/agent &amp;&amp; /usr/bin/node run-queue.js &gt;&gt; /var/log/agent-queue.log 2&gt;&amp;1</code></pre></div>
+<p><strong>8. Back up off the box, and test the restore.</strong> No managed backup is advertised on these plans, so:</p>
+<div class="codewrap"><pre data-lang="bash"><code># Nightly at 03:00: database dump + project archive to remote storage
+0 3 * * * pg_dump -U postgres agentdb | gzip &gt; /tmp/agentdb-$(date +\%F).sql.gz &amp;&amp; \
+  rsync -az /tmp/agentdb-*.sql.gz /home/chris/agent /backup-remote:agent-backups/</code></pre></div>
+<p><strong>9. Monitor the one thing that matters.</strong> A dead agent is worse than no agent — it fails silently. Point any uptime service at your gateway&#39;s health endpoint, and alert on non-200s. <code>systemctl status</code> tells you what happened after; the health check tells you it happened.</p>
+<p><strong>10. When you outgrow it, resize — don&#39;t migrate.</strong> Upgrades are one-click and keep your data and IP. Watch <code>htop</code> (RAM headroom) and <code>df -h</code> (NVMe fills fast once models and containers land), and size up before you are paged.</p>
+<hr>
+</section><section id="cheat-sheet"><h2 id="cheat-sheet">Cheat Sheet</h2>
+<p><strong>The two price lists (archive-verified)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Specs</th>
+<th>VPS page (Sept 2026)</th>
+<th>Agent pages (spring–summer 2026)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NVMe 2</td>
+<td>1 vCPU · 2 GB · 50 GB</td>
+<td>$4.69 → $5.69</td>
+<td>$3.85 → $4.13</td>
+</tr>
+<tr>
+<td>NVMe 4</td>
+<td>2 vCPU · 4 GB · 100 GB</td>
+<td>$9.49 → $11.99</td>
+<td>$7.70 → $8.25</td>
+</tr>
+<tr>
+<td>NVMe 8</td>
+<td>4 vCPU · 8 GB · 200 GB</td>
+<td>$12.99 → $28.99</td>
+<td>$15.40 → $16.50</td>
+</tr>
+<tr>
+<td>NVMe 16</td>
+<td>8 vCPU · 16 GB · 450 GB</td>
+<td>$25.99 → $49.99</td>
+<td>$32.55 → $34.88</td>
+</tr>
+</tbody></table>
+<p><strong>Included at every tier:</strong> root SSH + API · dedicated static IP · unmetered bandwidth · free auto-renewed SSL · DDoS protection · 99.99% SLA · five data centers · one-click deploys and upgrades. <strong>Extra:</strong> cPanel +$14.99/mo.</p>
+<p><strong>Commands you will actually use</strong></p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ssh root@&lt;ip&gt;</code></td>
+<td>First login; then create a user and disable root/password auth</td>
+</tr>
+<tr>
+<td><code>ufw allow OpenSSH &amp;&amp; ufw enable</code></td>
+<td>Firewall, minimum viable</td>
+</tr>
+<tr>
+<td><code>systemctl enable --now &lt;service&gt;</code></td>
+<td>Make an agent survive reboots and SSH exits</td>
+</tr>
+<tr>
+<td><code>journalctl -u &lt;service&gt; -f</code></td>
+<td>Live agent logs</td>
+</tr>
+<tr>
+<td><code>docker compose up -d</code></td>
+<td>Run catalog-installed containers</td>
+</tr>
+<tr>
+<td><code>certbot --nginx -d &lt;domain&gt;</code></td>
+<td>Free SSL on your own proxy</td>
+</tr>
+<tr>
+<td><code>crontab -e</code></td>
+<td>Scheduled agent runs</td>
+</tr>
+<tr>
+<td><code>df -h</code> / <code>htop</code> / <code>free -h</code></td>
+<td>The three commands that tell you when to resize</td>
+</tr>
+<tr>
+<td><code>pg_dump</code> + <code>rsync</code></td>
+<td>Your entire backup strategy, realistically</td>
+</tr>
+</tbody></table>
+<p><strong>The decision in one line:</strong> NVMe 4 for your first agent; NVMe 8 when containers multiply; NVMe 16 only when a local model or a commerce stack forces it.</p>
+<hr>
+</section><section id="troubleshooting"><h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent dies when you close the SSH window</td>
+<td>Process attached to the session</td>
+<td>Run under systemd (Part 7, step 4) or <code>tmux</code> at minimum</td>
+</tr>
+<tr>
+<td>Agent killed overnight, logs end abruptly</td>
+<td>OOM killer; agent + memory + containers exceed RAM</td>
+<td>Add swap as a cushion, trim the stack, or move up a tier</td>
+</tr>
+<tr>
+<td>502 from your domain, agent is &quot;running&quot;</td>
+<td>Proxy pointing at the wrong port, or agent bound to localhost only</td>
+<td>Check <code>proxy_pass</code> port and the agent&#39;s bind address</td>
+</tr>
+<tr>
+<td>Webhook never fires</td>
+<td>Firewall, gateway config, or app not exposing the route</td>
+<td><code>ufw status</code>, then the gateway&#39;s webhook listener config, then app logs</td>
+</tr>
+<tr>
+<td>CPU pinned at 100% for minutes at a time</td>
+<td>Local model inference (Ollama) on shared-ish CPU; or a runaway loop</td>
+<td>Expect CPU-bound inference; cap concurrency; move big models to a hosted API</td>
+</tr>
+<tr>
+<td>&quot;No space left on device&quot; on a 50–100 GB disk</td>
+<td>Models, container layers, and logs</td>
+<td><code>du -sh /var/lib/docker/*</code>, prune images, consider NVMe 8+</td>
+</tr>
+<tr>
+<td>Agent forgets everything after a restart</td>
+<td>Memory store on a container-internal path, not a volume</td>
+<td>Mount the pgvector/Chroma data directory as a persistent volume</td>
+</tr>
+<tr>
+<td>Renewal invoice is 2× the intro price</td>
+<td>The promo ended; you are at &quot;the then current rate&quot;</td>
+<td>Calendar month 23; re-shop or downgrade before it hits</td>
+</tr>
+<tr>
+<td>Support says &quot;that&#39;s outside infrastructure scope&quot;</td>
+<td>Self-managed plan; app layer is yours</td>
+<td>Expected; escalate as infrastructure only if the hypervisor is at fault</td>
+</tr>
+<tr>
+<td>Gift card never arrived</td>
+<td>Promo terms and timing</td>
+<td>Check the offer&#39;s terms at checkout; chase support with the order number</td>
+</tr>
+<tr>
+<td>Agent works, but only from your laptop</td>
+<td>Cloud firewall / gateway auth blocking external calls</td>
+<td>Verify the public endpoint with <code>curl</code> from a different network</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="video-library"><h2 id="video-library">Video Library</h2>
+<p>YouTube <strong>search</strong> links only — pricing and catalog pages change too fast for fixed links.</p>
+<table>
+<thead>
+<tr>
+<th>Search</th>
+<th>What you&#39;ll find</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://www.youtube.com/results?search_query=Bluehost+VPS+review" target="_blank" rel="noopener">Bluehost VPS review</a></td>
+<td>Honest third-party walkthroughs of the platform</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=OpenClaw+tutorial" target="_blank" rel="noopener">OpenClaw tutorial</a></td>
+<td>Setting up the flagship agent</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=self+host+n8n+VPS" target="_blank" rel="noopener">self-host n8n VPS</a></td>
+<td>Always-on workflows and webhooks</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Claude+Code+on+a+VPS" target="_blank" rel="noopener">Claude Code on a VPS</a></td>
+<td>Persistent coding-agent environments</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Ollama+VPS+CPU+inference" target="_blank" rel="noopener">Ollama VPS CPU inference</a></td>
+<td>What local models actually feel like without a GPU</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=systemd+service+node+app" target="_blank" rel="noopener">systemd service node app</a></td>
+<td>The &quot;always-on&quot; skill, taught properly</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=nginx+reverse+proxy+node" target="_blank" rel="noopener">nginx reverse proxy node</a></td>
+<td>Fronting your agent with a domain and SSL</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=pgvector+tutorial" target="_blank" rel="noopener">pgvector tutorial</a></td>
+<td>The memory store, from the database up</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=Ubuntu+VPS+hardening" target="_blank" rel="noopener">Ubuntu VPS hardening</a></td>
+<td>First-hour security for a root-access box</td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/results?search_query=n8n+webhook+always+on" target="_blank" rel="noopener">n8n webhook always on</a></td>
+<td>Reliable webhook patterns</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="written-references--docs"><h2 id="written-references--docs">Written References &amp; Docs</h2>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent Hosting (the product page)</td>
+<td><code>https://www.bluehost.com/agent-hosting</code></td>
+</tr>
+<tr>
+<td>Self-Managed VPS (the hardware line)</td>
+<td><code>https://www.bluehost.com/vps-hosting</code></td>
+</tr>
+<tr>
+<td>OpenClaw VPS</td>
+<td><code>https://www.bluehost.com/vps-hosting/openclaw</code></td>
+</tr>
+<tr>
+<td>n8n VPS</td>
+<td><code>https://www.bluehost.com/vps-hosting/n8n</code></td>
+</tr>
+<tr>
+<td>Claude Code VPS</td>
+<td><code>https://www.bluehost.com/vps-hosting/claude-code</code></td>
+</tr>
+<tr>
+<td>Hermes Agent VPS</td>
+<td><code>https://www.bluehost.com/vps-hosting/hermes-agent</code></td>
+</tr>
+<tr>
+<td>Managed VPS (the &quot;I don&#39;t want to be the sysadmin&quot; option)</td>
+<td><code>https://www.bluehost.com/vps-hosting/managed</code></td>
+</tr>
+<tr>
+<td>Shared hosting (for contrast — what agents can&#39;t live on)</td>
+<td><code>https://www.bluehost.com/hosting/shared</code></td>
+</tr>
+<tr>
+<td>Best open-source AI agent frameworks (Bluehost blog)</td>
+<td><code>https://www.bluehost.com/blog/best-open-source-ai-agent-frameworks/</code></td>
+</tr>
+<tr>
+<td>n8n AI agent guide (Bluehost blog)</td>
+<td><code>https://www.bluehost.com/blog/n8n-ai-agent/</code></td>
+</tr>
+<tr>
+<td>Terms of Service (the 25%/90-second clause)</td>
+<td>Linked from the footer of every Bluehost page</td>
+</tr>
+<tr>
+<td>Server status</td>
+<td>Linked from the Support menu on bluehost.com</td>
+</tr>
+<tr>
+<td>Internet Archive snapshots used for verification</td>
+<td><code>https://web.archive.org/web/*/bluehost.com/agent-hosting</code></td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="glossary"><h2 id="glossary">Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Agent Hosting</strong></td>
+<td>Bluehost&#39;s umbrella product: self-managed VPS + agent catalog + vector memory + API gateway</td>
+</tr>
+<tr>
+<td><strong>Self-managed VPS</strong></td>
+<td>A virtual machine with root access where you run the OS and everything above it</td>
+</tr>
+<tr>
+<td><strong>Managed VPS</strong></td>
+<td>A VPS where Bluehost handles updates and monitoring for you</td>
+</tr>
+<tr>
+<td><strong>Intro price</strong></td>
+<td>Promotional monthly rate, tied to a 24- or 36-month term</td>
+</tr>
+<tr>
+<td><strong>Renewal price</strong></td>
+<td>The rate after the promo term, at &quot;the then current rate&quot;</td>
+</tr>
+<tr>
+<td><strong>Due today</strong></td>
+<td>Intro price × term length, charged up front</td>
+</tr>
+<tr>
+<td><strong>KVM isolation</strong></td>
+<td>Hardware-level virtualization giving each VPS dedicated CPU/RAM allocations</td>
+</tr>
+<tr>
+<td><strong>NVMe SSD</strong></td>
+<td>High-throughput storage protocol; the Claude Code page cites &gt;3,000 MB/s</td>
+</tr>
+<tr>
+<td><strong>Root access</strong></td>
+<td>The master key to the server; required for installing anything</td>
+</tr>
+<tr>
+<td><strong>Persistent vector memory</strong></td>
+<td>An embeddings store (pgvector or Chroma) that survives restarts</td>
+</tr>
+<tr>
+<td><strong>pgvector</strong></td>
+<td>Postgres extension for vector similarity search</td>
+</tr>
+<tr>
+<td><strong>Chroma</strong></td>
+<td>Open-source vector database, the alternative memory option</td>
+</tr>
+<tr>
+<td><strong>API gateway</strong></td>
+<td>Front door for HTTP: auth, rate limits, transforms, webhook listeners</td>
+</tr>
+<tr>
+<td><strong>Zero cold start</strong></td>
+<td>Process stays warm 24/7; no serverless-style wake-up delay</td>
+</tr>
+<tr>
+<td><strong>Unmetered bandwidth</strong></td>
+<td>No per-GB billing, subject to the Terms of Service resource clause</td>
+</tr>
+<tr>
+<td><strong>25%/90-second clause</strong></td>
+<td>ToS limit on sustained system-resource use; the fine print that matters for hot workloads</td>
+</tr>
+<tr>
+<td><strong>99.99% uptime SLA</strong></td>
+<td>Uptime promise with a modest credit remedy (5% of one month, claimed within 30 days)</td>
+</tr>
+<tr>
+<td><strong>OpenClaw</strong></td>
+<td>Self-hosted agent framework with messaging integrations and RBAC</td>
+</tr>
+<tr>
+<td><strong>Hermes Agent</strong></td>
+<td>Agent-first assistant with persistent memory and reusable skills</td>
+</tr>
+<tr>
+<td><strong>n8n</strong></td>
+<td>Visual workflow automation tool, first-class on this platform</td>
+</tr>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td>Anthropic&#39;s terminal-first coding agent; needs its own account</td>
+</tr>
+<tr>
+<td><strong>GatorClaw / NanoClaw</strong></td>
+<td>Bluehost-adjacent agent tools in the one-click catalog</td>
+</tr>
+</tbody></table>
+<hr>
+</section><section id="faq--next-steps"><h2 id="faq--next-steps">FAQ &amp; Next Steps</h2>
+<p><strong>Is Agent Hosting a different product from the Self-Managed VPS?</strong> Same hardware, different wrapper and landing pages. The agent layer adds the curated catalog, the vector memory store, the API gateway, and agent-shaped copy. The prices differ between the two paths, so compare carts.</p>
+<p><strong>Can I run an agent on the $3.99 shared plan instead?</strong> No. Shared hosting is pooled, managed, and built for websites. Agents need allocated resources, root, and a process supervisor — the VPS line exists for exactly this reason.</p>
+<p><strong>What will I actually pay?</strong> Whatever the cart says, times 24. Then whatever the renewal rate says after that. The two numbers to record in your notes: intro × term = due today, and renewal rate = your future bill.</p>
+<p><strong>Do I need a GPU?</strong> Only for local model inference. Hosted model providers (Anthropic, OpenAI, OpenRouter) work fine from these boxes — Bluehost&#39;s own FAQ says so.</p>
+<p><strong>Can I run several agents on one server?</strong> Yes — their FAQ explicitly blesses n8n + OpenClaw + Claude Code on one persistent environment, recommending containers, services, ports, or subdomains to keep runtimes separate.</p>
+<p><strong>Is this cheaper than a bare VPS elsewhere?</strong> Sometimes, for 24 months, at promo prices — the agent-page NVMe 4 at $7.70/mo is genuinely competitive. The renewal prices are less so. You are buying the catalog, the extras, and the brand&#39;s support org; price the alternative honestly and decide what that is worth.</p>
+<p><strong>What should I read next in this series?</strong></p>
+<ul>
+<li><a href="04-local-on-device-ai-stack.html">The Local, On-Device AI Stack</a> — the model side of &quot;pair it with a private local model.&quot;</li>
+<li><a href="02-prompt-injection-agent-security.html">Prompt Injection &amp; Agent Security</a> — read before you expose any agent to the open web.</li>
+<li><a href="07-containers-dev-environments-macos.html">Containers &amp; Dev Environments on macOS</a> — the container instincts that keep a multi-agent VPS sane.</li>
+<li><a href="graphify-obsidian-ai-agent-guide.html">Graphify + Obsidian: An AI Agent Guide</a> — agent workflows for knowledge work.</li>
+<li><a href="linear-opencode-workflow.html">The Linear + opencode Workflow</a> — what a terminal-first coding agent workflow looks like in practice.</li>
+</ul>
+<hr>
+</section><section id="verification-note"><h2 id="verification-note">Verification Note</h2>
+<p>Verified in September 2026 against Bluehost&#39;s own pages where reachable, and against Internet Archive snapshots where the live site served a bot challenge. Specifically: the shared hosting page (snapshot 19 September 2026) for the shared tiers, money-back terms, free-domain policy, and SLA credit language; the Self-Managed VPS page (snapshot 23 September 2026) for the main price list, specifications, catalog, cPanel add-on, and support scope; the Agent Hosting page (snapshots 22 April and 1 July 2026 — identical) for the specification table, badges, use cases, FAQ answers, and the $7.70/$9.35 pricing cards, including the placeholder values (&quot;$xx&quot;, &quot;Save XX%&quot;, &quot;$x.xx&quot;) that shipped in its template; the OpenClaw, Hermes Agent, and Claude Code VPS pages (snapshots 1 July, 3 May, and 17 June 2026 respectively) for the agent-page price list, per-app FAQs, and claims such as &quot;Best VPS, April 2026&quot; and &quot;NVMe storage &gt;3,000 MB/s.&quot;</p>
+<p>Promotional pricing rotates frequently — every price in this paper is dated in the text for that reason. Renewal prices and the Terms of Service clause are the stable anchors; where a detail was not on any page (backups, HA, refunds on VPS plans), the paper says &quot;not advertised&quot; rather than guessing. Nothing has been invented.</p>
+<hr>
+</section><section id="your-setup-notes"><h2 id="your-setup-notes">Your Setup Notes</h2>
+<div class="codewrap"><pre data-lang="text"><code>THE DECISION
+  Which page am I buying from?       VPS page / agent page / other: ________
+  Tier chosen:                       NVMe 2 / 4 / 8 / 16
+  Intro price recorded:              $________ /mo
+  Renewal price recorded:            $________ /mo
+  Term:                              ＿＿ months
+  Due today (intro x term):          $________
+  Cart screenshot saved:             [ ]
+
+THE AGENT
+  App (catalog or custom):           ____________________
+  Model provider + keys stored:      ____________________
+  Memory store:                      pgvector / Chroma / none
+  API gateway configured:            [ ] domain: ____________________
+
+THE BORING STUFF THAT SAVES YOU
+  SSH keys installed, password auth off:   [ ]
+  ufw enabled:                             [ ]
+  Unattended upgrades on:                  [ ]
+  systemd service name:                    ____________________
+  Health-check URL + monitor:              ____________________
+  Backups run where:                       ____________________
+  Restore tested on:                       ____________________
+
+THE CALENDAR
+  Month 23 reminder to re-shop renewal:    [ ] date: ____________
+  Disk/RAM review (df -h, htop):           monthly on the ____th</code></pre></div>
+<hr>
+</section>
+</main>
+</div>
+<footer class="guidefoot">
+  <span class="cat">Infra &amp; Dev Env</span> · 7 parts · ~26 min · Generated from <code>markdown_docs/24-bluehost-agent-hosting.md</code>
+</footer>
+<script src="../assets/theme.js"></script>
+<script src="../assets/guide.js"></script>
+</body>
+</html>
